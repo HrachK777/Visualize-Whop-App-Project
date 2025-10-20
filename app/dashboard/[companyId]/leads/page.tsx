@@ -17,6 +17,8 @@ export default function LeadsPage() {
   ];
 
   return (
+    <div>
+      {/* <DashboardTabs company_id={companyId} /> */}
     <div className="min-h-screen bg-[#f7f9fc] p-6">
 
       {/* Page Title */}
@@ -95,6 +97,7 @@ export default function LeadsPage() {
         </div>
 
       </div>
+    </div>
     </div>
   );
 }

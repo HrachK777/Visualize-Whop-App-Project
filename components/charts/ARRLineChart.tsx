@@ -29,7 +29,7 @@ const data = [
 ];
 
 const COLORS = {
-    line: '#151618ff', // Tailwind gray-800
+    line: '#0f2940', // Tailwind gray-800
     grid: '#c8cfdcff', // Tailwind gray-200
     axis: '#6b7280', // Tailwind gray-500
 };
@@ -95,40 +95,40 @@ export default function ARRLineChart() {
                         <defs>
                             <linearGradient id="colorARR" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="5%" stopColor={COLORS.line} stopOpacity={0.4} />
-                                <stop offset="95%" stopColor={COLORS.line} stopOpacity={0} />
+                                <stop offset="95%" stopColor={COLORS.line} stopOpacity={0.05} />
                             </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke={COLORS.grid} />
-                        <XAxis dataKey="ARR" stroke={COLORS.axis} />
+                        <XAxis dataKey="ARR" stroke={COLORS.axis}  tick={{ fill: COLORS.axis, fontSize: 12 }} />
                         {/* <YAxis
-                        stroke={COLORS.axis}
-                        tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-                    /> */}
+                            stroke={COLORS.axis}
+                            tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                        /> */}
                         {/* <Tooltip content={<CustomTooltip />} /> */}
                         <Tooltip
                             contentStyle={{ backgroundColor: 'white', border: '1px solid #ccc', borderRadius: '6px' }}
                             formatter={(value) => `$${value.toLocaleString()}`}
                             labelStyle={{ fontWeight: 'bold' }}
                         />
-                        <Legend
+                        {/* <Legend
                             wrapperStyle={{ paddingTop: 10 }}
                             formatter={(value) => (
                                 <span className="capitalize text-gray-700 font-medium">{value}</span>
                             )}
-                        />
+                        /> */}
                         {/* Blue filled area under the line */}
-                        <Area
+                        {/* <Area
                             type="monotone"
                             dataKey="ARR"
                             stroke="none"
                             fill="url(#colorARR)"
-                        />
+                        /> */}
                         <Line
                             type="monotone"
                             dataKey="ARR"
                             stroke={COLORS.line}
                             strokeWidth={3}
-                            dot={{ r: 4 }}
+                            dot={{ fill: '#0f2940', r: 4 }}
                             activeDot={{ r: 6 }}
                             fillOpacity={1}
                             fill="url(#colorARR)"
@@ -136,7 +136,6 @@ export default function ARRLineChart() {
                             label={CustomizedLabel}
                         />
                     </LineChart>
-                    {/* // </div> */}
                 </ResponsiveContainer>
             </div>
         </div>

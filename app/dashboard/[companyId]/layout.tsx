@@ -8,6 +8,7 @@ import { use, useEffect, useState } from "react";
 import MainSidebar from "@/components/MainSidebar";
 import SubSidebar from '@/components/SubSidebar';
 import DashboardTabs from "@/components/DashboardTabs";
+import { usePathname } from 'next/navigation'
 
 export default function DashboardLayout({
   children,
@@ -22,6 +23,14 @@ export default function DashboardLayout({
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState('dashboard');
+  const pathname = usePathname();
+
+  // Extract the last segment of the path (e.g., 'customers', 'reports', etc.)
+  const isDashboardPage =
+    pathname?.includes('/dashboard/') &&
+    !pathname?.includes('/customers') &&
+    !pathname?.includes('/reports') &&
+    !pathname?.includes('/settings');
 
   useEffect(() => {
     async function checkSubscription() {
@@ -86,12 +95,12 @@ export default function DashboardLayout({
         {/* <Sidebar companyId={companyId} /> */}
         <MainSidebar active={active} setActive={setActive} companyId={companyId} />
         <SubSidebar active={active} companyId={companyId} />
-        <div className="flex-1 flex flex-col">
+        <div className={`flex-1 flex flex-col`}>
           {/* <DashboardHeader companyId={companyId} /> */}
+          {isDashboardPage && <DashboardTabs companyId={companyId} />}
           <main
-            className={`flex-1 transition-all duration-300 pt-6 ${
-              collapsed ? "ml-16" : "ml-80"
-            }`}
+            className={`flex-1 transition-all duration-300 pt-6 ${collapsed ? "ml-16" : "ml-80"
+          }`}
           >
             {children}
           </main>
