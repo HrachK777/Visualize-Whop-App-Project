@@ -23,23 +23,58 @@ const sections = {
       {
         label: "Recurring Revenue",
         items: [
-          "MRR",
-          "ARR",
-          "New MRR",
-          "Expansion MRR",
-          "Contraction MRR",
-          "Churned MRR",
-          "Reactivation MRR",
-          "Net MRR MRR",
+          {
+            title: "MRR",
+            href: "/reports/mrr"
+          },
+          {
+            title: "ARR",
+            href: "/reports/arr"
+          },
+          {
+            title: "New MRR",
+            href: "/reports/new-mrr"
+          },
+          {
+            title: "Expansion MRR",
+            href: "/reports/expansion-mrr"
+          },
+          {
+            title: "Contraction MRR",
+            href: "/reports/contraction-mrr"
+          },
+          {
+            title: "Churned MRR",
+            href: "/reports/churned-mrr"
+          },
+          {
+            title: "Reactivation MRR",
+            href: "/reports/reactivation-mrr"
+          },
+          {
+            title: "Net New MRR",
+            href: "/reports/net-new-mrr"
+          },
         ],
       },
       {
         label: "Churn & Retention",
-        items: ["Customer Churn Rate", "MRR Churn Rate", "ARPU", "ARPA", "LTV"],
+        items: [
+          {title: "Customer Churn Rate", href: "/reports/customer-churn-rate"},
+          {title: "MRR Churn Rate", href: "/reports/mrr-churn-rate"},
+          {title: "ARPU", href: "/reports/arpu"},
+          {title: "ARPA", href: "/reports/arpa"},
+          {title: "LTV", href: "/reports/ltv"}
+        ],
       },
       {
         label: "Leads & Conversions",
-        items: ["Leads", "Free Trials", "Trial → Paid Conversions", "Cohorts"],
+        items: [
+          {title: "Leads", href: "/reports/leads"},
+          {title: "Free Trials", href: "/reports/free-trials"},
+          {title: "Trial → Paid Conversions", href: "/reports/trial-to-paid-conversions"},
+          {title: "Cohorts", href: "/reports/cohorts"},
+        ],
       },
     ],
   },
@@ -52,14 +87,17 @@ const sections = {
           {
             title: "All new leads",
             icon: <IoFolder className="w-4 h-4" />,
+            href: "/customers/all-new-leads"
           },
           {
             title: "My working leads",
             icon: <FactoryIcon className="w-4 h-4" />,
+            href: "/customers/my-working-leads"
           },
           {
             title: "My new leads",
             icon: <FanIcon className="w-4 h-4" />,
+            href: "/customers/my-new-leads"
           },
         ],
       },
@@ -69,10 +107,12 @@ const sections = {
           {
             title: "Past due customers",
             icon: <AmbulanceIcon className="w-4 h-4" />,
+            href: "/customers/past-due-customers"
           },
           {
             title: "Renewing in < 7days",
             icon: <NewspaperIcon className="w-4 h-4" />,
+            href: "/customers/renewing-in-7-days"
           },
         ],
       },
@@ -81,22 +121,27 @@ const sections = {
           {
             title: "Leads to revisit",
             icon: <TvIcon className="w-4 h-4" />,
+            href: "/customers/leads-to-revisit"
           },
           {
             title: "High-value accounts",
             icon: <TvIcon className="w-4 h-4" />,
+            href: "/customers/high-value-accounts"
           },
           {
             title: "Top wins from this week",
             icon: <TvIcon className="w-4 h-4" />,
+            href: "/customers/top-wins-from-this-week"
           },
           {
             title: "Customers with > 1 subscription",
             icon: <TvIcon className="w-4 h-4" />,
+            href: "/customers/customers-with-more-than-one-subscription"
           },
           {
             title: "Discounted customers",
             icon: <TvIcon className="w-4 h-4" />,
+            href: "/customers/discounted-customers"
           },
         ],
       },
@@ -109,7 +154,7 @@ export default function SubSidebar({ active, companyId }: any) {
   const collapsed = useSidebarStore((state) => state.collapsed);
   const setCollapsed = useSidebarStore((state) => state.setCollapsed);
   const pathname = usePathname();
-  const isActive = (path: string) => pathname === path;
+  const isActive = (path: string) => pathname.includes(path);
 
   useEffect(() => {
     if (section) {
@@ -140,10 +185,11 @@ export default function SubSidebar({ active, companyId }: any) {
               {group.items?.map((item, j) => (
                 <li key={j}>
                   <Link
-                    href="#"
+                    href={`/dashboard/${companyId}/${item.href}`}
                     className={clsx(
                       "block rounded-md py-1.5  hover:bg-gray-100 hover:text-gray-900 transition-all",
-                      group.label ? "px-6 text-sm text-gray-700" : "text-gray-800 uppercase text-[11px] font-medium"
+                      group.label ? "px-6 text-sm text-gray-700" : "text-gray-800 uppercase text-[11px] font-medium",
+                      isActive(item.href) == true ? "bg-gray-200 text-gray-900" : ""
                     )}
                   >
                     {typeof item === "object" && item !== null ? (
