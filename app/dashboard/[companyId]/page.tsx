@@ -118,21 +118,6 @@ export default function DashboardPage({ params }: { params: Promise<{ companyId:
 
   return (
     <div className="px-8 min-h-screen bg-[#f7f9fc]">
-      {/* Page content */}
-        {/* Page Title */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-800 flex items-center gap-2">
-          Home <Settings className="h-5 w-5 text-gray-400" />
-        </h1>
-        <div className="grid grid-cols-2 items-center m-3 border border-gray-200 rounded-md divide-x-2 divide-gray-200 bg-white">
-          <button className='hover:bg-gray-100 cursor-pointer'>
-            <SortDescIcon className="inline-block px-1 mx-3 w-8 h-8 text-gray-600" />
-          </button>
-          <button className='hover:bg-gray-100 cursor-pointer'>
-            <PlusIcon className="inline-block px-1 mx-3 w-8 h-8 text-gray-600" />
-          </button>
-        </div>
-      </div>
       {/* Grid Layout */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {/* Left Top Wins */}
