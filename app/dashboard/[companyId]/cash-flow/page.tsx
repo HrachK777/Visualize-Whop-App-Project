@@ -1,120 +1,183 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import { MetricsChart } from '@/components/charts/MetricsChart'
-import { DataTable } from '@/components/charts/DataTable'
+import { Settings } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
 
-interface AnalyticsData {
-  cashFlow: {
-    gross: number
-    net: number
-    recurring: number
-    nonRecurring: number
-  }
-}
+const netCashFlowData = [
+  { month: 'Aug', current: 0, previous: 0 },
+  { month: 'Sep', current: 0, previous: 0 },
+  { month: 'Oct', current: 7164, previous: 5000 },
+];
 
-interface ChartDataPoint {
-  date: string
-  value: number
-}
+const compoundingCashflowsData = [
+  { month: 'Aug', current: 0, previous: 0 },
+  { month: 'Sep', current: 0, previous: 0 },
+  { month: 'Oct', current: 4000, previous: 2500 },
+];
 
-export default function CashFlowPage({ params }: { params: Promise<{ companyId: string }> }) {
-  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
-  const [chartData, setChartData] = useState<ChartDataPoint[]>([])
-  const [loading, setLoading] = useState(true)
+const refundsData = [
+  { month: 'Aug', current: 0, previous: 0 },
+  { month: 'Sep', current: 0, previous: 0 },
+  { month: 'Oct', current: 237, previous: 320 },
+];
 
-  useEffect(() => {
-    params.then((p) => {
-      fetch(`/api/analytics/enriched?company_id=${p.companyId}`)
-        .then(res => res.json())
-        .then((currentData) => {
-          setAnalytics(currentData)
-          // Create simple chart data from current metrics
-          const now = new Date()
-          setChartData([{
-            date: now.toISOString(),
-            value: currentData.cashFlow?.net || 0
-          }])
-          setLoading(false)
-        })
-        .catch(() => {
-          // Error fetching data
-          setLoading(false)
-        })
-    })
-  }, [params])
+const pastDueCustomers = [
+  { name: 'Sam Romanias', due: 'Oct 15, 2025', renewal: 'Nov 15, 2025', arr: '$1,440' },
+  { name: 'Yarom Peretz', due: 'Oct 13, 2025', renewal: 'Nov 13, 2025', arr: '$1,440' },
+  { name: 'Johnathan Mcilvain', due: 'Oct 11, 2025', renewal: 'Nov 11, 2025', arr: '$1,440' },
+  { name: 'Ethan Welsh', due: 'Oct 11, 2025', renewal: 'Nov 11, 2025', arr: '$1,440' },
+  { name: 'Steven Ezon', due: 'Oct 11, 2025', renewal: 'Nov 11, 2025', arr: '$1,440' },
+  { name: 'Sohaib Khan', due: 'Oct 3, 2025', renewal: 'Nov 3, 2025', arr: '$1,440' },
+];
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading cash flow data...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!analytics) {
-    return (
-      <div className="p-8">
-        <p className="text-red-600">Failed to load cash flow data</p>
-      </div>
-    )
-  }
-
+export default function CashFlowPage() {
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">💰 Cash Flow</h1>
-        <p className="text-gray-600 mt-1">Monitor your revenue streams and cash flow metrics</p>
+    <div className="flex flex-wrap gap-6 min-h-screen bg-[#f7f9fc] px-6">
+      {/* Left column */}
+      <div className="flex flex-col gap-6 flex-[1_1_0%] min-w-[600px]">
+        {/* Net Cash Flow */}
+        <div className="bg-white rounded-lg shadow-sm p-5">
+          <div className="flex items-center text-center justify-between">
+            <h2 className="font-semibold text-gray-800">Net Cash Flow</h2>
+            <div className="flex gap-10 md:gap-20">
+              <div>
+                <p className="text-2xl font-bold text-gray-800">$7,164</p>
+                <p className="text-xs text-gray-500">Last 30 days</p>
+              </div>
+              <p className="text-xs text-gray-400">
+                <strong className='text-xl text-blue-600 font-bold'>+45.13%</strong><br />
+                Prev 30 days</p>
+            </div>
+          </div>
+
+          <div className='h-[150px]'>
+            <ResponsiveContainer width="100%">
+              <BarChart data={netCashFlowData}>
+                <CartesianGrid stroke="#f0f2f5" vertical={false} />
+                {/* <XAxis dataKey="month" tickLine={false} axisLine={false} />
+              <YAxis tickLine={false} axisLine={false} /> */}
+                <Tooltip />
+                <Bar dataKey="current" fill="#0f2940" radius={[4, 4, 0, 0]} barSize={25} />
+                <Bar dataKey="previous" fill="url(#patternGray)" barSize={25} />
+                <defs>
+                  <pattern
+                    id="patternGray"
+                    patternUnits="userSpaceOnUse"
+                    width="6"
+                    height="6"
+                  >
+                    <rect width="6" height="6" fill="#94a3b8" opacity="0.2" />
+                    <path d="M0 0L6 6ZM-1 5L5 -1ZM5 7L7 5Z" stroke="#475569" strokeWidth="0.5" />
+                  </pattern>
+                </defs>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Compounding Cashflows */}
+        <div className="bg-white rounded-lg shadow-sm p-5">
+          <h2 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+            💸 Compounding cashflows
+          </h2>
+
+          <div className='h-[250px]'>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={compoundingCashflowsData}>
+                <CartesianGrid stroke="#f0f2f5" vertical={false} />
+                {/* <XAxis dataKey="month" tickLine={false} axisLine={false} />
+              <YAxis tickLine={false} axisLine={false} /> */}
+                <Tooltip />
+                <Bar dataKey="current" fill="#ef4444" radius={[4, 4, 0, 0]} barSize={25} />
+                <Bar dataKey="previous" fill="url(#patternRed)" barSize={25} />
+                <defs>
+                  <pattern
+                    id="patternRed"
+                    patternUnits="userSpaceOnUse"
+                    width="6"
+                    height="6"
+                  >
+                    <rect width="6" height="6" fill="#fecaca" opacity="0.3" />
+                    <path d="M0 0L6 6ZM-1 5L5 -1ZM5 7L7 5Z" stroke="#ef4444" strokeWidth="0.5" />
+                  </pattern>
+                </defs>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
-          <p className="text-sm font-medium text-gray-600">Gross Cash Flow</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">
-            ${analytics.cashFlow?.gross?.toFixed(2) || '0.00'}
-          </p>
-          <p className="text-xs text-gray-500 mt-1">Total revenue before fees</p>
+      {/* Right column */}
+      <div className="flex flex-col gap-6 flex-[1_1_0%] min-w-[500px]">
+        {/* Past Due Customers */}
+        <div className="bg-white rounded-lg shadow-sm p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-semibold text-gray-800 flex items-center gap-2">
+              📋 Past Due Customers
+            </h2>
+            <span className="text-xs font-semibold text-gray-600 border border-gray-200 rounded px-2 py-0.5">
+              {pastDueCustomers.length} CUSTOMERS
+            </span>
+          </div>
+          <table className="w-full text-sm text-gray-700">
+            <thead className="text-gray-500 border-b">
+              <tr>
+                <th className="text-left py-2">Customer</th>
+                <th className="text-left py-2">Past Due Date</th>
+                <th className="text-left py-2">Renewal Date</th>
+                <th className="text-right py-2">ARR</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pastDueCustomers.map((c, i) => (
+                <tr key={i}>
+                  <td className="py-2">{c.name}</td>
+                  <td>{c.due}</td>
+                  <td>{c.renewal}</td>
+                  <td className="text-right">{c.arr}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
-          <p className="text-sm font-medium text-gray-600">Net Cash Flow</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">
-            ${analytics.cashFlow?.net?.toFixed(2) || '0.00'}
-          </p>
-          <p className="text-xs text-gray-500 mt-1">Revenue after fees</p>
-        </div>
+        {/* Refunds */}
+        <div className="bg-white rounded-lg shadow-sm p-5">
+          <div className="flex items-center text-center justify-between">
+            <h2 className="font-semibold text-gray-800">Refunds</h2>
+            <div className="flex gap-10 md:gap-20">
+              <div>
+                <p className="text-xl font-bold text-gray-800">$237</p>
+                <p className="text-xs text-gray-500">Last 30 days</p>
+              </div>
+              <p className="text-xs text-gray-400">
+                <strong className='text-xl text-blue-600 font-bold'>-43.65%</strong><br />
+                Prev 30 days</p>
+            </div>
+          </div>
+          <div className='h-[150px]'>
 
-        <div className="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500">
-          <p className="text-sm font-medium text-gray-600">Recurring Revenue</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">
-            ${analytics.cashFlow?.recurring?.toFixed(2) || '0.00'}
-          </p>
-          <p className="text-xs text-gray-500 mt-1">From subscriptions</p>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6 border-l-4 border-orange-500">
-          <p className="text-sm font-medium text-gray-600">Non-Recurring</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">
-            ${analytics.cashFlow?.nonRecurring?.toFixed(2) || '0.00'}
-          </p>
-          <p className="text-xs text-gray-500 mt-1">One-time payments</p>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={refundsData}>
+              <CartesianGrid stroke="#f0f2f5" vertical={false} />
+              {/* <XAxis dataKey="month" tickLine={false} axisLine={false} />
+              <YAxis tickLine={false} axisLine={false} /> */}
+              <Tooltip />
+              <Bar dataKey="current" fill="#ef4444" radius={[4, 4, 0, 0]} barSize={25} />
+              <Bar dataKey="previous" fill="url(#patternRed)" barSize={25} />
+            </BarChart>
+          </ResponsiveContainer>
+              </div>
         </div>
       </div>
-
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Net Cash Flow Over Time</h2>
-        <MetricsChart
-          data={chartData}
-          chartType="line"
-          label="Net Cash Flow"
-          color="#3b82f6"
-        />
-      </div>
-
-      <DataTable data={chartData} label="Net Cash Flow" />
     </div>
-  )
+  );
 }

@@ -1,134 +1,122 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import { ChartControls } from '@/components/charts/ChartControls'
-import { MetricsChart } from '@/components/charts/MetricsChart'
-import { useChartData, HistoricalDataPoint } from '@/lib/hooks/useChartData'
-import { DataTable } from '@/components/charts/DataTable'
-import { TrendingDown } from 'lucide-react'
+import { Settings } from 'lucide-react';
+import {
+  LineChart, Line, XAxis, YAxis,
+  Tooltip, ResponsiveContainer, CartesianGrid, Legend, Area
+} from 'recharts';
 
-interface AnalyticsData {
-  subscribers: {
-    active: number
-    cancelled: number
-  }
-  plans: Array<{ id: string; name: string }>
-}
+const data = Array.from({ length: 12 }).map((_, i) => ({
+  month: `M${i + 1}`, value: Math.random() * 5,
+}));
 
-export default function ChurnPage({ params }: { params: Promise<{ companyId: string }> }) {
-  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
-  const [historicalData, setHistoricalData] = useState<HistoricalDataPoint[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    params.then((p) => {
-      // Fetch current analytics and historical data
-      Promise.all([
-        fetch(`/api/analytics?company_id=${p.companyId}`).then(res => res.json()),
-        fetch(`/api/analytics/historical?company_id=${p.companyId}&days=365`).then(res => res.json())
-      ])
-        .then(([currentData, historicalResponse]) => {
-          setAnalytics(currentData)
-          setHistoricalData(historicalResponse.data || [])
-          setLoading(false)
-        })
-        .catch(() => {
-          setLoading(false)
-        })
-    })
-  }, [params])
-
-  // Chart data management
-  const {
-    chartType,
-    setChartType,
-    selectedPlan,
-    setSelectedPlan,
-    timePeriod,
-    setTimePeriod,
-    dateRange,
-    setDateRange,
-    chartData,
-  } = useChartData(historicalData, 'churnRate')
-
-  if (loading) {
-    return <div className="p-8">Loading...</div>
-  }
-
-  if (!analytics) {
-    return <div className="p-8">Failed to load analytics data</div>
-  }
-
-  const plans = analytics.plans || []
-
-  const totalChurned = analytics.subscribers.cancelled
-  const activeSubscribers = analytics.subscribers.active
-  // Mock churn rate for now (will calculate from historical data later)
-  const avgChurnRate = 5.2
-
+export default function ChurnRetention() {
   return (
-    <div className="p-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-          <TrendingDown className="h-8 w-8 mr-3 text-red-600" />
-          Subscriber Churn (30 Days)
-        </h1>
-        <p className="text-gray-600 mt-2">Monitor customer churn rate and identify trends</p>
+
+    <div className="flex flex-wrap gap-6 bg-[#f7f9fc] px-6">
+      {/* Left column */}
+      <div className="flex flex-col gap-6 flex-[1_1_0%] min-w-[600px]">
+        {/* Net MRR Churn Rate */}
+        <div className="bg-white rounded-lg shadow-sm p-5 h-[240px]">
+          <div className="flex items-center text-center justify-between">
+            <h2 className="font-semibold text-gray-800 mb-2">Net MRR Churn Rate</h2>
+            <div className="flex gap-10 md:gap-20">
+              <div>
+                <p className="text-2xl font-bold text-gray-800">-183.5%</p>
+                <p className="text-xs text-gray-500">September</p>
+              </div>
+              <p className="text-xs text-gray-400">
+                <strong className='text-xl text-gray-800 font-bold'>—</strong><br />
+                From August</p>
+            </div>
+          </div>
+          <ResponsiveContainer width="100%" height="90%">
+            <LineChart data={data}>
+              <defs>
+                <linearGradient id="blueFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#0f2940" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="#0f2940" stopOpacity={0.05} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid stroke="#f0f2f5" vertical={false} />
+              <XAxis dataKey="month" tickLine={false} axisLine={false} />
+              {/* <YAxis tickLine={false} axisLine={false} /> */}
+              <Tooltip />
+              <Area type="monotone" dataKey="value" stroke="none" fill="url(#blueFill)" />
+              <Line type="monotone" dataKey="value" stroke="#0f2940" dot={{ r: 3 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Churn rate sliced by price */}
+        <div className="bg-white rounded-lg shadow-sm p-5 h-[240px]">
+          <h2 className="flex gap-2 font-semibold text-gray-800 mb-2 text-gray-600">
+            ❌ Churn rate sliced by price
+            <Settings className="h-5 w-5 text-gray-400" />
+          </h2>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={data}>
+              <CartesianGrid stroke="#f0f2f5" vertical={false} />
+              {/* <XAxis dataKey="month" tickLine={false} axisLine={false} /> */}
+              {/* <YAxis tickLine={false} axisLine={false} /> */}
+              <Tooltip />
+              <Line type="monotone" dataKey="value" stroke="#f97316" dot={{ fill: '#f97316', r: 3 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
-      {/* Summary Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-xl shadow p-6">
-          <p className="text-sm text-gray-600 mb-1">30-Day Churn Rate</p>
-          <p className="text-3xl font-bold text-red-600">{avgChurnRate.toFixed(1)}%</p>
-          <p className="text-xs text-gray-500 mt-2">Average over last 30 days</p>
+      {/* Right column */}
+      <div className="flex flex-col gap-6 flex-[1_1_0%] min-w-[500px]">
+        {/* Paid Subscriber Churn Rate */}
+        <div className="bg-white rounded-lg shadow-sm p-5 w-full h-[240px]">
+          <div className="flex items-center text-center justify-between">
+            <h2 className="font-semibold text-gray-800">
+              Paid Subscriber Churn Rate
+            </h2>
+            <div className="flex gap-10 md:gap-20">
+              <div>
+                <p className="text-2xl font-bold text-gray-800">19.05%</p>
+                <p className="text-xs text-gray-500">September</p>
+              </div>
+              <p className="text-xs text-gray-400">
+                <strong className='text-xl text-gray-800 font-bold'>—</strong><br />
+                From August</p>
+            </div>
+          </div>
+
+          <ResponsiveContainer width="100%" height="90%">
+            <LineChart data={data}>
+              <defs>
+                <linearGradient id="pinkFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#f0a9b5" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#f0a9b5" stopOpacity={0.05} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid stroke="#f0f2f5" vertical={false} />
+              <XAxis dataKey="month" tickLine={false} axisLine={false} />
+              {/* <YAxis tickLine={false} axisLine={false} /> */}
+              <Tooltip />
+              <Area type="monotone" dataKey="value" stroke="none" fill="url(#pinkFill)" />
+              <Line type="monotone" dataKey="value" stroke="#0f2940" dot={{ r: 3 }} />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
-        <div className="bg-white rounded-xl shadow p-6">
-          <p className="text-sm text-gray-600 mb-1">Total Churned</p>
-          <p className="text-3xl font-bold">{totalChurned}</p>
-          <p className="text-xs text-gray-500 mt-2">Subscribers lost this month</p>
+
+        {/* Subscriber cohorts */}
+        <div className="bg-white rounded-lg shadow-sm p-5 h-[240px]">
+          <h2 className="font-semibold text-gray-800 mb-2">👥 Subscriber cohorts</h2>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={data}>
+              <CartesianGrid stroke="#f0f2f5" vertical={false} />
+              {/* <XAxis dataKey="month" tickLine={false} axisLine={false} /> */}
+              {/* <YAxis tickLine={false} axisLine={false} /> */}
+              <Tooltip />
+              <Line type="monotone" dataKey="value" stroke="#ef4444" dot={{ r: 3, fill: '#ef4444' }} />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
-        <div className="bg-white rounded-xl shadow p-6">
-          <p className="text-sm text-gray-600 mb-1">Current Active</p>
-          <p className="text-3xl font-bold text-green-600">{activeSubscribers}</p>
-          <p className="text-xs text-gray-500 mt-2">As of today</p>
-        </div>
-      </div>
-
-      {/* Churn Rate Chart */}
-      <div className="bg-white rounded-xl shadow p-6 mb-8">
-        <ChartControls
-          chartType={chartType}
-          onChartTypeChange={setChartType}
-          plans={plans}
-          selectedPlan={selectedPlan}
-          onPlanChange={setSelectedPlan}
-          dateRange={dateRange}
-          onDateRangeChange={setDateRange}
-          timePeriod={timePeriod}
-          onTimePeriodChange={setTimePeriod}
-        />
-
-        <MetricsChart
-          data={chartData}
-          chartType={chartType}
-          color="#ef4444"
-          label="Churn Rate (%)"
-        />
-
-        <DataTable data={chartData} label="Churn Rate (%)" />
-      </div>
-
-      {/* Insights */}
-      <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
-        <h3 className="text-lg font-semibold text-yellow-900 mb-2">📊 Churn Insights</h3>
-        <ul className="space-y-2 text-yellow-800">
-          <li>• Your average churn rate is {avgChurnRate.toFixed(1)}% - Industry benchmark is ~5-7%</li>
-          <li>• You have {totalChurned} cancelled subscriptions</li>
-          <li>• {activeSubscribers} active subscribers currently</li>
-        </ul>
       </div>
     </div>
-  )
+  );
 }

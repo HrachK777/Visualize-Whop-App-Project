@@ -21,7 +21,7 @@ export default function DashboardTabs({ companyId }: DashboardTabsProps) {
     { name: 'Leads & Trials', href: `/dashboard/${companyId}/leads` },
     { name: 'Sales-led', href: `/dashboard/${companyId}/sales` },
     { name: 'Churn & Retention', href: `/dashboard/${companyId}/churn` },
-    { name: 'Cash Flow', href: `/dashboard/${companyId}/cash` },
+    { name: 'Cash Flow', href: `/dashboard/${companyId}/cash-flow` },
     // { name: '+', href: '#' },
   ];
   const activeTabName =
