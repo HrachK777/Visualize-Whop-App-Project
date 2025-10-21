@@ -17,13 +17,18 @@ import {
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useRouter } from 'next/navigation';
+import { RxDashboard } from "react-icons/rx";
+import { BsBarChart } from "react-icons/bs";
+import { FaBuildingUser } from "react-icons/fa6";
+import { CiSettings } from "react-icons/ci";
+
 
 export default function MainSidebar({ active, setActive, companyId }: any) {
   const navItems = [
-    { id: 'dashboard', icon: <LayoutDashboard />, label: 'Dashboard', url: `/dashboard/${companyId}` },
-    { id: 'reports', icon: <BarChart3 />, label: 'Reports' },
-    { id: 'customers', icon: <Users />, label: 'Customers' },
-    { id: 'settings', icon: <Settings />, label: 'Settings', url: `/dashboard/${companyId}/settings` }
+    { id: 'dashboard', icon: <RxDashboard />, label: 'Dashboard', url: `/dashboard/${companyId}` },
+    { id: 'reports', icon: <BsBarChart />, label: 'Reports' },
+    { id: 'customers', icon: <FaBuildingUser />, label: 'Customers' },
+    { id: 'settings', icon: <CiSettings />, label: 'Settings', url: `/dashboard/${companyId}/settings` }
   ];
   const router = useRouter();
 
@@ -48,7 +53,7 @@ export default function MainSidebar({ active, setActive, companyId }: any) {
             )}
             title={item.label}
           >
-            <div className="h-5 w-5 items-center">{item.icon}</div>
+            <div className="items-center">{item.icon}</div>
           </button>
         ))}
       </div>

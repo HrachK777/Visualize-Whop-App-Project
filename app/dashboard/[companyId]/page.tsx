@@ -78,7 +78,6 @@ export default function DashboardPage({ params }: { params: Promise<{ companyId:
         //   throw new Error('Failed to fetch historical data')
         // }
         // const historicalData = await historicalResponse.json()
-        console.log('for debug historicalData = ');
         // setHistoricalData(historicalData.data)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred')
@@ -177,7 +176,7 @@ export default function DashboardPage({ params }: { params: Promise<{ companyId:
               <div key={i} className="flex justify-between px-4">
                 <div className='flex gap-10'>
                   <span className={item.color}>{item.count}</span>
-                  <span>{item.label}</span>
+                  <span className='text-gray-700'>{item.label}</span>
                 </div>
                 <span className="font-medium text-gray-700">{item.value}</span>
               </div>

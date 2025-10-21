@@ -10,6 +10,8 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import { RiAlarmWarningFill } from "react-icons/ri";
+
 
 const netCashFlowData = [
   { month: 'Aug', current: 0, previous: 0 },
@@ -40,7 +42,7 @@ const pastDueCustomers = [
 
 export default function CashFlowPage() {
   return (
-    <div className="flex flex-wrap gap-6 min-h-screen bg-[#f7f9fc] px-6">
+    <div className="flex flex-wrap gap-6 bg-[#f7f9fc] px-6 pb-5">
       {/* Left column */}
       <div className="flex flex-col gap-6 flex-[1_1_0%] min-w-[600px]">
         {/* Net Cash Flow */}
@@ -120,8 +122,9 @@ export default function CashFlowPage() {
         {/* Past Due Customers */}
         <div className="bg-white rounded-lg shadow-sm p-5">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-semibold text-gray-800 flex items-center gap-2">
-              📋 Past Due Customers
+            <h2 className="flex font-semibold text-gray-800 flex items-center gap-2">
+              <RiAlarmWarningFill className='text-pink-500' /> 
+              Past Due Customers
             </h2>
             <span className="text-xs font-semibold text-gray-600 border border-gray-200 rounded px-2 py-0.5">
               {pastDueCustomers.length} CUSTOMERS

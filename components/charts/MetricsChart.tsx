@@ -3,7 +3,8 @@
 import {
   LineChart, Line, BarChart, Bar,
   XAxis, YAxis, Tooltip, CartesianGrid,
-  ResponsiveContainer, Area
+  ResponsiveContainer, Area,
+  AreaChart
 } from 'recharts';
 import { useState } from 'react';
 import { LineChartIcon, BarChart2 } from 'lucide-react';
@@ -14,7 +15,7 @@ export default function MetricChart({
   data,
   dataKey = 'value',
   lineColor = '#0f2940',
-  fillColor = '#1677ff',
+  fillColor = '#D9F2FE',
   type = 'line',
   currentView,
   currentGroup,
@@ -29,42 +30,41 @@ export default function MetricChart({
   currentView: 'line' | 'bar';
   currentGroup: 'day' | 'week' | 'month' | 'quarter' | 'year';
 }) {
-  
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-6">
 
       {/* Chart type and time grouping */}
       <div className="flex justify-between items-center mb-4">
-        <div className="bg-gray-100 rounded-lg p-1 flex">
+        <div className="flex border border-gray-700 rounded-md">
           <button
             onClick={() => onViewChange('line')}
-            className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium ${currentView === 'line'
-                ? 'bg-[#1677ff] text-white'
-                : 'text-gray-600 hover:text-gray-800'
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-l-md text-sm font-medium ${currentView === 'line'
+              ? 'bg-gray-800 text-white'
+              : 'text-gray-600 hover:text-gray-800'
               }`}
           >
-            <LineChartIcon className="h-4 w-4" /> LINE
+            LINE
           </button>
           <button
             onClick={() => onViewChange('bar')}
-            className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium ${currentView === 'bar'
-                ? 'bg-[#1677ff] text-white'
-                : 'text-gray-600 hover:text-gray-800'
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-r-md text-sm font-medium ${currentView === 'bar'
+              ? 'bg-gray-800 text-white'
+              : 'text-gray-600 hover:text-gray-800'
               }`}
           >
-            <BarChart2 className="h-4 w-4" /> BAR
+            BAR
           </button>
         </div>
 
-        <div className="bg-gray-100 rounded-lg p-1 flex">
+        <div className="flex border border-gray-700 rounded-md">
           {['day', 'week', 'month', 'quarter', 'year'].map((grp) => (
             <button
               key={grp}
               onClick={() => onGroupingChange(grp as any)}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium ${currentGroup === grp
-                  ? 'bg-[#1677ff] text-white'
-                  : 'text-gray-600 hover:text-gray-800'
+              className={`px-3 py-1.5 text-sm font-medium ${currentGroup === grp
+                ? 'bg-gray-800 text-white'
+                : 'text-gray-600 hover:text-gray-800'
                 }`}
             >
               {grp.toUpperCase()}
@@ -79,7 +79,7 @@ export default function MetricChart({
           {type === 'bar' ? (
             <BarChart data={data}>
               <CartesianGrid stroke="#f0f2f5" vertical={false} />
-              <XAxis dataKey="date"  />
+              <XAxis dataKey="date" />
               <YAxis tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} />
               <Tooltip
                 contentStyle={{
@@ -92,33 +92,26 @@ export default function MetricChart({
               <Bar dataKey={dataKey} fill={fillColor} radius={[4, 4, 0, 0]} />
             </BarChart>
           ) : (
-            <LineChart data={data}>
+            <AreaChart width={730} height={250} data={data}
+              margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
               <defs>
-                <linearGradient id="metricFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={lineColor} stopOpacity={0.25} />
-                  <stop offset="95%" stopColor={lineColor} stopOpacity={0.05} />
+                <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={fillColor} stopOpacity={0.1} />
+                  <stop offset="95%" stopColor={fillColor} stopOpacity={0.1} />
                 </linearGradient>
               </defs>
-              <CartesianGrid stroke="#f0f2f5" vertical={false} />
               <XAxis dataKey="date" />
               <YAxis tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#fff',
-                  borderRadius: '6px',
-                  border: '1px solid #e5e7eb',
-                }}
-                formatter={(v: number) => `$${v.toLocaleString()}`}
-              />
-              <Area type="monotone" dataKey={dataKey} fill="url(#metricFill)" />
+              <Tooltip />
+              <Area type="linear" dataKey={dataKey} stroke="#8884d8" fillOpacity={1} fill="url(#colorUv)" />
               <Line
-                type="monotone"
+                type="linear"
                 dataKey={dataKey}
                 stroke={lineColor}
                 strokeWidth={2.5}
                 dot={{ r: 4, fill: lineColor }}
               />
-            </LineChart>
+            </AreaChart>
           )}
         </ResponsiveContainer>
       </div>

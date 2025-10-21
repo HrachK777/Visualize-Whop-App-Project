@@ -57,59 +57,29 @@ export default function NetMRRMovementsChart() {
     return (
         <div className="bg-white rounded-lg shadow-sm p-5">
             <h2 className="font-semibold text-gray-800 mb-3">Net MRR Movements</h2>
-            <ResponsiveContainer width="100%">
-                <BarChart data={NetMRRData} margin={{ top: 20, right: 40, left: 0, bottom: 20 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="month" stroke="#6b7280" />
-                    {/* <YAxis stroke="#6b7280" /> */}
-                    {/* <Tooltip content={<CustomTooltip />} /> */}
-                    <Legend
-                        wrapperStyle={{ paddingTop: 10 }}
-                        formatter={(value) => (
-                            <span className="capitalize text-gray-700 font-medium">{value}</span>
-                        )}
-                    />
-                    {/* <Bar
-                            dataKey="newMRR"
-                            stackId="a"
-                            fill={COLORS.newMRR}
-                            radius={[4, 4, 0, 0]}
-                            name="New MRR"
-                          />
-                          <Bar
-                            dataKey="expansionMRR"
-                            stackId="a"
-                            fill={COLORS.expansionMRR}
-                            name="Expansion MRR"
-                          />
-                          <Bar
-                            dataKey="contractionMRR"
-                            stackId="a"
-                            fill={COLORS.contractionMRR}
-                            name="Contraction MRR"
-                          />
-                          <Bar
-                            dataKey="churnMRR"
-                            stackId="a"
-                            fill={COLORS.churnMRR}
-                            name="Churn MRR"
-                          /> */}
-                    <Bar
-                        dataKey="netMRR"
-                        stackId="a"
-                        fill={COLORS.netMRR}
-                        name="Net MRR"
-                    />
-                    <Line
-                        type="monotone"
-                        dataKey="netMRR"
-                        stroke={COLORS.netMRR}
-                        strokeWidth={3}
-                        dot={{ r: 4 }}
-                        name="Net MRR"
-                    />
-                </BarChart>
-            </ResponsiveContainer>
+            <div className='h-[200px]'>
+                <ResponsiveContainer width="100%">
+                    <BarChart data={NetMRRData}>
+                        <CartesianGrid stroke="#f0f2f5" vertical={false} />
+                        {/* <XAxis dataKey="month" tickLine={false} axisLine={false} /> */}
+                        {/* <YAxis tickLine={false} axisLine={false} /> */}
+                        <Tooltip />
+                        <Bar dataKey="netMRR" fill={COLORS.netMRR}  barSize={25} />
+                        <Bar dataKey="contractionMRR" fill="url(#patternRed)" barSize={25} />
+                        <defs>
+                            <pattern
+                                id="patternRed"
+                                patternUnits="userSpaceOnUse"
+                                width="6"
+                                height="6"
+                            >
+                                <rect width="6" height="6" fill="#75acd3ff" opacity="0.8" />
+                                <path d="M0 0L6 6ZM-1 5L5 -1ZM5 7L7 5Z" stroke="#76a5f0ff" strokeWidth={2} />
+                            </pattern>
+                        </defs>
+                    </BarChart>
+                </ResponsiveContainer>
+            </div>
         </div>
     );
 }

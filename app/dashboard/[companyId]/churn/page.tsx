@@ -2,13 +2,31 @@
 
 import { Settings } from 'lucide-react';
 import {
-  LineChart, Line, XAxis, YAxis,
+  LineChart, Line, XAxis, YAxis, AreaChart,
   Tooltip, ResponsiveContainer, CartesianGrid, Legend, Area
 } from 'recharts';
 
 const data = Array.from({ length: 12 }).map((_, i) => ({
   month: `M${i + 1}`, value: Math.random() * 5,
 }));
+
+const CustomizedLabel = ({ x, y, value, index }: any) => {
+  if (index === data.length - 1) {
+    return (
+      <text
+        x={x -35}
+        y={y}
+        dy={-10}
+        // fill={COLORS.line}
+        fontSize={13}
+        fontWeight="bold"
+      >
+        {`%${value.toFixed(2)}`}
+      </text>
+    );
+  }
+  return null;
+};
 
 export default function ChurnRetention() {
   return (
@@ -30,39 +48,41 @@ export default function ChurnRetention() {
                 From August</p>
             </div>
           </div>
-          <ResponsiveContainer width="100%" height="90%">
-            <LineChart data={data}>
+          <ResponsiveContainer width="100%" height="90%" className="pr-2">
+            <AreaChart data={data}>
               <defs>
                 <linearGradient id="blueFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#0f2940" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#0f2940" stopOpacity={0.05} />
+                  <stop offset="5%" stopColor="#1677ff" stopOpacity={0.1} />
+                  <stop offset="95%" stopColor="#1677ff" stopOpacity={0.1} />
                 </linearGradient>
               </defs>
               <CartesianGrid stroke="#f0f2f5" vertical={false} />
-              <XAxis dataKey="month" tickLine={false} axisLine={false} />
+              <XAxis dataKey="value" tickLine={false} axisLine={false} tickFormatter={(value) => `${value.toFixed(2)}%`} />
               {/* <YAxis tickLine={false} axisLine={false} /> */}
               <Tooltip />
               <Area type="monotone" dataKey="value" stroke="none" fill="url(#blueFill)" />
-              <Line type="monotone" dataKey="value" stroke="#0f2940" dot={{ r: 3 }} />
-            </LineChart>
+              <Line type="linear" dataKey="value" stroke="#0f2940" strokeWidth={2} dot={{ fill: '#0f2940', r: 3 }} label={CustomizedLabel} />
+            </AreaChart>
           </ResponsiveContainer>
         </div>
 
         {/* Churn rate sliced by price */}
-        <div className="bg-white rounded-lg shadow-sm p-5 h-[240px]">
+        <div className="bg-white rounded-lg shadow-sm p-5">
           <h2 className="flex gap-2 font-semibold text-gray-800 mb-2 text-gray-600">
             ❌ Churn rate sliced by price
             <Settings className="h-5 w-5 text-gray-400" />
           </h2>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data}>
-              <CartesianGrid stroke="#f0f2f5" vertical={false} />
-              {/* <XAxis dataKey="month" tickLine={false} axisLine={false} /> */}
-              {/* <YAxis tickLine={false} axisLine={false} /> */}
-              <Tooltip />
-              <Line type="monotone" dataKey="value" stroke="#f97316" dot={{ fill: '#f97316', r: 3 }} />
-            </LineChart>
-          </ResponsiveContainer>
+          <div className='h-[170px]'>
+            <ResponsiveContainer width="100%" height="100%" className="pr-2">
+              <LineChart data={data}>
+                <CartesianGrid stroke="#f0f2f5" vertical={false} />
+                {/* <XAxis dataKey="month" tickLine={false} axisLine={false} /> */}
+                {/* <YAxis tickLine={false} axisLine={false} /> */}
+                <Tooltip />
+                <Line type="linear" dataKey="value" stroke="#f97316" strokeWidth={2} dot={{ fill: '#f97316', r: 3 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
 
@@ -85,36 +105,38 @@ export default function ChurnRetention() {
             </div>
           </div>
 
-          <ResponsiveContainer width="100%" height="90%">
-            <LineChart data={data}>
+          <ResponsiveContainer width="100%" height="90%" className="pr-2">
+            <AreaChart data={data}>
               <defs>
                 <linearGradient id="pinkFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#f0a9b5" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#f0a9b5" stopOpacity={0.05} />
+                  <stop offset="5%" stopColor="#f0a9b5" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="#f0a9b5" stopOpacity={0.1} />
                 </linearGradient>
               </defs>
               <CartesianGrid stroke="#f0f2f5" vertical={false} />
-              <XAxis dataKey="month" tickLine={false} axisLine={false} />
+              <XAxis dataKey="value" tickLine={false} axisLine={false} tickFormatter={(value) => `${value.toFixed(2)}`} />
               {/* <YAxis tickLine={false} axisLine={false} /> */}
               <Tooltip />
-              <Area type="monotone" dataKey="value" stroke="none" fill="url(#pinkFill)" />
-              <Line type="monotone" dataKey="value" stroke="#0f2940" dot={{ r: 3 }} />
-            </LineChart>
+              <Area type="linear" dataKey="value" stroke="none" fill="url(#pinkFill)" />
+              <Line type="linear" dataKey="value" stroke="#0f2940" strokeWidth={2} dot={{ fill: '#0f2940', r: 3 }} label={CustomizedLabel} />
+            </AreaChart>
           </ResponsiveContainer>
         </div>
 
         {/* Subscriber cohorts */}
         <div className="bg-white rounded-lg shadow-sm p-5 h-[240px]">
           <h2 className="font-semibold text-gray-800 mb-2">👥 Subscriber cohorts</h2>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data}>
-              <CartesianGrid stroke="#f0f2f5" vertical={false} />
-              {/* <XAxis dataKey="month" tickLine={false} axisLine={false} /> */}
-              {/* <YAxis tickLine={false} axisLine={false} /> */}
-              <Tooltip />
-              <Line type="monotone" dataKey="value" stroke="#ef4444" dot={{ r: 3, fill: '#ef4444' }} />
-            </LineChart>
-          </ResponsiveContainer>
+          <div className='h-[170px]'>
+            <ResponsiveContainer width="100%" height="100%" className="pr-2">
+              <LineChart data={data}>
+                <CartesianGrid stroke="#f0f2f5" vertical={false} />
+                {/* <XAxis dataKey="" tickLine={false} axisLine={false} /> */}
+                {/* <YAxis tickLine={false} axisLine={false} /> */}
+                <Tooltip />
+                <Line type="linear" dataKey="value" stroke="#ef4444" strokeWidth={2} dot={{ r: 3, fill: '#ef4444' }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
     </div>

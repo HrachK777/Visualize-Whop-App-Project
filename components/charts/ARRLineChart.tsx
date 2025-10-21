@@ -9,7 +9,8 @@ import {
     CartesianGrid,
     Tooltip,
     Legend,
-    Area
+    Area,
+    AreaChart
 } from 'recharts';
 import { formatCurrency } from '@/lib/utils'
 
@@ -32,25 +33,8 @@ const COLORS = {
     line: '#0f2940', // Tailwind gray-800
     grid: '#c8cfdcff', // Tailwind gray-200
     axis: '#6b7280', // Tailwind gray-500
+    fillColor: '#1677ff', // Tailwind gray-800
 };
-
-// const CustomTooltip = ({ active, payload, label }) => {
-//   if (active && payload && payload.length) {
-//     return (
-//       <div className="bg-white p-3 rounded shadow-lg border border-gray-200">
-//         <p className="font-semibold mb-2">{label}</p>
-//         <p className="text-gray-700">
-//           <span
-//             className="inline-block w-3 h-3 mr-2 rounded-full"
-//             style={{ backgroundColor: payload[0].color }}
-//           ></span>
-//           ARR: ${payload[0].value.toLocaleString()}
-//         </p>
-//       </div>
-//     );
-//   }
-//   return null;
-// };
 
 // ✅ Format numbers to "$148k" style
 function formatCurrency1(value: any) {
@@ -91,11 +75,11 @@ export default function ARRLineChart() {
             </div>
             <div className="flex-1 flex">
                 <ResponsiveContainer width="100%">
-                    <LineChart data={data} margin={{ top: 20, right: 40, left: 0, bottom: 20 }}>
+                    <AreaChart data={data} margin={{ top: 20, right: 40, left: 0, bottom: 20 }}>
                         <defs>
                             <linearGradient id="colorARR" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor={COLORS.line} stopOpacity={0.4} />
-                                <stop offset="95%" stopColor={COLORS.line} stopOpacity={0.05} />
+                                <stop offset="5%" stopColor={COLORS.fillColor} stopOpacity={0.1} />
+                                <stop offset="95%" stopColor={COLORS.fillColor} stopOpacity={0.1} />
                             </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke={COLORS.grid} />
@@ -110,21 +94,15 @@ export default function ARRLineChart() {
                             formatter={(value) => `$${value.toLocaleString()}`}
                             labelStyle={{ fontWeight: 'bold' }}
                         />
-                        {/* <Legend
-                            wrapperStyle={{ paddingTop: 10 }}
-                            formatter={(value) => (
-                                <span className="capitalize text-gray-700 font-medium">{value}</span>
-                            )}
-                        /> */}
                         {/* Blue filled area under the line */}
-                        {/* <Area
-                            type="monotone"
+                        <Area
+                            type="linear"
                             dataKey="ARR"
                             stroke="none"
                             fill="url(#colorARR)"
-                        /> */}
+                        />
                         <Line
-                            type="monotone"
+                            type="linear"
                             dataKey="ARR"
                             stroke={COLORS.line}
                             strokeWidth={3}
@@ -135,7 +113,7 @@ export default function ARRLineChart() {
                             name="ARR"
                             label={CustomizedLabel}
                         />
-                    </LineChart>
+                    </AreaChart>
                 </ResponsiveContainer>
             </div>
         </div>

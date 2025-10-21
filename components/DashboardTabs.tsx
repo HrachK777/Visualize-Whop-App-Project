@@ -7,6 +7,8 @@ import { Plus, PlusIcon, Settings, SortDescIcon } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { useSidebarStore } from "@/lib/stores/sidebarStore";
+import { MdOutlineSort } from "react-icons/md";
+import { CgSortAz } from "react-icons/cg";
 
 
 interface DashboardTabsProps {
@@ -64,7 +66,7 @@ export default function DashboardTabs({ companyId }: DashboardTabsProps) {
         </h1>
         <div className="grid grid-cols-2 items-center m-3 border border-gray-200 rounded-md divide-x-2 divide-gray-200 bg-white">
           <button className='hover:bg-gray-100 cursor-pointer'>
-            <SortDescIcon className="inline-block px-1 mx-3 w-8 h-8 text-gray-600" />
+            <CgSortAz className="inline-block px-1 mx-3 w-8 h-8 text-gray-600" />
           </button>
           <button className='hover:bg-gray-100 cursor-pointer'>
             <PlusIcon className="inline-block px-1 mx-3 w-8 h-8 text-gray-600" />

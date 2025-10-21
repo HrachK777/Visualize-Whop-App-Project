@@ -44,21 +44,21 @@ export default function LeadsTrialsPage() {
                   Prev 30 days </p>
               </div>
             </div>
-            <div className="h-[150px]">
+            <div className="h-[130px]">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={mockData}>
                   <CartesianGrid stroke="#f0f2f5" vertical={false} />
                   <XAxis
-                    dataKey="day"
+                    dataKey="value"
                     tickLine={false}
                     axisLine={false}
                     tick={{ fill: '#9ca3af', fontSize: 12 }}
                   />
-                  <YAxis
+                  {/* <YAxis
                     tickLine={false}
                     axisLine={false}
                     tick={{ fill: '#9ca3af', fontSize: 12 }}
-                  />
+                  /> */}
                   <Tooltip
                     contentStyle={{
                       borderRadius: '6px',
@@ -93,21 +93,21 @@ export default function LeadsTrialsPage() {
                   Prev 30 days </p>
               </div>
             </div>
-            <div className="h-[180px]">
+            <div className="h-[130px]">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={mockData}>
                   <CartesianGrid stroke="#f0f2f5" vertical={false} />
                   <XAxis
-                    dataKey="day"
+                    dataKey="value"
                     tickLine={false}
                     axisLine={false}
                     tick={{ fill: '#9ca3af', fontSize: 12 }}
                   />
-                  <YAxis
+                  {/* <YAxis
                     tickLine={false}
                     axisLine={false}
                     tick={{ fill: '#9ca3af', fontSize: 12 }}
-                  />
+                  /> */}
                   <Line
                     type="monotone"
                     dataKey="value"
@@ -132,21 +132,21 @@ export default function LeadsTrialsPage() {
               </span>
               Trial-to-paid cohorts
             </h2>
-            <div className="h-[280px]">
+            <div className="h-[300px] pb-5">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={mockData}>
                   <CartesianGrid stroke="#f0f2f5" vertical={false} />
-                  <XAxis
-                    dataKey="day"
+                  {/* <XAxis
+                    dataKey="value"
                     tickLine={false}
                     axisLine={false}
                     tick={{ fill: '#9ca3af', fontSize: 12 }}
-                  />
-                  <YAxis
+                  /> */}
+                  {/* <YAxis
                     tickLine={false}
                     axisLine={false}
                     tick={{ fill: '#9ca3af', fontSize: 12 }}
-                  />
+                  /> */}
                   <Line
                     type="monotone"
                     dataKey="value"
@@ -159,8 +159,6 @@ export default function LeadsTrialsPage() {
               </ResponsiveContainer>
             </div>
           </div>
-
-
 
           {/* Average Sales Cycle Length */}
           <div className="flex bg-white rounded-lg shadow-sm p-5 justify-between items-center text-center">

@@ -3,9 +3,12 @@ import { useState, useEffect } from 'react';
 import MetricChart from '@/components/charts/MetricsChart';
 import MetricTable, { MetricPivotData } from '@/components/charts/MetricTable';
 import DateRangePicker from '@/components/charts/DateRangePicker';
+import { BiSolidSave } from "react-icons/bi";
+import { BsFillQuestionCircleFill } from "react-icons/bs";
+import { CgSortAz } from "react-icons/cg";
 
 // simulate pre-aggregated data fetch
-function generateMockData(group: string, start: string, end: string) {
+function generateMockData(group: string, start: Date, end: Date) {
   const points = [];
   const base = new Date(start);
   for (let i = 0; i < 10; i++) {
@@ -67,10 +70,13 @@ const pivotData: MetricPivotData[] = [
   },
 ];
 
-export default function ReportsPage() {
+export default function ReportsMRRPage() {
   const [view, setView] = useState<'line' | 'bar'>('line');
   const [group, setGroup] = useState<'day' | 'week' | 'month' | 'quarter' | 'year'>('month');
-  const [range, setRange] = useState({ start: '2024-10-01', end: '2025-10-01' });
+  const [dateRange, setDateRange] = useState<{ start: Date; end: Date }>({
+    start: new Date('2024-10-17'),
+    end: new Date('2025-10-16'),
+  });
   const [data, setData] = useState<{ date: string; value: number }[]>([]);
   const [selectedFilter, setSelectedFilter] = useState('All MRR Movements');
 
@@ -83,15 +89,27 @@ export default function ReportsPage() {
 
   useEffect(() => {
     // fetch or compute data based on group/range
-    setData(generateMockData(group, range.start, range.end));
-  }, [group, range]);
+    setData(generateMockData(group, dateRange.start, dateRange.end));
+  }, [group, dateRange]);
 
   return (
-    <div className="min-h-screen bg-[#f7f9fc] px-6 py-6 space-y-6">
+    <div className="min-h-screen bg-[#f7f9fc] px-6 py-4 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-800">Monthly Recurring Revenue</h2>
-        <DateRangePicker onRangeChange={setRange} currentRange={range} />
+        <h2 className="flex text-2xl font-semibold text-gray-800 text-center items-center">Monthly Recurring Revenue
+          <BsFillQuestionCircleFill className="h-5 w-5 text-gray-500 ml-2" />
+        </h2>
+        <div className='flex gap-6 items-center'>
+          <div className="grid grid-cols-2 items-center m-3 border border-gray-200 rounded-md divide-x-2 divide-gray-200 bg-white">
+            <button className='hover:bg-gray-100 cursor-pointer'>
+              <CgSortAz className="inline-block px-1 mx-3 w-8 h-8 text-gray-600" />
+            </button>
+            <button className='hover:bg-gray-100 cursor-pointer'>
+              <BiSolidSave className="inline-block px-1 mx-3 w-8 h-8 text-gray-600" />
+            </button>
+          </div>
+          <DateRangePicker onChange={setDateRange} range={dateRange} />
+        </div>
       </div>
 
       <MetricChart
