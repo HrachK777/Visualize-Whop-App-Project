@@ -93,11 +93,11 @@ export default function ReportsMRRPage() {
   }, [group, dateRange]);
 
   return (
-    <div className="min-h-screen bg-[#f7f9fc] px-6 py-4 space-y-6">
+    <div className="min-h-screen bg-[#f7f9fc] px-10 py-4 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="flex text-2xl font-semibold text-gray-800 text-center items-center">Monthly Recurring Revenue
-          <BsFillQuestionCircleFill className="h-5 w-5 text-gray-500 ml-2" />
+          <BsFillQuestionCircleFill className="h-5 w-5 text-gray-500 ml-2" title='The predictable revenue your business earns each month from subscriptions based on what customers are currently committed to paying you monthly.' />
         </h2>
         <div className='flex gap-6 items-center'>
           <div className="grid grid-cols-2 items-center m-3 border border-gray-200 rounded-md divide-x-2 divide-gray-200 bg-white">

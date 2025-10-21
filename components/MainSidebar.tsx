@@ -1,36 +1,28 @@
 'use client';
 
-import { useState } from 'react';
-import {
-  LayoutDashboard,
-  BarChart3,
-  LineChart,
-  Users,
-  Settings,
-  Building2,
-  CheckSquare,
-  DollarSign,
-  Search,
-  Target,
-  Bell,
-  User,
-} from 'lucide-react';
+import { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import { useRouter } from 'next/navigation';
 import { RxDashboard } from "react-icons/rx";
 import { BsBarChart } from "react-icons/bs";
 import { FaBuildingUser } from "react-icons/fa6";
 import { CiSettings } from "react-icons/ci";
-
+import { usePathname } from "next/navigation";
 
 export default function MainSidebar({ active, setActive, companyId }: any) {
   const navItems = [
     { id: 'dashboard', icon: <RxDashboard />, label: 'Dashboard', url: `/dashboard/${companyId}` },
-    { id: 'reports', icon: <BsBarChart />, label: 'Reports' },
-    { id: 'customers', icon: <FaBuildingUser />, label: 'Customers' },
+    { id: 'reports', icon: <BsBarChart />, label: 'Reports', url:  `/dashboard/${companyId}/reports/mrr` },
+    { id: 'customers', icon: <FaBuildingUser />, label: 'Customers', url: `/dashboard/${companyId}/customers` },
     { id: 'settings', icon: <CiSettings />, label: 'Settings', url: `/dashboard/${companyId}/settings` }
   ];
   const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const activeItem = navItems.find((item) => item.url === pathname);
+    setActive(activeItem?.id);
+  }, [pathname])
 
   const handleClickMainMenuItem = (item: any) => {
     setActive(item.id);

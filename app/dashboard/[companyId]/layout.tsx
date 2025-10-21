@@ -8,7 +8,8 @@ import { use, useEffect, useState } from "react";
 import MainSidebar from "@/components/MainSidebar";
 import SubSidebar from '@/components/SubSidebar';
 import DashboardTabs from "@/components/DashboardTabs";
-import { usePathname } from 'next/navigation'
+import { usePathname } from 'next/navigation';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
@@ -19,6 +20,7 @@ export default function DashboardLayout({
 }) {
   const { companyId } = use(params);
   const collapsed = useSidebarStore((state) => state.collapsed);
+  const setCollapsed = useSidebarStore((state) => state.setCollapsed);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -95,12 +97,22 @@ export default function DashboardLayout({
         {/* <Sidebar companyId={companyId} /> */}
         <MainSidebar active={active} setActive={setActive} companyId={companyId} />
         <SubSidebar active={active} companyId={companyId} />
+        {/* Toggle Button */}
+        {(pathname.includes('/reports') || pathname.includes('/customers')) &&
+          (
+            <button
+              onClick={() => setCollapsed(!collapsed)}
+              className={`fixed ${collapsed ? "ml-16" : "ml-80"} bottom-10 bg-gray-100 hover:bg-gray-300 text-gray-800 rounded-md px-1.5 py-3 shadow-lg transition-colors z-10`}
+            >
+              {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+            </button>
+          )}
         <div className={`flex-1 flex flex-col`}>
           {/* <DashboardHeader companyId={companyId} /> */}
           {isDashboardPage && <DashboardTabs companyId={companyId} />}
           <main
-            className={`flex-1 transition-all duration-300 pt-6 ${collapsed ? "ml-16" : "ml-80"
-          }`}
+            className={`flex-1 transition-all duration-300 ${collapsed ? "ml-16" : "ml-80"
+              }`}
           >
             {children}
           </main>

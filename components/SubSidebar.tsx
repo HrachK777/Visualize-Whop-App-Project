@@ -4,16 +4,15 @@ import Link from "next/link";
 import clsx from "clsx";
 import { useSidebarStore } from "@/lib/stores/sidebarStore";
 import {
-  AmbulanceIcon,
+  ChevronLeft,
   FactoryIcon,
   FanIcon,
-  FolderOpen,
-  NewspaperIcon,
-  TvIcon,
+  ChevronRight
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { IoFolder } from "react-icons/io5";
 import { useEffect } from "react";
+import { Chevron } from "react-day-picker";
 
 
 const sections = {
@@ -106,12 +105,12 @@ const sections = {
         items: [
           {
             title: "Past due customers",
-            icon: <AmbulanceIcon className="w-4 h-4" />,
+            icon: '🚨',
             href: "/customers/past-due-customers"
           },
           {
             title: "Renewing in < 7days",
-            icon: <NewspaperIcon className="w-4 h-4" />,
+            icon: "🔄",
             href: "/customers/renewing-in-7-days"
           },
         ],
@@ -120,27 +119,27 @@ const sections = {
         items: [
           {
             title: "Leads to revisit",
-            icon: <TvIcon className="w-4 h-4" />,
+            icon: "🔁",
             href: "/customers/leads-to-revisit"
           },
           {
             title: "High-value accounts",
-            icon: <TvIcon className="w-4 h-4" />,
+            icon: "💎",
             href: "/customers/high-value-accounts"
           },
           {
             title: "Top wins from this week",
-            icon: <TvIcon className="w-4 h-4" />,
+            icon: "🏆",
             href: "/customers/top-wins-from-this-week"
           },
           {
             title: "Customers with > 1 subscription",
-            icon: <TvIcon className="w-4 h-4" />,
+            icon: "👥",
             href: "/customers/customers-with-more-than-one-subscription"
           },
           {
             title: "Discounted customers",
-            icon: <TvIcon className="w-4 h-4" />,
+            icon: "💚",
             href: "/customers/discounted-customers"
           },
         ],
@@ -164,14 +163,13 @@ export default function SubSidebar({ active, companyId }: any) {
     }
   }, [section])
 
-  if(!section) return null;
+  if(!section || collapsed) return null;
 
   return (
     <aside className="fixed left-16 top-0 h-screen w-64 border-r bg-white shadow-sm overflow-y-auto">
       <div className="p-4 border-b">
         <h2 className="text-lg font-semibold text-gray-800">{section.title}</h2>
       </div>
-
       <nav className="p-3 space-y-4">
         {section.groups.map((group, i) => (
           <div key={i}>

@@ -17,3 +17,9 @@ export function formatCurrency(amount: number): string {
 export function formatPercentage(value: number, decimals: number = 1): string {
   return `${value.toFixed(decimals)}%`
 }
+
+export const ticksNumber = (data : any, datakey : any) => {
+    const spacing = data.length > 12 ? 3 : 2;
+    const ticks = data.map((d: any, i: number) => (i % spacing === 0 ? d[datakey] : null)).filter(Boolean);
+    return ticks as string[];
+  }

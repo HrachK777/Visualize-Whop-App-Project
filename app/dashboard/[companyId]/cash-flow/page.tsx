@@ -123,7 +123,7 @@ export default function CashFlowPage() {
         <div className="bg-white rounded-lg shadow-sm p-5">
           <div className="flex items-center justify-between mb-3">
             <h2 className="flex font-semibold text-gray-800 flex items-center gap-2">
-              <RiAlarmWarningFill className='text-pink-500' /> 
+              <span>🚨</span>
               Past Due Customers
             </h2>
             <span className="text-xs font-semibold text-gray-600 border border-gray-200 rounded px-2 py-0.5">

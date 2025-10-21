@@ -123,7 +123,7 @@ export default function DashboardPage({ params }: { params: Promise<{ companyId:
         <div className="bg-white rounded-lg shadow-sm p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2 text-gray-800 font-semibold">
-              <Trophy className="text-yellow-500 h-5 w-5" />
+              <span>🏆</span>
               Top wins from this week
             </div>
             <button className="text-xs font-medium text-gray-600 border border-gray-200 px-2 py-1 rounded-md">

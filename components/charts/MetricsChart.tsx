@@ -7,7 +7,7 @@ import {
   AreaChart
 } from 'recharts';
 import { useState } from 'react';
-import { LineChartIcon, BarChart2 } from 'lucide-react';
+import { ticksNumber } from '@/lib/utils';
 
 export default function MetricChart({
   onGroupingChange,
@@ -79,7 +79,7 @@ export default function MetricChart({
           {type === 'bar' ? (
             <BarChart data={data}>
               <CartesianGrid stroke="#f0f2f5" vertical={false} />
-              <XAxis dataKey="date" />
+              <XAxis dataKey="date" ticks={ticksNumber(data, 'date')} />
               <YAxis tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} />
               <Tooltip
                 contentStyle={{
@@ -100,8 +100,13 @@ export default function MetricChart({
                   <stop offset="95%" stopColor={fillColor} stopOpacity={0.1} />
                 </linearGradient>
               </defs>
-              <XAxis dataKey="date" />
-              <YAxis tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} />
+              <XAxis dataKey="date" 
+                ticks={ticksNumber(data, 'date')}
+                interval="preserveStartEnd" // ensures first & last labels show
+                minTickGap={20}
+                tick={{ dy: 10 }}
+              />
+              <YAxis tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} tick={{ dx: -10 }}/>
               <Tooltip />
               <Area type="linear" dataKey={dataKey} stroke="#8884d8" fillOpacity={1} fill="url(#colorUv)" />
               <Line
@@ -114,6 +119,38 @@ export default function MetricChart({
             </AreaChart>
           )}
         </ResponsiveContainer>
+      </div>
+
+      {/* MRR Summary Section */}
+      <div className="flex justify-around border-t mt-6 pt-4 text-sm">
+        <div>
+          <p className="text-2xl font-semibold text-gray-800">$6.59k</p>
+          <p className="text-gray-500">Current MRR</p>
+        </div>
+        <div>
+          <p className="text-2xl font-semibold text-gray-800">
+            $5.36k{' '}
+            <span className="text-[#1677ff] text-sm font-medium">+23.02%</span>
+          </p>
+          <p className="text-gray-500">30 days ago</p>
+        </div>
+        <div>
+          <p className="text-2xl font-semibold text-gray-800">
+            $1.34k{' '}
+            <span className="text-[#1677ff] text-sm font-medium">
+              +390.27%
+            </span>
+          </p>
+          <p className="text-gray-500">60 days ago</p>
+        </div>
+        <div>
+          <p className="text-2xl font-semibold text-gray-800">$0</p>
+          <p className="text-gray-500">180 days ago</p>
+        </div>
+        <div>
+          <p className="text-2xl font-semibold text-gray-800">$0</p>
+          <p className="text-gray-500">365 days ago</p>
+        </div>
       </div>
     </div>
   );

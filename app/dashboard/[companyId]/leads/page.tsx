@@ -127,9 +127,7 @@ export default function LeadsTrialsPage() {
           {/* Trial-to-paid cohorts chart */}
           <div className="bg-white rounded-lg shadow-sm p-5">
             <h2 className="font-semibold text-gray-800 flex items-center gap-2 mb-3">
-              <span role="img" aria-label="emoji">
-                🧑‍🤝‍🧑
-              </span>
+              <span className="text-xl">🤑</span>
               Trial-to-paid cohorts
             </h2>
             <div className="h-[300px] pb-5">
