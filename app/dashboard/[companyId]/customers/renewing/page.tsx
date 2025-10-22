@@ -7,23 +7,11 @@ import {
 } from 'lucide-react';
 import CustomerTitle from '@/components/ui/CustomerTitle';
 import CustomFilterBar from '@/components/ui/CustomFilterBar';
-import { MdFiberNew } from "react-icons/md";
-import { BiSolidSave } from "react-icons/bi";
-import { LuCopy } from "react-icons/lu";
-const leads = [
-    { id: 1, customer: 'ultdrop@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 2, customer: 'danieljacobdorsey@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 3, customer: 'toxicmula420@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 4, customer: 'directterms@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 5, customer: 'flipacademy@yahoo.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 6, customer: 'newdismain@ixempires.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 7, customer: 'ebaycashcamel@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 8, customer: 'danieljacobdorsey@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 9, customer: 'chernichaw1@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 10, customer: 'monkman9696@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 11, customer: 'rothstleo82@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead', note: 'Free subscriber' },
-    { id: 12, customer: 'maria.kipling@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-];
+import { MdOutlineAutorenew } from "react-icons/md";
+import * as constants from '@/lib/constants';
+import SearchBar from '@/components/ui/SearchBar';
+
+const datas = constants.customers;
 
 export default function CustomersPage() {
     const [searchQuery, setSearchQuery] = useState('');
@@ -62,17 +50,17 @@ export default function CustomersPage() {
 
     const toggleSelectAll = () => {
         setSelectedRows((prev: any) =>
-            prev.length === leads.length ? [] : leads.map(c => c.id)
+            prev.length === datas.length ? [] : datas.map(c => c.id)
         );
     };
 
     // Filter customers based on search query
-    const filteredLeads = leads.filter(customer => {
+    const filteredLeads = datas.filter(customer => {
         const query = searchQuery.toLowerCase();
         return (
-            customer.customer.toLowerCase().includes(query) ||
-            customer.leadCreated.toLowerCase().includes(query) ||
-            customer.trialStarted.toLowerCase().includes(query) ||
+            customer.name.toLowerCase().includes(query) ||
+            customer.arr.toLowerCase().includes(query) ||
+            customer.mrr.toLowerCase().includes(query) ||
             customer.country.toLowerCase().includes(query) ||
             customer.status.toLowerCase().includes(query)
         );
@@ -81,7 +69,7 @@ export default function CustomersPage() {
     return (
         <div className="bg-blue-50 px-10 py-4 space-y-4">
             {/* Header */}
-            <CustomerTitle title="All New Leads" icon={<MdFiberNew className='text-blue-400 w-8 h-8' />} />
+            <CustomerTitle title="Renewing in <7 days" icon={<MdOutlineAutorenew className="w-6 h-6 bg-blue-400 text-white rounded" />} />
 
             {/* Filter Bar */}
             {showFilterBar && (
@@ -96,46 +84,7 @@ export default function CustomersPage() {
             {/* Main Content */}
             <div className="border border-gray-300 rounded-md bg-white">
                 {/* Search and Actions */}
-                <div className="px-6 py-4 border-b flex items-center justify-between">
-                    <div className="flex items-center gap-4 flex-1">
-                        <div className="relative flex-1 max-w-md">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <input
-                                type="text"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500"
-                                placeholder="Search customers..."
-                            />
-                            {searchQuery && (
-                                <button
-                                    onClick={() => setSearchQuery('')}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2"
-                                >
-                                    <X className="w-4 h-4 text-gray-400" />
-                                </button>
-                            )}
-                        </div>
-                        <span className="text-sm text-gray-600">
-                            136 customers (67 active subscribers)
-                        </span>
-                    </div>
-
-                    <div className="flex gap-2">
-                        <button className="p-2 border border-gray-300 rounded hover:bg-gray-50" onClick={() => setShowFilterBar(true)}>
-                            <Plus className="w-5 h-5 text-gray-600"  />
-                        </button>
-                        <button className="p-2 border border-gray-300 rounded hover:bg-gray-50">
-                            <Grid3x3 className="w-5 h-5 text-gray-600" />
-                        </button>
-                        <button className="p-2 border border-gray-300 rounded hover:bg-gray-50">
-                            <Download className="w-5 h-5 text-gray-600" />
-                        </button>
-                        <button className="p-2 border border-gray-300 rounded hover:bg-gray-50">
-                            <Upload className="w-5 h-5 text-gray-600" />
-                        </button>
-                    </div>
-                </div>
+                <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} setShowFilterBar={setShowFilterBar} />
 
                 {/* Table */}
                 <div className="flex-1 bg-gray-50">
@@ -145,17 +94,21 @@ export default function CustomersPage() {
                                 <th className="w-12 px-4 py-3">
                                     <input
                                         type="checkbox"
-                                        checked={selectedRows.length === leads.length}
+                                        checked={selectedRows.length === datas.length}
                                         onChange={toggleSelectAll}
                                         className="rounded border-gray-300"
                                     />
                                 </th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">Customer</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">Lead Created At</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">Free Trial Started At</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">Country</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">Owner</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">Past Due Date</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">ARR</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">Plan</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">Billing Cycle</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">MRR</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">Net Payments</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">Subscriber Since</th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">Customer Status</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">Renewal Date</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
@@ -170,11 +123,14 @@ export default function CustomersPage() {
                                                 className="rounded border-gray-300"
                                             />
                                         </td>
-                                        <td className="px-4 py-3 text-sm text-gray-900">{lead.customer}</td>
-                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.leadCreated}</td>
-                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.trialStarted}</td>
-                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.country}</td>
-                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.owner}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-900">{lead.name}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.since}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.arr}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.plan}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.billing}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.mrr}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.payment}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.since}</td>
                                         <td className="px-4 py-3">
                                             <div className="flex flex-col">
                                                 <span className="text-sm text-blue-600">{lead.status}</span>
@@ -183,6 +139,7 @@ export default function CustomersPage() {
                                                 )}
                                             </div>
                                         </td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.since}</td>
                                     </tr>
                                 ))) : (
                                 <tr>

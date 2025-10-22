@@ -5,7 +5,7 @@ export default function CustomerTitle({ title, icon }: { title: string, icon?: R
     return (
         <div className="px-6 flex items-center justify-between" >
             <div className="flex items-center">
-                {icon && <div className="mr-2">{icon}</div>}
+                {icon && <span className="mr-2">{icon}</span>}
                 <h1 className="text-2xl font-semibold text-gray-800">{title}</h1>
             </div>
             <div className='flex gap-6 items-center'>

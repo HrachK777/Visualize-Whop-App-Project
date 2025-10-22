@@ -7,9 +7,8 @@ import {
 } from 'lucide-react';
 import CustomerTitle from '@/components/ui/CustomerTitle';
 import CustomFilterBar from '@/components/ui/CustomFilterBar';
-import { MdFiberNew } from "react-icons/md";
-import { BiSolidSave } from "react-icons/bi";
-import { LuCopy } from "react-icons/lu";
+import { FaRoadBarrier } from "react-icons/fa6";
+
 const leads = [
     { id: 1, customer: 'ultdrop@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
     { id: 2, customer: 'danieljacobdorsey@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
@@ -81,7 +80,7 @@ export default function CustomersPage() {
     return (
         <div className="bg-blue-50 px-10 py-4 space-y-4">
             {/* Header */}
-            <CustomerTitle title="All New Leads" icon={<MdFiberNew className='text-blue-400 w-8 h-8' />} />
+            <CustomerTitle title="My working Leads" icon={<FaRoadBarrier className="w-6 h-6 text-yellow-400" />} />
 
             {/* Filter Bar */}
             {showFilterBar && (

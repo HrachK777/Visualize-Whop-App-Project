@@ -1,34 +1,13 @@
 'use client';
 
-import { use, useState } from 'react';
-import {
-    Search, X, Plus, Download, Upload,
-    Grid3x3, Sliders,
-} from 'lucide-react';
+import { useState } from 'react';
 import CustomerTitle from '@/components/ui/CustomerTitle';
 import CustomFilterBar from '@/components/ui/CustomFilterBar';
-import { MdFiberNew } from "react-icons/md";
-import { BiSolidSave } from "react-icons/bi";
-import { LuCopy } from "react-icons/lu";
 import { RiVipDiamondFill } from "react-icons/ri";
+import * as constants from "@/lib/constants";
+import SearchBar from '@/components/ui/SearchBar';
 
-
-const datas = [
-    { id: 1, name: 'Ethan C Welsh', mrr: '$120', arr: '$1,440', plan: 'Elite', billing: 'Monthly', payment: '$120', country: 'United States', since: 'Oct 14, 2025', status: 'Active' },
-    { id: 2, name: 'MD SHAHID B EMDAD', mrr: '$24', arr: '$288', plan: 'Elite', billing: 'Monthly', payment: '$24', country: 'United States', since: 'Oct 13, 2025', status: 'Active' },
-    { id: 3, name: 'Evan Nebab', mrr: '$0.60', arr: '$7.20', plan: 'Advanced', billing: 'Monthly', payment: '$0.60', country: 'United States', since: 'Sep 30, 2025', status: 'Active' },
-    { id: 4, name: 'Luis Delpino', mrr: '$12', arr: '$144', plan: 'Elite', billing: 'Monthly', payment: '$12', country: 'United States', since: 'Sep 21, 2025', status: 'Active', note: 'Cancelling in 5 days' },
-    { id: 5, name: 'Thien Nguyen', mrr: '$0.60', arr: '$7.20', plan: 'Advanced', billing: 'Monthly', payment: '$0.60', country: 'United States', since: 'Sep 17, 2025', status: 'Active' },
-    { id: 6, name: 'Vincent Nicchia', mrr: '$6', arr: '$72', plan: 'Advanced', billing: 'Monthly', payment: '$6', country: 'United States', since: 'Sep 17, 2025', status: 'Active' },
-    { id: 7, name: 'Brock Stewart', mrr: '$12', arr: '$144', plan: 'Elite', billing: 'Monthly', payment: '$12', country: 'United States', since: 'Sep 16, 2025', status: 'Active' },
-    { id: 8, name: 'Jacob malamud', mrr: '$12', arr: '$144', plan: 'Elite', billing: 'Monthly', payment: '$12', country: 'United States', since: 'Sep 16, 2025', status: 'Active' },
-    { id: 9, name: 'Jacob Malamud', mrr: '$12', arr: '$144', plan: 'Elite', billing: 'Monthly', payment: '$12', country: 'United States', since: 'Sep 16, 2025', status: 'Active' },
-    { id: 10, name: 'Advaith Malka', mrr: '$120', arr: '$1,440', plan: 'Elite', billing: 'Monthly', payment: '$132', country: 'United States', since: 'Sep 12, 2025', status: 'Active' },
-    { id: 11, name: 'rishi.singh0619@gmail.com', mrr: '$120', arr: '$1,440', plan: 'Elite', billing: 'Monthly', payment: '$132', country: 'United States', since: 'Sep 11, 2025', status: 'Active' },
-    { id: 12, name: 'Patrick Merriman', mrr: '$120', arr: '$1,440', plan: 'Elite', billing: 'Monthly', payment: '$132', country: 'United States', since: 'Sep 5, 2025', status: 'Active' },
-    { id: 13, name: "Trenton O'Neill", mrr: '$120', arr: '$1,440', plan: 'Elite', billing: 'Monthly', payment: '$240', country: 'United States', since: 'Sep 4, 2025', status: 'Active' },
-    { id: 14, name: 'Eva Shindin', mrr: '$60', arr: '$720', plan: 'Advanced', billing: 'Monthly', payment: '$120', country: 'United States', since: 'Sep 3, 2025', status: 'Active' },
-];
+const datas = constants.customers
 
 export default function CustomersPage() {
     const [searchQuery, setSearchQuery] = useState('');
@@ -100,46 +79,7 @@ export default function CustomersPage() {
             {/* Main Content */}
             <div className="border border-gray-300 rounded-md bg-white">
                 {/* Search and Actions */}
-                <div className="px-6 py-4 border-b flex items-center justify-between">
-                    <div className="flex items-center gap-4 flex-1">
-                        <div className="relative flex-1 max-w-md">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <input
-                                type="text"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500"
-                                placeholder="Search customers..."
-                            />
-                            {searchQuery && (
-                                <button
-                                    onClick={() => setSearchQuery('')}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2"
-                                >
-                                    <X className="w-4 h-4 text-gray-400" />
-                                </button>
-                            )}
-                        </div>
-                        <span className="text-sm text-gray-600">
-                            136 customers (67 active subscribers)
-                        </span>
-                    </div>
-
-                    <div className="flex gap-2">
-                        <button className="p-2 border border-gray-300 rounded hover:bg-gray-50" onClick={() => setShowFilterBar(true)}>
-                            <Plus className="w-5 h-5 text-gray-600" />
-                        </button>
-                        <button className="p-2 border border-gray-300 rounded hover:bg-gray-50">
-                            <Grid3x3 className="w-5 h-5 text-gray-600" />
-                        </button>
-                        <button className="p-2 border border-gray-300 rounded hover:bg-gray-50">
-                            <Download className="w-5 h-5 text-gray-600" />
-                        </button>
-                        <button className="p-2 border border-gray-300 rounded hover:bg-gray-50">
-                            <Upload className="w-5 h-5 text-gray-600" />
-                        </button>
-                    </div>
-                </div>
+                <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} setShowFilterBar={setShowFilterBar} />
 
                 {/* Table */}
                 <div className="border border-gray-300 rounded-md bg-white">

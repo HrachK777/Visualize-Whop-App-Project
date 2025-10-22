@@ -1,7 +1,5 @@
 "use client";
 
-import { Sidebar } from "@/components/Sidebar";
-import { DashboardHeader } from "@/components/DashboardHeader";
 import { useSidebarStore } from "@/lib/stores/sidebarStore";
 import SubscriptionModal from "@/components/SubscriptionModal";
 import { use, useEffect, useState } from "react";
@@ -24,7 +22,7 @@ export default function DashboardLayout({
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [active, setActive] = useState('dashboard') as any;
+  const [active, setActive] = useState('') as any;
   const pathname = usePathname();
   const navItems = [
     { id: 'customers', title: 'Customers', url: `/customers` },
@@ -35,9 +33,10 @@ export default function DashboardLayout({
   // console.log('for debug DashboardLayout pathname = ', pathname);
   useEffect(() => {
     const activeItem = navItems.find((item) => pathname.includes(item.id));
-    console.log('for debug DashboardLayout activeItem = ', activeItem);
     if (activeItem) setActive(activeItem?.id);
-  }, [pathname])
+  }, [active]);
+
+  console.log('for debug DashboardLayout active = ', active);
 
   // Extract the last segment of the path (e.g., 'customers', 'reports', etc.)
   const isDashboardPage =
@@ -114,7 +113,7 @@ export default function DashboardLayout({
           (
             <button
               onClick={() => setCollapsed(!collapsed)}
-              className={`fixed ${collapsed ? "ml-16" : "ml-80"} bottom-10 bg-gray-100 hover:bg-gray-300 text-gray-800 rounded-md px-1.5 py-3 shadow-lg transition-colors z-10`}
+              className={`fixed ${collapsed ? "ml-16" : "ml-80"} bottom-10 bg-white hover:bg-gray-300 text-gray-800 rounded-md px-1.5 py-3 shadow-lg transition-colors z-10`}
             >
               {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
             </button>

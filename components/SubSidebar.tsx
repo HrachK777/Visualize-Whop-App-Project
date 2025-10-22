@@ -13,6 +13,14 @@ import { usePathname } from "next/navigation";
 import { IoFolder } from "react-icons/io5";
 import { useEffect } from "react";
 import { MdFiberNew } from "react-icons/md";
+import { RiVipDiamondFill } from "react-icons/ri";
+import { FaRoadBarrier } from "react-icons/fa6";
+import { RiAlarmWarningFill } from "react-icons/ri";
+import { MdOutlineAutorenew } from "react-icons/md";
+import { GiMoneyStack } from "react-icons/gi";
+import { HiUsers } from "react-icons/hi";
+import { GiTrophyCup } from "react-icons/gi";
+
 
 
 const sections = {
@@ -80,14 +88,6 @@ const sections = {
   customers: {
     title: "Customers List",
     groups: [
-      // {
-      //   items: [
-      //     {
-      //       href: "/customers",
-      //       title: "Customer lists",
-      //     }
-      //   ]
-      // },
       {
         label: "Leads lists",
         items: [
@@ -98,12 +98,12 @@ const sections = {
           },
           {
             title: "My working leads",
-            icon: <FactoryIcon className="w-4 h-4" />,
+            icon: <FaRoadBarrier className="w-4 h-4 text-yellow-400" />,
             href: "/customers/my-working-leads"
           },
           {
             title: "My new leads",
-            icon: <FanIcon className="w-4 h-4" />,
+            icon: <MdFiberNew className="w-4 h-4 text-blue-400" />,
             href: "/customers/my-new-leads"
           },
         ],
@@ -113,12 +113,12 @@ const sections = {
         items: [
           {
             title: "Past due customers",
-            icon: '🚨',
+            icon: <RiAlarmWarningFill className="w-4 h-4 text-red-600" />,
             href: "/customers/past-due-customers"
           },
           {
             title: "Renewing in < 7days",
-            icon: "🔄",
+            icon: <MdOutlineAutorenew className="w-4 h-4 bg-blue-400 text-white rounded" />,
             href: "/customers/renewing"
           },
         ],
@@ -127,27 +127,27 @@ const sections = {
         items: [
           {
             title: "Leads to revisit",
-            icon: "🔁",
+            icon: <MdOutlineAutorenew className="w-4 h-3 bg-blue-400 text-white rounded" />,
             href: "/customers/leads-to-revisit"
           },
           {
             title: "High-value accounts",
-            icon: "💎",
+            icon: <RiVipDiamondFill className='text-blue-400 w-4 h-4' />,
             href: "/customers/high-value-accounts"
           },
           {
             title: "Top wins from this week",
-            icon: "🏆",
+            icon: <GiTrophyCup className="text-yellow-400 w-4 h-4" />,
             href: "/customers/top-wins-from-this-week"
           },
           {
             title: "Customers with > 1 subscription",
-            icon: "👥",
+            icon: <HiUsers className="text-purple-600 w-4 h-4" />,
             href: "/customers/customers-with-more-than-one-subscription"
           },
           {
             title: "Discounted customers",
-            icon: "💚",
+            icon: <GiMoneyStack className="text-green-400 w-4 h-4" />,
             href: "/customers/discounted-customers"
           },
         ],
@@ -163,6 +163,8 @@ export default function SubSidebar({ active, companyId }: any) {
   const pathname = usePathname();
   const isActive = (path: string) => pathname.includes(path);
 
+  console.log('for debug Sidebar active = ', active);
+  console.log('for debug Sidebar section = ', section);
   useEffect(() => {
     if (section) {
       setCollapsed(false);
@@ -209,7 +211,7 @@ export default function SubSidebar({ active, companyId }: any) {
                   <Link
                     href={`/dashboard/${companyId}/${item.href}`}
                     className={clsx(
-                      "block rounded-md py-1.5 items-center hover:bg-gray-100 hover:text-gray-900 transition-all",
+                      "flex rounded-md py-1.5 items-center hover:bg-gray-100 hover:text-gray-900 transition-all",
                       group.label ? "px-6 text-sm text-gray-700" : "text-gray-800 uppercase text-[11px] font-medium",
                       isActive(item.href) == true ? "bg-gray-200 text-gray-900" : ""
                     )}
@@ -217,7 +219,7 @@ export default function SubSidebar({ active, companyId }: any) {
                     {typeof item === "object" && item !== null ? (
                       <>
                         {(item as any).icon ? (
-                          <span className="inline-block mr-2">
+                          <span className="mr-2">
                             {(item as any).icon}
                           </span>
                         ) : null}
