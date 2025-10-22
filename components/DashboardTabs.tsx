@@ -20,10 +20,10 @@ export default function DashboardTabs({ companyId }: DashboardTabsProps) {
   const collapsed = useSidebarStore((state) => state.collapsed);
   const tabs = [
     { name: 'Home', href: `/dashboard/${companyId}` },
-    { name: 'Leads & Trials', href: `/dashboard/${companyId}/leads` },
-    { name: 'Sales-led', href: `/dashboard/${companyId}/sales` },
-    { name: 'Churn & Retention', href: `/dashboard/${companyId}/churn` },
-    { name: 'Cash Flow', href: `/dashboard/${companyId}/cash-flow` },
+    { name: 'Leads & Trials', href: `/dashboard/${companyId}/tabs/leads` },
+    { name: 'Sales-led', href: `/dashboard/${companyId}/tabs/sales` },
+    { name: 'Churn & Retention', href: `/dashboard/${companyId}/tabs/churn` },
+    { name: 'Cash Flow', href: `/dashboard/${companyId}/tabs/cash-flow` },
     // { name: '+', href: '#' },
   ];
   const activeTabName =

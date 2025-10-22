@@ -22,6 +22,9 @@ export default function MainSidebar({ active, setActive, companyId }: any) {
   useEffect(() => {
     const activeItem = navItems.find((item) => item.url === pathname);
     setActive(activeItem?.id);
+    if(!activeItem && pathname.includes('tabs')) {
+      setActive('dashboard');
+    }
   }, [pathname])
 
   const handleClickMainMenuItem = (item: any) => {
