@@ -24,8 +24,20 @@ export default function DashboardLayout({
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [active, setActive] = useState('dashboard');
+  const [active, setActive] = useState('dashboard') as any;
   const pathname = usePathname();
+  const navItems = [
+    { id: 'customers', title: 'Customers', url: `/customers` },
+    { id: 'reports', title: 'Reports', url: `/reports` },
+    { id: 'settings', title: 'Settings', url: `/settings` },
+  ];
+  // console.log('for debug DashboardLayout active = ', active);
+  // console.log('for debug DashboardLayout pathname = ', pathname);
+  useEffect(() => {
+    const activeItem = navItems.find((item) => pathname.includes(item.id));
+    console.log('for debug DashboardLayout activeItem = ', activeItem);
+    if (activeItem) setActive(activeItem?.id);
+  }, [pathname])
 
   // Extract the last segment of the path (e.g., 'customers', 'reports', etc.)
   const isDashboardPage =

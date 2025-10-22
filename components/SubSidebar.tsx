@@ -12,7 +12,7 @@ import {
 import { usePathname } from "next/navigation";
 import { IoFolder } from "react-icons/io5";
 import { useEffect } from "react";
-import { Chevron } from "react-day-picker";
+import { MdFiberNew } from "react-icons/md";
 
 
 const sections = {
@@ -59,33 +59,41 @@ const sections = {
       {
         label: "Churn & Retention",
         items: [
-          {title: "Customer Churn Rate", href: "/reports/customer-churn-rate"},
-          {title: "MRR Churn Rate", href: "/reports/mrr-churn-rate"},
-          {title: "ARPU", href: "/reports/arpu"},
-          {title: "ARPA", href: "/reports/arpa"},
-          {title: "LTV", href: "/reports/ltv"}
+          { title: "Customer Churn Rate", href: "/reports/customer-churn-rate" },
+          { title: "MRR Churn Rate", href: "/reports/mrr-churn-rate" },
+          { title: "ARPU", href: "/reports/arpu" },
+          { title: "ARPA", href: "/reports/arpa" },
+          { title: "LTV", href: "/reports/ltv" }
         ],
       },
       {
         label: "Leads & Conversions",
         items: [
-          {title: "Leads", href: "/reports/leads"},
-          {title: "Free Trials", href: "/reports/free-trials"},
-          {title: "Trial → Paid Conversions", href: "/reports/trial-to-paid-conversions"},
-          {title: "Cohorts", href: "/reports/cohorts"},
+          { title: "Leads", href: "/reports/leads" },
+          { title: "Free Trials", href: "/reports/free-trials" },
+          { title: "Trial → Paid Conversions", href: "/reports/trial-to-paid-conversions" },
+          { title: "Cohorts", href: "/reports/cohorts" },
         ],
       },
     ],
   },
   customers: {
-    title: "Customers",
+    title: "Customers List",
     groups: [
+      // {
+      //   items: [
+      //     {
+      //       href: "/customers",
+      //       title: "Customer lists",
+      //     }
+      //   ]
+      // },
       {
         label: "Leads lists",
         items: [
           {
             title: "All new leads",
-            icon: <IoFolder className="w-4 h-4" />,
+            icon: <MdFiberNew className="w-4 h-4 text-blue-400" />,
             href: "/customers/all-new-leads"
           },
           {
@@ -111,7 +119,7 @@ const sections = {
           {
             title: "Renewing in < 7days",
             icon: "🔄",
-            href: "/customers/renewing-in-7-days"
+            href: "/customers/renewing"
           },
         ],
       },
@@ -163,12 +171,28 @@ export default function SubSidebar({ active, companyId }: any) {
     }
   }, [section])
 
-  if(!section || collapsed) return null;
+  if (!section || collapsed) return null;
 
   return (
     <aside className="fixed left-16 top-0 h-screen w-64 border-r bg-white shadow-sm overflow-y-auto">
       <div className="p-4 border-b">
         <h2 className="text-lg font-semibold text-gray-800">{section.title}</h2>
+        {section.title == "Customers List" && (
+          <>
+            <Link
+              href={`/dashboard/${companyId}/customers`}
+              className={clsx(
+                "block rounded-md mt-4 p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-all",
+                pathname === `/dashboard/${companyId}/customers` ? "bg-gray-200 text-gray-900" : ""
+              )}
+            >
+              Customers
+            </Link>
+            <button className="px-3 py-1.5 text-xs border border-gray-300 rounded text-gray-600 hover:bg-gray-50">
+              ADD FOLDER
+            </button>
+          </>
+        )}
       </div>
       <nav className="p-3 space-y-4">
         {section.groups.map((group, i) => (
@@ -181,11 +205,11 @@ export default function SubSidebar({ active, companyId }: any) {
             )}
             <ul className="space-y-1">
               {group.items?.map((item, j) => (
-                <li key={j}>
+                <li key={j} className="items-center">
                   <Link
                     href={`/dashboard/${companyId}/${item.href}`}
                     className={clsx(
-                      "block rounded-md py-1.5  hover:bg-gray-100 hover:text-gray-900 transition-all",
+                      "block rounded-md py-1.5 items-center hover:bg-gray-100 hover:text-gray-900 transition-all",
                       group.label ? "px-6 text-sm text-gray-700" : "text-gray-800 uppercase text-[11px] font-medium",
                       isActive(item.href) == true ? "bg-gray-200 text-gray-900" : ""
                     )}
