@@ -2,10 +2,8 @@
 import { useState, useEffect } from 'react';
 import MetricChart from '@/components/charts/MetricsChart';
 import MetricTable, { MetricPivotData } from '@/components/charts/MetricTable';
-import DateRangePicker from '@/components/charts/DateRangePicker';
-import { BiSolidSave } from "react-icons/bi";
 import { BsFillQuestionCircleFill } from "react-icons/bs";
-import { CgSortAz } from "react-icons/cg";
+import CustomerTitle from '@/components/ui/CustomerTitle';
 
 // simulate pre-aggregated data fetch
 function generateMockData(group: string, start: Date, end: Date) {
@@ -30,11 +28,6 @@ const filterOptions = [
   'Reactivation MRR',
   'Contraction MRR',
 ];
-
-// interface MetricPivotData {
-//   category: string;
-//   values: Record<string, number>;
-// }
 
 const columns = [
   'Jan 2025',
@@ -95,22 +88,12 @@ export default function ReportsMRRPage() {
   return (
     <div className="min-h-screen bg-[#f7f9fc] px-10 py-4 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="flex text-2xl font-semibold text-gray-800 text-center items-center">Monthly Recurring Revenue
-          <BsFillQuestionCircleFill className="h-5 w-5 text-gray-500 ml-2" title='The predictable revenue your business earns each month from subscriptions based on what customers are currently committed to paying you monthly.' />
-        </h2>
-        <div className='flex gap-6 items-center'>
-          <div className="grid grid-cols-2 items-center m-3 border border-gray-200 rounded-md divide-x-2 divide-gray-200 bg-white">
-            <button className='hover:bg-gray-100 cursor-pointer'>
-              <CgSortAz className="inline-block px-1 mx-3 w-8 h-8 text-gray-600" />
-            </button>
-            <button className='hover:bg-gray-100 cursor-pointer'>
-              <BiSolidSave className="inline-block px-1 mx-3 w-8 h-8 text-gray-600" />
-            </button>
-          </div>
-          <DateRangePicker onChange={setDateRange} range={dateRange} />
-        </div>
-      </div>
+      <CustomerTitle
+        title="Monthly Recurring Revenue"
+        icon={<BsFillQuestionCircleFill className="h-5 w-5 text-gray-500 ml-2" title='The predictable revenue your business earns each month from subscriptions based on what customers are currently committed to paying you monthly.' />}
+        setDateRange={setDateRange}
+        dateRange={dateRange}
+      />
 
       <MetricChart
         onGroupingChange={setGroup}
