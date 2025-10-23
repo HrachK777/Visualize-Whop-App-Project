@@ -9,7 +9,8 @@ import { captureAllSnapshots } from './snapshotService'
 async function runHistoricalSnapshot(): Promise<void> {
 
   try {
-    const companies = await companyRepository.getCompaniesNeedingBackfill()
+    // Legacy: backfill tracking removed, use getAllCompanies() if needed
+    const companies = await companyRepository.getAllCompanies()
 
     if (companies.length === 0) {
     } else {
@@ -19,7 +20,8 @@ async function runHistoricalSnapshot(): Promise<void> {
       }
 
     }
-  } catch (error) {
+  } catch {
+    // Ignore errors during startup
   }
 }
 
@@ -31,7 +33,8 @@ async function runDailySnapshot(): Promise<void> {
 
   try {
     await captureAllSnapshots()
-  } catch (error) {
+  } catch {
+    // Ignore errors during snapshot
   }
 }
 

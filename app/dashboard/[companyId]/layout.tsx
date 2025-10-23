@@ -8,6 +8,7 @@ import SubSidebar from '@/components/SubSidebar';
 import DashboardTabs from "@/components/DashboardTabs";
 import { usePathname } from 'next/navigation';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
+import { AnalyticsProvider } from '@/lib/contexts/AnalyticsContext'
 
 export default function DashboardLayout({
   children,
@@ -65,9 +66,9 @@ export default function DashboardLayout({
           };
 
           // Show modal if user doesn't have access
-          // if (!subscriptionData.hasAccess) {
-          //   setShowSubscriptionModal(true);
-          // }
+          if (!subscriptionData.hasAccess) {
+            setShowSubscriptionModal(true);
+          }
         }
       } catch (err) {
         // Error checking subscription
@@ -91,44 +92,46 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Subscription Modal - shows when user doesn't have access */}
-      {showSubscriptionModal && userId && (
-        <SubscriptionModal userId={userId} companyId={companyId} />
-      )}
+    <AnalyticsProvider companyId={companyId}>
+      <div className="flex min-h-screen bg-gray-50">
+        {/* Subscription Modal - shows when user doesn't have access */}
+        {showSubscriptionModal && userId && (
+          <SubscriptionModal userId={userId} companyId={companyId} />
+        )}
 
-      {/* Main Dashboard - blurred if no subscription */}
-      <div
-        className={
-          showSubscriptionModal
-            ? "filter blur-sm pointer-events-none w-full flex"
-            : "w-full flex"
-        }
-      >
-        {/* <Sidebar companyId={companyId} /> */}
-        <MainSidebar active={active} setActive={setActive} companyId={companyId} />
-        <SubSidebar active={active} companyId={companyId} />
-        {/* Toggle Button */}
-        {(pathname.includes('/reports') || pathname.includes('/customers')) &&
-          (
-            <button
-              onClick={() => setCollapsed(!collapsed)}
-              className={`fixed ${collapsed ? "ml-16" : "ml-80"} bottom-10 bg-white hover:bg-gray-300 text-gray-800 rounded-md px-1.5 py-3 shadow-lg transition-colors z-10`}
+        {/* Main Dashboard - blurred if no subscription */}
+        <div
+          className={
+            showSubscriptionModal
+              ? "filter blur-sm pointer-events-none w-full flex"
+              : "w-full flex"
+          }
+        >
+          {/* <Sidebar companyId={companyId} /> */}
+          <MainSidebar active={active} setActive={setActive} companyId={companyId} />
+          <SubSidebar active={active} companyId={companyId} />
+          {/* Toggle Button */}
+          {(pathname.includes('/reports') || pathname.includes('/customers')) &&
+            (
+              <button
+                onClick={() => setCollapsed(!collapsed)}
+                className={`fixed ${collapsed ? "ml-16" : "ml-80"} bottom-10 bg-white hover:bg-gray-300 text-gray-800 rounded-md px-1.5 py-3 shadow-lg transition-colors z-10`}
+              >
+                {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+              </button>
+            )}
+          <div className={`flex-1 flex flex-col`}>
+            {/* <DashboardHeader companyId={companyId} /> */}
+            {isDashboardPage && <DashboardTabs companyId={companyId} />}
+            <main
+              className={`flex-1 transition-all duration-300 ${collapsed ? "ml-16" : "ml-80"
+                }`}
             >
-              {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-            </button>
-          )}
-        <div className={`flex-1 flex flex-col`}>
-          {/* <DashboardHeader companyId={companyId} /> */}
-          {isDashboardPage && <DashboardTabs companyId={companyId} />}
-          <main
-            className={`flex-1 transition-all duration-300 ${collapsed ? "ml-16" : "ml-80"
-              }`}
-          >
-            {children}
-          </main>
+              {children}
+            </main>
+          </div>
         </div>
       </div>
-    </div>
+    </AnalyticsProvider>
   );
 }

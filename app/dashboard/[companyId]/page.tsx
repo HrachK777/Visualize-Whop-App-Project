@@ -9,86 +9,44 @@ import { useChartData, HistoricalDataPoint } from '@/lib/hooks/useChartData'
 import { usePathname } from 'next/navigation'
 import ARRLineChart from '@/components/charts/ARRLineChart'
 import NetMRRMovementsChart from '@/components/charts/NetMRRMovementsChart';
+import { useAnalytics } from '@/lib/contexts/AnalyticsContext'
 
-interface AnalyticsData {
-  mrr: {
-    total: number
-    breakdown: {
-      monthly: number
-      annual: number
-      quarterly: number
-      other: number
-    }
-  }
-  arr: number
-  arpu: number
-  subscribers: {
-    active: number
-    cancelled: number
-    past_due: number
-    trialing: number
-    total: number
-  }
-  activeUniqueSubscribers: number
-  cached?: boolean
-  timestamp?: string
-  snapshotDate?: string
-}
+export default function DashboardPage({ companyId }: { companyId: string }) {
+  // Use shared analytics context - fetched ONCE in layout
+  const { data: analytics, loading, error, refetch } = useAnalytics()
+  const [topWins, setTopWins] = useState([]) as any[];
+  useEffect(() => {
+    const fetchTopWins = async () => {
+      const res = await fetch(`/api/subscription/top-wins?companyId=${process.env.NEXT_PUBLIC_WHOP_COMPANY_ID}`);
+      const topWins = await res.json();
+      // if(topWins.length > 0) {
+      //   topWins.map(win => {
+      //     win.billing = analytics?.plans.find(plan => plan.id === win.planId)?.billing_period || "monthly";
+      //   })
+      // }
+      setTopWins(topWins);
+    };
 
-export default function DashboardPage({ params }: { params: Promise<{ companyId: string }> }) {
-  const { companyId } = use(params)
-  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [historicalLoading, setHistoricalLoading] = useState(false)
-  const [dailyLoading, setDailyLoading] = useState(false)
-  const [message, setMessage] = useState<string | null>(null)
-  const [historicalData, setHistoricalData] = useState<HistoricalDataPoint[]>([])
-  const pathname = usePathname();
+    fetchTopWins();
+  }, []);
 
-  const topWins = [
-    { customer: 'Ethan C Welsh', arr: '$1,440', billing: 'Monthly', country: 'United States' },
-    { customer: 'MD SHAHID B EMDAD', arr: '$288', billing: 'Monthly', country: 'United States' },
-  ];
+  console.log('for debug DashboardPage analytics = ', analytics);
+  console.log('for debug DashboardPage topWins = ', topWins);
+
+  // const topWins = [
+  //   { customer: 'Ethan C Welsh', arr: '$1,440', billing: 'Monthly', country: 'United States' },
+  //   { customer: 'MD SHAHID B EMDAD', arr: '$288', billing: 'Monthly', country: 'United States' },
+  // ];
 
   const mrrBreakdown = [
-    { label: 'New Business MRR', value: '$144', color: 'text-blue-600', count: 2 },
-    { label: 'Expansion MRR', value: '$648', color: 'text-blue-500', count: 6 },
-    { label: 'Contraction MRR', value: '-$30', color: 'text-red-500', count: 1 },
-    { label: 'Churn MRR', value: '-$180', color: 'text-red-600', count: 2 },
-    { label: 'Reactivation MRR', value: '$0', color: 'text-gray-500', count: 0 },
+    { label: 'New Business MRR', value: analytics?.newMRR.total, color: 'text-blue-600', count: analytics?.newMRR.customers },
+    { label: 'Expansion MRR', value: analytics?.expansionMRR.total, color: 'text-blue-500', count: analytics?.expansionMRR.customers },
+    { label: 'Contraction MRR', value: analytics?.contractionMRR.total, color: 'text-red-500', count: analytics?.contractionMRR.customers },
+    { label: 'Churn MRR', value: analytics?.churnedMRR.total, color: 'text-red-600', count: analytics?.churnedMRR.customers },
+    { label: 'Reactivation MRR', value: analytics?.reactivations.total, color: 'text-gray-500', count: analytics?.reactivations.total },
   ];
 
-  
-  useEffect(() => {
-    async function fetchAnalytics() {
-      try {
-        // First, ensure historical data exists (trigger backfill if needed)
-        // await fetch(`/api/analytics/ensure-backfill?company_id=${companyId}`)
-
-        // // Fetch analytics
-        // const analyticsResponse = await fetch(`/api/analytics?company_id=${companyId}`)
-        // if (!analyticsResponse.ok) {
-        //   throw new Error('Failed to fetch analytics')
-        // }
-        // const data = await analyticsResponse.json()
-        // setAnalytics(data)
-        // const historicalResponse = await fetch(`/api/analytics/historical?company_id=${companyId}&days=365`)
-        // if (!historicalResponse.ok) {
-        //   throw new Error('Failed to fetch historical data')
-        // }
-        // const historicalData = await historicalResponse.json()
-        // setHistoricalData(historicalData.data)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchAnalytics()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname])
+  const net_mrr_movement = (analytics?.newMRR?.total ?? 0) + (analytics?.expansionMRR?.total ?? 0) + (analytics?.contractionMRR?.total ?? 0) + (analytics?.churnedMRR?.total ?? 0);
 
   if (loading) {
     return (
@@ -111,9 +69,9 @@ export default function DashboardPage({ params }: { params: Promise<{ companyId:
     )
   }
 
-  // if (!analytics) {
-  //   return null
-  // }
+  if (!analytics) {
+    return null
+  }
 
   return (
     <div className="px-8 min-h-screen bg-[#f7f9fc]">
@@ -127,7 +85,7 @@ export default function DashboardPage({ params }: { params: Promise<{ companyId:
               Top wins from this week
             </div>
             <button className="text-xs font-medium text-gray-600 border border-gray-200 px-2 py-1 rounded-md">
-              2 CUSTOMERS
+              {topWins.length} CUSTOMERS
             </button>
           </div>
 
@@ -144,14 +102,14 @@ export default function DashboardPage({ params }: { params: Promise<{ companyId:
               </tr>
             </thead>
             <tbody>
-              {topWins.map((win, i) => (
+              {topWins.length > 0 ? topWins.map((win: any, i: number) => (
                 <tr key={i} className="text-gray-700">
                   <td className="py-2">{win.customer}</td>
                   <td className="py-2">{win.arr}</td>
                   <td className="py-2">{win.billing}</td>
                   <td className="py-2">{win.country}</td>
                 </tr>
-              ))}
+              )) : <tr><td colSpan={4} className="py-5 text-center text-gray-500">No top wins this week</td></tr>}
             </tbody>
           </table>
         </div>
@@ -178,7 +136,7 @@ export default function DashboardPage({ params }: { params: Promise<{ companyId:
                   <span className={item.color}>{item.count}</span>
                   <span className='text-gray-700'>{item.label}</span>
                 </div>
-                <span className="font-medium text-gray-700">{item.value}</span>
+                <span className="font-medium text-gray-700">${item.value}</span>
               </div>
             ))}
             <hr className="my-2 border-gray-200" />
@@ -186,7 +144,7 @@ export default function DashboardPage({ params }: { params: Promise<{ companyId:
               <div className='gap-10'>
                 <span>Net MRR Movement</span>
               </div>
-              <span>$582</span>
+              <span>${net_mrr_movement}</span>
             </div>
             <hr className="border-gray-200" />
             <div className="flex justify-between text-gray-600 px-4">
@@ -194,16 +152,16 @@ export default function DashboardPage({ params }: { params: Promise<{ companyId:
                 <span>3</span>
                 <span>Scheduled MRR Movements</span>
               </div>
-              <span>-$132</span>
+              <span>$0</span>
             </div>
           </div>
         </div>
 
         {/* Bottom Left - Net MRR Movements */}
-          <NetMRRMovementsChart />
+        <NetMRRMovementsChart NetMRRData={analytics.movements.monthly} />
 
         {/* Bottom Right - Annual Run Rate */}
-            <ARRLineChart />
+        <ARRLineChart ARRData={analytics.historical} growth={analytics.newMRR.growth} />
       </div>
     </div>
   )

@@ -1,59 +1,54 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { captureCompanySnapshot } from '@/lib/services/snapshotService'
+import { captureAllSnapshots } from '@/lib/services/snapshotService'
 
 /**
- * Cron job endpoint to capture daily snapshots
- * This endpoint should be called at 5am daily by a cron scheduler
+ * Cron endpoint for daily snapshot capture
+ * Triggered by Vercel Cron at 5 AM UTC (configured in vercel.json)
  *
- * Can be triggered:
- * 1. By the internal node-cron scheduler (automatic)
- * 2. Manually via API call for testing: GET /api/cron/snapshot
- * 3. By external cron services (e.g., Vercel Cron, GitHub Actions)
+ * Security: Protected by CRON_SECRET environment variable
+ *
+ * Usage:
+ * - Automatic: Vercel Cron calls this daily
+ * - Manual: GET /api/cron/snapshot with Authorization header
  */
 export async function GET(request: NextRequest) {
   try {
-    // Optional: Verify the request is from an authorized source
+    // Verify cron secret for security
     const authHeader = request.headers.get('authorization')
     const cronSecret = process.env.CRON_SECRET
 
-    // If CRON_SECRET is set, require authorization
     if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+      console.error('[Cron] Unauthorized snapshot request - invalid secret')
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       )
     }
 
-    const { companyRepository } = await import('@/lib/db/repositories/CompanyRepository')
+    console.log('[Cron] Starting daily snapshot capture...')
+    const startTime = Date.now()
 
-    // Only capture snapshots for companies that have completed initial backfill
-    const companies = await companyRepository.getCompaniesWithBackfill()
+    // Capture snapshots for all registered companies
+    await captureAllSnapshots()
 
-    if (companies.length === 0) {
-      return NextResponse.json({
-        success: true,
-        message: 'No companies ready for daily snapshots',
-        timestamp: new Date().toISOString(),
-      })
-    }
-
-    // Capture today's snapshot for each company
-    for (const company of companies) {
-      await captureCompanySnapshot(company.companyId)
-      await companyRepository.updateLastSync(company.companyId)
-    }
+    const duration = Date.now() - startTime
+    console.log(`[Cron] ✓ Snapshot capture completed in ${duration}ms`)
 
     return NextResponse.json({
       success: true,
-      message: 'Snapshots captured successfully',
-      timestamp: new Date().toISOString(),
+      message: 'Daily snapshots captured successfully',
+      duration: `${duration}ms`,
+      timestamp: new Date().toISOString()
     })
+
   } catch (error) {
+    console.error('[Cron] Snapshot capture failed:', error)
+
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to capture snapshots',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
       },
       { status: 500 }
     )

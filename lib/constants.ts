@@ -14,3 +14,16 @@ export const customers = [
     { id: 13, name: "Trenton O'Neill", mrr: '$120', arr: '$1,440', plan: 'Elite', billing: 'Monthly', payment: '$240', country: 'United States', since: 'Sep 4, 2025', status: 'Active' },
     { id: 14, name: 'Eva Shindin', mrr: '$60', arr: '$720', plan: 'Advanced', billing: 'Monthly', payment: '$120', country: 'United States', since: 'Sep 3, 2025', status: 'Active' },
 ];
+
+const topWins = [
+    { customer: 'Ethan C Welsh', arr: '$1,440', billing: 'Monthly', country: 'United States' },
+    { customer: 'MD SHAHID B EMDAD', arr: '$288', billing: 'Monthly', country: 'United States' },
+];
+
+const mrrBreakdown = [
+    { label: 'New Business MRR', value: '$144', color: 'text-blue-600', count: 2 },
+    { label: 'Expansion MRR', value: '$648', color: 'text-blue-500', count: 6 },
+    { label: 'Contraction MRR', value: '-$30', color: 'text-red-500', count: 1 },
+    { label: 'Churn MRR', value: '-$180', color: 'text-red-600', count: 2 },
+    { label: 'Reactivation MRR', value: '$0', color: 'text-gray-500', count: 0 },
+];

@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { whopSdk } from '@/lib/whop/sdk'
+import { getAllMemberships, getAllPayments, getAllPlans } from '@/lib/whop/helpers'
+import { whopClient } from '@/lib/whop/sdk'
 import { calculateMRR, calculateARR, calculateARPU } from '@/lib/analytics/mrr'
 import { calculateSubscriberMetrics, getActiveUniqueSubscribers } from '@/lib/analytics/subscribers'
 import { calculateTrialMetrics } from '@/lib/analytics/trials'
+import { calculateCustomerLifetimeValue } from '@/lib/analytics/lifetime'
+import { calculateCashFlow, calculatePaymentMetrics, calculateRefundMetrics } from '@/lib/analytics/transactions'
 import { Membership, Plan } from '@/lib/types/analytics'
 import { metricsRepository } from '@/lib/db/repositories/MetricsRepository'
 
@@ -10,7 +13,6 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
     const companyId = searchParams.get('company_id')
-    const forceRefresh = searchParams.get('force_refresh') === 'true'
 
     if (!companyId) {
       return NextResponse.json(
@@ -19,105 +21,48 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Try to use cached snapshot data if available and not forcing refresh
-    if (!forceRefresh) {
-      const cachedSnapshot = await metricsRepository.getLatestSnapshotWithRawData(companyId)
+    // Fetch all data from SDK
+    console.log(`[Whop SDK] ========================================`)
+    console.log(`[Whop SDK] REQUESTED COMPANY ID: ${companyId}`)
+    console.log(`[Whop SDK] ========================================`)
+    const company = await whopClient.companies.retrieve(companyId)
+    console.log(`[Whop SDK] ========================================`)
+    console.log(`[Whop SDK] RETURNED COMPANY ID: ${company.id}`)
+    console.log(`[Whop SDK] RETURNED COMPANY TITLE: ${company.title}`)
+    console.log(`[Whop SDK] ========================================`)
 
-      if (cachedSnapshot?.rawData) {
-        // Extract unique plans from cached data
-        const cachedPlans = (cachedSnapshot.rawData.plans || []) as Plan[]
-        const uniquePlans = cachedPlans
-          .filter((plan) => plan.accessPass?.title)
-          .reduce((acc: Array<{ id: string; name: string }>, plan) => {
-            const existing = acc.find(p => p.id === plan.id)
-            if (!existing) {
-              acc.push({
-                id: plan.id,
-                name: plan.accessPass?.title || 'Unknown Plan'
-              })
-            }
-            return acc
-          }, [] as Array<{ id: string; name: string }>)
-
-        return NextResponse.json({
-          mrr: cachedSnapshot.mrr,
-          arr: cachedSnapshot.arr,
-          arpu: cachedSnapshot.arpu,
-          subscribers: cachedSnapshot.subscribers,
-          activeUniqueSubscribers: cachedSnapshot.activeUniqueSubscribers,
-          plans: uniquePlans,
-          timestamp: cachedSnapshot.timestamp.toISOString(),
-          cached: true,
-          snapshotDate: cachedSnapshot.date.toISOString(),
-        })
-      }
+    if (company.id !== companyId) {
+      console.error(`[Whop SDK] ⚠️  WARNING: Requested ${companyId} but got ${company.id}`)
     }
 
-    // Fetch ALL memberships using Whop SDK with pagination
-    let allMemberships: Membership[] = []
-    let hasNextPage = true
-    let cursor: string | undefined = undefined
+    const allMemberships = await getAllMemberships(companyId)
+    const allPlans = await getAllPlans(companyId)
+    const payments = await getAllPayments(companyId)
 
-    while (hasNextPage) {
-      const response = await whopSdk.withCompany(companyId).companies.listMemberships({
-        companyId,
-        first: 50, // Fetch 50 at a time to avoid complexity issues
-        after: cursor,
-      })
-
-      const nodes = (response?.memberships?.nodes || []) as unknown as Membership[]
-      allMemberships = [...allMemberships, ...nodes]
-
-      hasNextPage = response?.memberships?.pageInfo?.hasNextPage || false
-      cursor = response?.memberships?.pageInfo?.endCursor ?? undefined
-
-      if (!hasNextPage) break
-    }
-
-    const memberships = allMemberships
-
-    // Fetch ALL plans using Whop SDK with pagination
-    let allPlans: Plan[] = []
-    let hasNextPlanPage = true
-    let planCursor: string | undefined = undefined
-
-    while (hasNextPlanPage) {
-      const plansResponse = await whopSdk.withCompany(companyId).companies.listPlans({
-        companyId,
-        first: 50,
-        after: planCursor,
-      })
-
-      const planNodes = (plansResponse?.plans?.nodes || []) as Plan[]
-      allPlans = [...allPlans, ...planNodes]
-
-      hasNextPlanPage = plansResponse?.plans?.pageInfo?.hasNextPage || false
-      planCursor = plansResponse?.plans?.pageInfo?.endCursor ?? undefined
-
-      if (!hasNextPlanPage) break
-    }
-
-    // Create a map of planId -> planData for quick lookup
+    // Enrich memberships with plan data
     const planMap = new Map<string, Plan>()
     allPlans.forEach((plan) => {
       planMap.set(plan.id, plan)
     })
 
-    // Enrich memberships with plan data
-    const enrichedMemberships: Membership[] = memberships.map(m => ({
+    const enrichedMemberships: Membership[] = allMemberships.map(m => ({
       ...m,
       planData: m.plan ? planMap.get(m.plan.id) : undefined
     }))
 
-    // Calculate metrics with enriched data
+    // Calculate all metrics
     const mrrData = calculateMRR(enrichedMemberships)
     const arr = calculateARR(mrrData.total)
     const subscriberMetrics = calculateSubscriberMetrics(enrichedMemberships)
     const activeUniqueSubscribers = getActiveUniqueSubscribers(enrichedMemberships)
     const arpu = calculateARPU(mrrData.total, activeUniqueSubscribers)
     const trialMetrics = calculateTrialMetrics(enrichedMemberships)
+    const clvMetrics = calculateCustomerLifetimeValue(enrichedMemberships)
+    const cashFlowMetrics = calculateCashFlow(payments)
+    const paymentMetrics = calculatePaymentMetrics(payments)
+    const refundMetrics = calculateRefundMetrics(payments)
 
-    // Extract unique plans with their access pass titles
+    // Extract unique plans
     const uniquePlans = allPlans
       .filter(plan => plan.accessPass?.title)
       .reduce((acc, plan) => {
@@ -131,7 +76,7 @@ export async function GET(request: NextRequest) {
         return acc
       }, [] as Array<{ id: string; name: string }>)
 
-    const response = {
+    const responseData = {
       mrr: {
         total: mrrData.total,
         breakdown: mrrData.breakdown,
@@ -146,13 +91,33 @@ export async function GET(request: NextRequest) {
         converted: trialMetrics.convertedTrials,
         conversionRate: trialMetrics.conversionRate,
       },
+      clv: {
+        average: clvMetrics.averageCLV,
+        median: clvMetrics.medianCLV,
+        total: clvMetrics.totalCustomers,
+      },
+      cashFlow: {
+        gross: cashFlowMetrics.grossCashFlow,
+        net: cashFlowMetrics.netCashFlow,
+        recurring: cashFlowMetrics.recurringCashFlow,
+        nonRecurring: cashFlowMetrics.nonRecurringCashFlow,
+      },
+      payments: {
+        successful: paymentMetrics.successfulPayments,
+        failed: paymentMetrics.failedPayments,
+        total: paymentMetrics.totalPayments,
+        successRate: paymentMetrics.successRate,
+      },
+      refunds: {
+        total: refundMetrics.totalRefunds,
+        amount: refundMetrics.refundedAmount,
+        rate: refundMetrics.refundRate,
+      },
       plans: uniquePlans,
       timestamp: new Date().toISOString(),
     }
 
-    console.log(JSON.stringify(response, null, 2))
-
-    // Store snapshot in MongoDB for historical tracking
+    // Store in MongoDB for chart pages to reference
     try {
       await metricsRepository.upsertDailySnapshot(companyId, {
         mrr: {
@@ -164,7 +129,7 @@ export async function GET(request: NextRequest) {
         subscribers: subscriberMetrics,
         activeUniqueSubscribers,
         metadata: {
-          totalMemberships: memberships.length,
+          totalMemberships: allMemberships.length,
           activeMemberships: enrichedMemberships.filter(m => {
             const now = Date.now() / 1000
             return (m.status === 'active' || m.status === 'completed') &&
@@ -172,15 +137,24 @@ export async function GET(request: NextRequest) {
                    (!m.expiresAt || m.expiresAt > now)
           }).length,
           plansCount: allPlans.length,
+        },
+        rawData: {
+          company: company as unknown,
+          memberships: allMemberships,
+          plans: allPlans,
+          transactions: payments,
         }
       })
-    } catch (snapshotError) {
+      console.log('[MongoDB] Stored analytics data for all chart pages to reference')
+    } catch (dbError) {
+      console.error('[MongoDB] Failed to store analytics:', dbError)
+      // Don't fail the request if MongoDB save fails
     }
 
-    return NextResponse.json(response)
+    return NextResponse.json(responseData)
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to calculate analytics' },
+      { error: 'Failed to calculate analytics', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }
