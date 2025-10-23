@@ -1,3 +1,4 @@
+import { ticksNumber } from '@/lib/utils';
 import {
     ResponsiveContainer,
     BarChart,
@@ -11,42 +12,6 @@ import {
 } from 'recharts';
 
 export default function NetMRRMovementsChart({ NetMRRData }: { NetMRRData: any[] }) {
-    console.log('for debug NetMRRData = ', NetMRRData);
-    // const NetMRRData = [
-    //     {
-    //         month: 'Jan',
-    //         newMRR: 4000,
-    //         expansionMRR: 2000,
-    //         contractionMRR: 1000,
-    //         churnMRR: 500,
-    //         netMRR: 5500,
-    //     },
-    //     {
-    //         month: 'Feb',
-    //         newMRR: 3000,
-    //         expansionMRR: 2500,
-    //         contractionMRR: 1500,
-    //         churnMRR: 700,
-    //         netMRR: 5300,
-    //     },
-    //     {
-    //         month: 'Mar',
-    //         newMRR: 5000,
-    //         expansionMRR: 3000,
-    //         contractionMRR: 1200,
-    //         churnMRR: 800,
-    //         netMRR: 6000,
-    //     },
-    //     {
-    //         month: 'Apr',
-    //         newMRR: 3500,
-    //         expansionMRR: 2200,
-    //         contractionMRR: 1100,
-    //         churnMRR: 600,
-    //         netMRR: 5000,
-    //     },
-    // ];
-
     const COLORS = {
         newMRR: '#22c55e', // Tailwind green-500
         expansionMRR: '#a7f3d0', // Tailwind green-200
@@ -62,7 +27,7 @@ export default function NetMRRMovementsChart({ NetMRRData }: { NetMRRData: any[]
                 <ResponsiveContainer width="100%">
                     <BarChart data={NetMRRData}>
                         <CartesianGrid stroke="#f0f2f5" vertical={false} />
-                        <XAxis dataKey="month" tickLine={false} axisLine={false} />
+                        <XAxis dataKey="month" tickLine={false} axisLine={false} ticks={ticksNumber(NetMRRData, 'month')} interval="preserveStartEnd" />
                         {/* <YAxis tickLine={false} axisLine={false} /> */}
                         <Tooltip />
                         <Bar dataKey="net" fill={COLORS.netMRR}  barSize={25} />

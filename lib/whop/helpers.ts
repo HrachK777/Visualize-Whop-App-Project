@@ -125,7 +125,7 @@ export async function getAllMembers(companyId: string) {
   console.log(`[Whop SDK] Fetching members for company: ${companyId}`);
   const members = [];
   let count = 0;
-  // ts-expect-error - members endpoint exists in API but not typed in current SDK version
+  // @ts-expect-error - members endpoint exists in API but not typed in current SDK version
   for await (const member of whopClient.members.list({
     company_id: companyId
   })) {

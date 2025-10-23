@@ -217,7 +217,7 @@ export interface DailyMetrics {
   downgrades?: number
   reactivations?: number
   cancellations?: number
-  trials?: number
+  trials?: any
   clv?: number
   cashFlow?: number
   successfulPayments?: number

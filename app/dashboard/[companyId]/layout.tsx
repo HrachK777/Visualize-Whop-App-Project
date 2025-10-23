@@ -37,8 +37,6 @@ export default function DashboardLayout({
     if (activeItem) setActive(activeItem?.id);
   }, [active]);
 
-  console.log('for debug DashboardLayout active = ', active);
-
   // Extract the last segment of the path (e.g., 'customers', 'reports', etc.)
   const isDashboardPage =
     pathname?.includes('/dashboard/') &&

@@ -5,8 +5,8 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
     const companyId = searchParams.get('company_id')
-    const period = searchParams.get('period') || 'month' // day, week, month, quarter, year
-    const range = parseInt(searchParams.get('range') || '6') // number of periods
+    const period = searchParams.get('period') || 'day' // day, week, month, quarter, year
+    const range = parseInt(searchParams.get('range') || '30') // number of periods
 
     if (!companyId) {
       return NextResponse.json(
@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
     // Format movements for waterfall chart
     const movements = historical.length > 0 ? {
       monthly: historical.map(h => ({
-        month: new Date(h.date).toLocaleDateString('en-US', { month: 'short' }),
+        month: new Date(h.date).toISOString().split('T')[0],
         newBusiness: h.newMRR || 0,
         expansion: h.expansionMRR || 0,
         contraction: -(h.contractionMRR || 0),
@@ -79,6 +79,16 @@ export async function GET(request: NextRequest) {
         net: (h.newMRR || 0) + (h.expansionMRR || 0) - (h.contractionMRR || 0) - (h.churnedMRR || 0)
       }))
     } : null
+    // const movements = historical.length > 0 ? {
+    //   monthly: historical.map(h => ({
+    //     month: new Date(h.date).toLocaleDateString('en-US', { month: 'short' }),
+    //     newBusiness: h.newMRR || 0,
+    //     expansion: h.expansionMRR || 0,
+    //     contraction: -(h.contractionMRR || 0),
+    //     churn: -(h.churnedMRR || 0),
+    //     net: (h.newMRR || 0) + (h.expansionMRR || 0) - (h.contractionMRR || 0) - (h.churnedMRR || 0)
+    //   }))
+    // } : null
 
     // Return comprehensive response
     return NextResponse.json({

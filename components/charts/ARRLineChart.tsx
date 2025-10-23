@@ -12,22 +12,7 @@ import {
     Area,
     AreaChart
 } from 'recharts';
-import { formatCurrency } from '@/lib/utils'
-
-const data = [
-    { month: 'Jan', ARR: 72000 },
-    { month: 'Feb', ARR: 76000 },
-    { month: 'Mar', ARR: 82000 },
-    { month: 'Apr', ARR: 87000 },
-    { month: 'May', ARR: 94000 },
-    { month: 'Jun', ARR: 102000 },
-    { month: 'Jul', ARR: 110000 },
-    { month: 'Aug', ARR: 118000 },
-    { month: 'Sep', ARR: 124000 },
-    { month: 'Oct', ARR: 131000 },
-    { month: 'Nov', ARR: 139000 },
-    { month: 'Dec', ARR: 148000 },
-];
+import { ticksNumber, formatCurrency1 } from '@/lib/utils'
 
 const COLORS = {
     line: '#0f2940', // Tailwind gray-800
@@ -36,31 +21,29 @@ const COLORS = {
     fillColor: '#1677ff', // Tailwind gray-800
 };
 
-// ✅ Format numbers to "$148k" style
-function formatCurrency1(value: any) {
-    if (value >= 1000) return `$${(value / 1000).toFixed(0)}k`;
-    return `$${value}`;
-}
 
-const CustomizedLabel = ({ x, y, value, index }: any) => {
-    if (index === data.length - 1) {
-        return (
-            <text
-                x={x - 10}
-                y={y}
-                dy={-10}
-                fill={COLORS.line}
-                fontSize={13}
-                fontWeight="bold"
-            >
-                {formatCurrency1(value)}
-            </text>
-        );
-    }
-    return null;
-};
+
 
 export default function ARRLineChart({ ARRData, growth }: { ARRData: any[], growth: number }) {
+    
+    const CustomizedLabel = ({ x, y, value, index }: any) => {
+        if (index % 3 === 0 || index == ARRData.length - 1) {
+            return (
+                <text
+                    x={x - 10}
+                    y={y}
+                    dy={-10}
+                    fill={COLORS.line}
+                    fontSize={13}
+                    fontWeight="bold"
+                >
+                    {formatCurrency1(value)}
+                </text>
+            );
+        }
+        return null;
+    };
+
     return (
         <div className="bg-white rounded-lg shadow-sm p-5 h-[300px] flex flex-col">
             <div className="flex items-start justify-between">
@@ -75,7 +58,7 @@ export default function ARRLineChart({ ARRData, growth }: { ARRData: any[], grow
             </div>
             <div className="flex-1 flex">
                 <ResponsiveContainer width="100%">
-                    <AreaChart data={ARRData} margin={{ top: 20, right: 40, left: 0, bottom: 20 }}>
+                    <AreaChart data={ARRData} margin={{ top: 20, right: 40, left: 10, bottom: 20 }}>
                         <defs>
                             <linearGradient id="colorARR" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="5%" stopColor={COLORS.fillColor} stopOpacity={0.1} />
@@ -83,12 +66,9 @@ export default function ARRLineChart({ ARRData, growth }: { ARRData: any[], grow
                             </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke={COLORS.grid} />
-                        <XAxis dataKey="arr" stroke={COLORS.axis} tick={{ fill: COLORS.axis, fontSize: 12 }} tickFormatter={(value) => formatCurrency1(value)} />
-                        {/* <YAxis
-                            stroke={COLORS.axis}
-                            tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-                        /> */}
-                        {/* <Tooltip content={<CustomTooltip />} /> */}
+                        <XAxis dataKey="arr" stroke={COLORS.axis} tick={{ fill: COLORS.axis, fontSize: 12 }}
+                            interval="preserveStartEnd" ticks={ticksNumber(ARRData, 'date')}
+                        />
                         <Tooltip
                             contentStyle={{ backgroundColor: 'white', border: '1px solid #ccc', borderRadius: '6px' }}
                             formatter={(value) => `$${value.toLocaleString()}`}
@@ -108,9 +88,9 @@ export default function ARRLineChart({ ARRData, growth }: { ARRData: any[], grow
                             strokeWidth={3}
                             dot={{ fill: '#0f2940', r: 4 }}
                             activeDot={{ r: 6 }}
-                            fillOpacity={1}
+                            // fillOpacity={1}
                             fill="url(#colorARR)"
-                            name="ARR"
+                            name="arr"
                             label={CustomizedLabel}
                         />
                     </AreaChart>

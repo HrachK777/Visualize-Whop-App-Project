@@ -180,7 +180,7 @@ export class MetricsRepository {
       downgrades: snapshot.downgrades?.total,
       reactivations: snapshot.reactivations?.total,
       cancellations: snapshot.cancellations?.total,
-      trials: snapshot.trials?.total,
+      trials: snapshot.trials,
       clv: snapshot.clv?.average,
       cashFlow: snapshot.cashFlow?.net,
       successfulPayments: snapshot.payments?.successful,

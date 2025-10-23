@@ -10,6 +10,8 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from 'recharts';
+import { useAnalytics } from '@/lib/contexts/AnalyticsContext';
+import { ticksNumber, formatCurrency } from '@/lib/utils';
 
 // Mock data for charts
 const mockData = [
@@ -22,6 +24,25 @@ const mockData = [
 ];
 
 export default function LeadsTrialsPage() {
+  const { data: analytics, loading, error, refetch } = useAnalytics();
+  const data = analytics?.historical || mockData;
+  const CustomizedLabel = ({ x, y, value, index }: any) => {
+    if (index % 3 === 0 || index == data.length - 1) {
+      return (
+        <text
+          x={x - 5}
+          y={y}
+          dy={-10}
+          // fill={COLORS.line}
+          fontSize={13}
+          fontWeight="bold"
+        >
+          {value}
+        </text>
+      );
+    }
+    return null;
+  };
   return (
     <div className="bg-[#f7f9fc] px-8 pb-8">
       {/* Grid layout */}
@@ -36,7 +57,9 @@ export default function LeadsTrialsPage() {
               </h2>
               <div className="flex gap-10 md:gap-20">
                 <div>
-                  <p className="text-2xl font-bold text-gray-800">0</p>
+                  <p className="text-2xl font-bold text-gray-800">
+                    {data.length > 0 && data.map(item => item?.trials?.total).reduce((a, b) => a + b, 0)}
+                  </p>
                   <p className="text-xs text-gray-500">Last 30 days</p>
                 </div>
                 <p className="text-xs text-gray-400">
@@ -46,19 +69,8 @@ export default function LeadsTrialsPage() {
             </div>
             <div className="h-[130px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={mockData}>
+                <LineChart data={data}>
                   <CartesianGrid stroke="#f0f2f5" vertical={false} />
-                  <XAxis
-                    dataKey="value"
-                    tickLine={false}
-                    axisLine={false}
-                    tick={{ fill: '#9ca3af', fontSize: 12 }}
-                  />
-                  {/* <YAxis
-                    tickLine={false}
-                    axisLine={false}
-                    tick={{ fill: '#9ca3af', fontSize: 12 }}
-                  /> */}
                   <Tooltip
                     contentStyle={{
                       borderRadius: '6px',
@@ -68,12 +80,14 @@ export default function LeadsTrialsPage() {
                     }}
                   />
                   <Line
-                    type="monotone"
-                    dataKey="value"
+                    type="linear"
+                    dataKey="trials.total"
                     stroke="#0f2940"
                     strokeWidth={2}
                     dot={{ fill: '#0f2940', r: 3 }}
                     activeDot={{ r: 5 }}
+                    label={CustomizedLabel}
+                    name="trials"
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -85,7 +99,9 @@ export default function LeadsTrialsPage() {
               <h2 className="font-semibold text-gray-800">Free Trials</h2>
               <div className="flex gap-10 md:gap-20">
                 <div>
-                  <p className="text-2xl font-bold text-gray-800">0</p>
+                  <p className="text-2xl font-bold text-gray-800">
+                    {data.length > 0 && data.map(item => item?.trials?.total).reduce((a, b) => a + b, 0)}
+                  </p>
                   <p className="text-xs text-gray-500">Last 30 days</p>
                 </div>
                 <p className="text-xs text-gray-400">
@@ -95,26 +111,16 @@ export default function LeadsTrialsPage() {
             </div>
             <div className="h-[130px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={mockData}>
+                <LineChart data={data} >
                   <CartesianGrid stroke="#f0f2f5" vertical={false} />
-                  <XAxis
-                    dataKey="value"
-                    tickLine={false}
-                    axisLine={false}
-                    tick={{ fill: '#9ca3af', fontSize: 12 }}
-                  />
-                  {/* <YAxis
-                    tickLine={false}
-                    axisLine={false}
-                    tick={{ fill: '#9ca3af', fontSize: 12 }}
-                  /> */}
                   <Line
-                    type="monotone"
-                    dataKey="value"
+                    type="linear"
+                    dataKey="trials.total"
                     stroke="#0f2940"
                     strokeWidth={2}
                     dot={{ fill: '#0f2940', r: 3 }}
                     activeDot={{ r: 5 }}
+                    label={CustomizedLabel}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -132,26 +138,16 @@ export default function LeadsTrialsPage() {
             </h2>
             <div className="h-[300px] pb-5">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={mockData}>
+                <LineChart data={data}>
                   <CartesianGrid stroke="#f0f2f5" vertical={false} />
-                  {/* <XAxis
-                    dataKey="value"
-                    tickLine={false}
-                    axisLine={false}
-                    tick={{ fill: '#9ca3af', fontSize: 12 }}
-                  /> */}
-                  {/* <YAxis
-                    tickLine={false}
-                    axisLine={false}
-                    tick={{ fill: '#9ca3af', fontSize: 12 }}
-                  /> */}
                   <Line
-                    type="monotone"
-                    dataKey="value"
+                    type="linear"
+                    dataKey="trials.conversionRate"
                     stroke="#6d28d9"
                     strokeWidth={2}
                     dot={{ fill: '#6d28d9', r: 3 }}
                     activeDot={{ r: 5 }}
+                    label={CustomizedLabel}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -165,7 +161,9 @@ export default function LeadsTrialsPage() {
             </h2>
             <div className="flex gap-10 md:gap-20">
               <div>
-                <p className="text-2xl font-bold text-gray-800">0</p>
+                <p className="text-2xl font-bold text-gray-800">
+                  {data.map(item => item.avgSalesPrice).reduce((a, b) => a + b, 0)}
+                </p>
                 <p className="text-xs text-gray-500">Last 30 days</p>
               </div>
               <p className="text-xs text-gray-400">

@@ -15,6 +15,7 @@ export default function DashboardPage({ companyId }: { companyId: string }) {
   // Use shared analytics context - fetched ONCE in layout
   const { data: analytics, loading, error, refetch } = useAnalytics()
   const [topWins, setTopWins] = useState([]) as any[];
+  
   useEffect(() => {
     const fetchTopWins = async () => {
       const res = await fetch(`/api/subscription/top-wins?companyId=${process.env.NEXT_PUBLIC_WHOP_COMPANY_ID}`);
@@ -31,8 +32,6 @@ export default function DashboardPage({ companyId }: { companyId: string }) {
   }, []);
 
   console.log('for debug DashboardPage analytics = ', analytics);
-  console.log('for debug DashboardPage topWins = ', topWins);
-
   // const topWins = [
   //   { customer: 'Ethan C Welsh', arr: '$1,440', billing: 'Monthly', country: 'United States' },
   //   { customer: 'MD SHAHID B EMDAD', arr: '$288', billing: 'Monthly', country: 'United States' },
