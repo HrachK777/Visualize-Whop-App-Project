@@ -2,16 +2,18 @@
 
 import { Settings } from 'lucide-react';
 import {
-  LineChart, Line, XAxis, YAxis, AreaChart,
-  Tooltip, ResponsiveContainer, CartesianGrid, Area
+  LineChart, Line, AreaChart,
+  Tooltip, ResponsiveContainer, CartesianGrid, Area,LabelProps
 } from 'recharts';
 import { useAnalytics } from '@/lib/contexts/AnalyticsContext';
+import Loading from '@/components/ui/loading';
+import ErrorComponent from '@/components/ui/error';
 
 export default function ChurnRetention() {
-  const { data: analytics, loading, error, refetch } = useAnalytics();
+  const { data: analytics, loading, error } = useAnalytics();
   const currentMonth = new Date().toLocaleString('en-US', { month: 'long' });
   const prevMonth = new Date(new Date().setMonth(new Date().getMonth() - 1)).toLocaleString('en-US', { month: 'long' });
-  const data = analytics?.historical as any;
+  const data = analytics?.historical || [];
 
   const CustomizedLabel = ({ x, y, value, index }: any) => {
     if (index % 3 === 0 || index == data.length - 1) {
@@ -30,6 +32,10 @@ export default function ChurnRetention() {
     }
     return null;
   };
+
+  if (loading) return <Loading />;
+
+  if (error) return <ErrorComponent error={error} />;
 
   return (
     <div className="flex flex-wrap gap-6 bg-[#f7f9fc] px-6">
@@ -51,7 +57,7 @@ export default function ChurnRetention() {
           </div>
           <div className='h-[150px]'>
             <ResponsiveContainer width="100%" height="90%">
-              <AreaChart data={data}  margin={{ top: 10, right: 30, left: 10, bottom: 10 }}>
+              <AreaChart data={data} margin={{ top: 10, right: 30, left: 10, bottom: 10 }}>
                 <defs>
                   <linearGradient id="blueFill" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#1677ff" stopOpacity={0.1} />

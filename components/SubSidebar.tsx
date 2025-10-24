@@ -70,7 +70,6 @@ const sections = {
           { title: "Customer Churn Rate", href: "/reports/customer-churn-rate" },
           { title: "MRR Churn Rate", href: "/reports/mrr-churn-rate" },
           { title: "ARPU", href: "/reports/arpu" },
-          { title: "ARPA", href: "/reports/arpa" },
           { title: "LTV", href: "/reports/ltv" }
         ],
       },
@@ -80,7 +79,6 @@ const sections = {
           { title: "Leads", href: "/reports/leads" },
           { title: "Free Trials", href: "/reports/free-trials" },
           { title: "Trial → Paid Conversions", href: "/reports/trial-to-paid-conversions" },
-          { title: "Cohorts", href: "/reports/cohorts" },
         ],
       },
     ],

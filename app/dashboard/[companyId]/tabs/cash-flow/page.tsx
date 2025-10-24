@@ -1,18 +1,16 @@
 'use client';
 
-import { Settings } from 'lucide-react';
 import {
   BarChart,
   Bar,
-  XAxis,
-  YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
 import { useAnalytics } from '@/lib/contexts/AnalyticsContext';
-import { useEffect, useState } from 'react';
-
+import { useState } from 'react';
+import Loading from '@/components/ui/loading';
+import ErrorComponent from '@/components/ui/error';
 
 // const netCashFlowData = [
 //   { month: 'Aug', current: 0, previous: 0 },
@@ -42,18 +40,22 @@ import { useEffect, useState } from 'react';
 // ];
 
 export default function CashFlowPage() {
-   const { data: analytics, loading, error, refetch } = useAnalytics();
-   const [pastDueCustomers, setPastDueCustomers] = useState([]);
+   const { data: analytics, loading, error } = useAnalytics();
+   const [pastDueCustomers, setPastDueCustomers] = useState<{name: string, due: string, renewal: string, arr: string}[]>([]);
    const data = analytics?.historical;
-   useEffect(() => {
-    const fetchSubscribers = async () => {
-      const res = await fetch(`/api/subscription?companyId=${process.env.NEXT_PUBLIC_WHOP_COMPANY_ID}`);
-      const data = await res.json();
-      console.log('Fetched subscribers:', data);
-      setPastDueCustomers(data.subscribers || []);
-    }
-    fetchSubscribers();
-   }, [])
+  //  useEffect(() => {
+  //   const fetchSubscribers = async () => {
+  //     const res = await fetch(`/api/subscription?companyId=${process.env.NEXT_PUBLIC_WHOP_COMPANY_ID}`);
+  //     const data = await res.json();
+  //     console.log('Fetched subscribers:', data);
+  //     setPastDueCustomers(data.subscription || []);
+  //   }
+  //   fetchSubscribers();
+  //  }, [])
+
+   if(loading) return <Loading />;
+
+   if (error) return <ErrorComponent error={error} />;
 
   return (
     <div className="flex flex-wrap gap-6 bg-[#f7f9fc] px-6 pb-5">
@@ -154,11 +156,11 @@ export default function CashFlowPage() {
               </tr>
             </thead>
             <tbody>
-              {pastDueCustomers.length > 0 ? pastDueCustomers.map((c: any, i) => (
+              {pastDueCustomers.length > 0 ? pastDueCustomers.map((c, i) => (
                 <tr key={i}>
-                  <td className="py-2">{c.whopData.metadata.email || c.userId}</td>
-                  <td>{c.whopData.renewal_period_start}</td>
-                  <td>{c.whopData.renewal_period_end}</td>
+                  <td className="py-2">{c.name}</td>
+                  <td>{c.due}</td>
+                  <td>{c.renewal}</td>
                   <td className="text-right">{c.arr}</td>
                 </tr>
               )) : <tr><td colSpan={4} className="text-center py-2">No past due customers</td></tr>}

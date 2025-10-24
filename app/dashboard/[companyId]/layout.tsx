@@ -23,7 +23,7 @@ export default function DashboardLayout({
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [active, setActive] = useState('') as any;
+  const [active, setActive] = useState<string>('');
   const pathname = usePathname();
   const navItems = [
     { id: 'customers', title: 'Customers', url: `/customers` },

@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import MetricChart from '@/components/charts/MetricsChart';
 import MetricTable from '@/components/charts/MetricTable';
 import { BsFillQuestionCircleFill } from "react-icons/bs";

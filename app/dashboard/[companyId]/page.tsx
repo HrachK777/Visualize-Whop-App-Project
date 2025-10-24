@@ -1,12 +1,7 @@
 'use client'
 
-import { use, useEffect, useState } from 'react'
-import { MetricCard } from '@/components/metrics/MetricCard'
-import { Settings, Trophy, SortDescIcon, PlusIcon } from 'lucide-react'
-import { formatCurrency } from '@/lib/utils'
-import DashboardTabs from '@/components/DashboardTabs'
-import { useChartData, HistoricalDataPoint } from '@/lib/hooks/useChartData'
-import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { SortDescIcon } from 'lucide-react'
 import ARRLineChart from '@/components/charts/ARRLineChart'
 import NetMRRMovementsChart from '@/components/charts/NetMRRMovementsChart';
 import { useAnalytics } from '@/lib/contexts/AnalyticsContext'
@@ -14,7 +9,7 @@ import { useAnalytics } from '@/lib/contexts/AnalyticsContext'
 export default function DashboardPage({ companyId }: { companyId: string }) {
   // Use shared analytics context - fetched ONCE in layout
   const { data: analytics, loading, error, refetch } = useAnalytics()
-  const [topWins, setTopWins] = useState([]) as any[];
+  const [topWins, setTopWins] = useState<{customer: string, planId: string, arr: number, billing: string, country: string}[]>([]);
   
   useEffect(() => {
     const fetchTopWins = async () => {
@@ -30,11 +25,6 @@ export default function DashboardPage({ companyId }: { companyId: string }) {
 
     fetchTopWins();
   }, []);
-
-  // const topWins = [
-  //   { customer: 'Ethan C Welsh', arr: '$1,440', billing: 'Monthly', country: 'United States' },
-  //   { customer: 'MD SHAHID B EMDAD', arr: '$288', billing: 'Monthly', country: 'United States' },
-  // ];
 
   const mrrBreakdown = [
     { label: 'New Business MRR', value: analytics?.newMRR.total, color: 'text-blue-600', count: analytics?.newMRR.customers },
