@@ -61,9 +61,6 @@ export async function GET(request: Request) {
             }));
             return Response.json(topWins);
         }
-
-
-
     } catch {
         return NextResponse.json(
             { error: 'Failed to check subscription status' },

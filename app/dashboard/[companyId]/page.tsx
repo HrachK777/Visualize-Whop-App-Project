@@ -44,7 +44,7 @@ export default function DashboardPage({ companyId }: { companyId: string }) {
     { label: 'Reactivation MRR', value: analytics?.reactivations.total, color: 'text-gray-500', count: analytics?.reactivations.total },
   ];
 
-  const net_mrr_movement = (analytics?.newMRR?.total ?? 0) + (analytics?.expansionMRR?.total ?? 0) + (analytics?.contractionMRR?.total ?? 0) + (analytics?.churnedMRR?.total ?? 0);
+  const net_mrr_movement = (analytics?.newMRR?.total ?? 0) + (analytics?.expansionMRR?.total ?? 0) - (analytics?.contractionMRR?.total ?? 0) - (analytics?.churnedMRR?.total ?? 0) + (analytics?.reactivations?.total ?? 0);
 
   if (loading) {
     return (

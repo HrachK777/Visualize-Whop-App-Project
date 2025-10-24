@@ -121,7 +121,7 @@ import { Download, ChevronDown } from 'lucide-react';
 
 export interface MetricPivotData {
   category: string;
-  values: Record<string, number>;
+  values: Record<string, string | number>;
 }
 
 interface Props {

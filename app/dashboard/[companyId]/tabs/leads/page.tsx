@@ -58,7 +58,7 @@ export default function LeadsTrialsPage() {
               <div className="flex gap-10 md:gap-20">
                 <div>
                   <p className="text-2xl font-bold text-gray-800">
-                    {data.length > 0 && data.map(item => item?.trials?.total).reduce((a, b) => a + b, 0)}
+                    {data.length > 0 && data.map(item => item?.trials?.active).reduce((a, b) => a + b, 0)}
                   </p>
                   <p className="text-xs text-gray-500">Last 30 days</p>
                 </div>
@@ -100,7 +100,7 @@ export default function LeadsTrialsPage() {
               <div className="flex gap-10 md:gap-20">
                 <div>
                   <p className="text-2xl font-bold text-gray-800">
-                    {data.length > 0 && data.map(item => item?.trials?.total).reduce((a, b) => a + b, 0)}
+                    {data.length > 0 && data.map(item => item?.trials?.active).reduce((a, b) => a + b, 0)}
                   </p>
                   <p className="text-xs text-gray-500">Last 30 days</p>
                 </div>

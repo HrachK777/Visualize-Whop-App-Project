@@ -24,7 +24,7 @@ export default function ReportsMRRPage() {
   const allFilterLabel = 'All MRR Movements';
 
   // ✅ Fetch analytics data using your custom hook
-  const { data, loading, error } = useAnalyticsData(group);
+  const { data, loading, error } = useAnalyticsData(group, 'netNewMRR');
   const filteredByDate = useFilteredData(data, dateRange, group);
   const columns = useDataColumns(filteredByDate);
   const pivotData = usePivotData(filteredByDate, mrrCategories);
@@ -51,15 +51,17 @@ export default function ReportsMRRPage() {
 
   if (error) return <ErrorComponent error={error} />;
 
+  console.log('for debug data = ', data);
+
   return (
     <div className="min-h-screen bg-[#f7f9fc] px-10 py-4 space-y-6">
       {/* Header */}
       <CustomerTitle
-        title="New MRR"
+        title="Net New MRR"
         icon={
           <BsFillQuestionCircleFill
             className="h-5 w-5 text-gray-500 ml-2"
-            title='Track MRR from new customers.'
+            title='Track net new MRR from all customer activities.'
           />
         }
         setDateRange={handleDateRangeChange}
@@ -72,7 +74,7 @@ export default function ReportsMRRPage() {
                 onGroupingChange={handleGroupChange}
                 onViewChange={handleViewChange}
                 data={filteredByDate}
-                dataKey='newMRR'
+                dataKey='netNewMRR'
                 lineColor="#0f2940"
                 fillColor="#1677ff"
                 type={view}

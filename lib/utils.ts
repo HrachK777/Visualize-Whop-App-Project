@@ -33,3 +33,11 @@ export function formatCurrency1(value: any) {
     if (value >= 1000) return `$${(value / 1000).toFixed(0)}k`;
     return `$${value}`;
 }
+
+// Memoized date formatter
+export const formatDate = (dateStr: string) => {
+  return new Date(dateStr).toLocaleString("default", {
+    month: "short",
+    year: "numeric"
+  });
+};

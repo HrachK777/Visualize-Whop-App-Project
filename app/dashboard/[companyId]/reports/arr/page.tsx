@@ -55,11 +55,11 @@ export default function ReportsMRRPage() {
     <div className="min-h-screen bg-[#f7f9fc] px-10 py-4 space-y-6">
       {/* Header */}
       <CustomerTitle
-        title="New MRR"
+        title="Annual Run Rate"
         icon={
           <BsFillQuestionCircleFill
             className="h-5 w-5 text-gray-500 ml-2"
-            title='Track MRR from new customers.'
+            title='Estimated annual revenue from all active and past-due subscriptions.'
           />
         }
         setDateRange={handleDateRangeChange}
@@ -68,31 +68,31 @@ export default function ReportsMRRPage() {
 
       {filteredByDate.length > 0 ? (
         <>
-              <MetricChart
-                onGroupingChange={handleGroupChange}
-                onViewChange={handleViewChange}
-                data={filteredByDate}
-                dataKey='newMRR'
-                lineColor="#0f2940"
-                fillColor="#1677ff"
-                type={view}
-                currentView={view}
-                currentGroup={group}
-              />
+          <MetricChart
+            onGroupingChange={handleGroupChange}
+            onViewChange={handleViewChange}
+            data={filteredByDate}
+            dataKey='arr'
+            lineColor="#0f2940"
+            fillColor="#1677ff"
+            type={view}
+            currentView={view}
+            currentGroup={group}
+          />
 
-              <MetricTable
-                title="Chart Data"
-                columns={columns}
-                data={filteredData}
-                filterOptions={filterOptions}
-                selectedFilter={selectedFilter}
-                onFilterChange={handleFilterChange}
-              />
+          <MetricTable
+            title="Chart Data"
+            columns={columns}
+            data={filteredData}
+            filterOptions={filterOptions}
+            selectedFilter={selectedFilter}
+            onFilterChange={handleFilterChange}
+          />
         </>
       ) : (
         <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
-          {data.length > 0 
-            ? 'No data available for the selected date range' 
+          {data.length > 0
+            ? 'No data available for the selected date range'
             : 'No data available for the selected period'}
         </div>
       )

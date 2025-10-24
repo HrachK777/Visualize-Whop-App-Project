@@ -27,3 +27,52 @@ const mrrBreakdown = [
     { label: 'Churn MRR', value: '-$180', color: 'text-red-600', count: 2 },
     { label: 'Reactivation MRR', value: '$0', color: 'text-gray-500', count: 0 },
 ];
+
+export const mrrFilterOptions = [
+    'All MRR Movements',
+    'New Business MRR',
+    'Expansion MRR',
+    'Churn MRR',
+    'Reactivation MRR',
+    'Contraction MRR',
+];
+
+export const mrrCategories = [
+    { key: 'newMRR', label: 'New Business MRR' },
+    { key: 'expansionMRR', label: 'Expansion MRR' },
+    { key: 'churnedMRR', label: 'Churn MRR' },
+    { key: 'reactivations', label: 'Reactivation MRR' },
+    { key: 'contractionMRR', label: 'Contraction MRR' },
+];
+
+export const churnFilterOptions = [
+    'Churn & Retention',
+    'Customer Churn Rate',
+    'MRR Churn Rate',
+    'ARPU',
+    'ARPA',
+    'LTV',
+];
+
+export const churnCategories = [
+    { key: 'customerChurnRate', label: 'Customer Churn Rate' },
+    { key: 'revenueChurnRate', label: 'MRR Churn Rate' },
+    { key: 'arpu', label: 'ARPU' },
+    { key: 'arpa', label: 'ARPA' },
+    { key: 'ltv', label: 'LTV' },
+];
+
+export const leadsFilterOptions = [
+    'Leads & Conversions',
+    'Leads',
+    'Free Trials',
+    'Trial→Paid Conversions',
+    'Cohorts',
+];
+
+export const leadsCategories = [
+    { key: 'trialsData.active', label: 'Leads' },
+    { key: 'trialsData.active', label: 'Free Trials' },
+    { key: 'tiralsData.conversionRate', label: 'Trial→Paid Conversions' },
+    { key: 'cohorts', label: 'Cohorts' },
+];

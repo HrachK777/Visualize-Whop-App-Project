@@ -55,11 +55,11 @@ export default function ReportsMRRPage() {
     <div className="min-h-screen bg-[#f7f9fc] px-10 py-4 space-y-6">
       {/* Header */}
       <CustomerTitle
-        title="New MRR"
+        title="Reactivation MRR"
         icon={
           <BsFillQuestionCircleFill
             className="h-5 w-5 text-gray-500 ml-2"
-            title='Track MRR from new customers.'
+            title='Track MRR from reactivated customers.'
           />
         }
         setDateRange={handleDateRangeChange}
@@ -72,7 +72,7 @@ export default function ReportsMRRPage() {
                 onGroupingChange={handleGroupChange}
                 onViewChange={handleViewChange}
                 data={filteredByDate}
-                dataKey='newMRR'
+                dataKey='reactivations'
                 lineColor="#0f2940"
                 fillColor="#1677ff"
                 type={view}

@@ -218,6 +218,12 @@ export interface DailyMetrics {
   reactivations?: number
   cancellations?: number
   trials?: any
+  trialsData?: {
+    total: number
+    active: number
+    converted: number
+    conversionRate: number
+  }
   clv?: number
   cashFlow?: number
   successfulPayments?: number

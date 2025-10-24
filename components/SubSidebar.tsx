@@ -175,14 +175,14 @@ export default function SubSidebar({ active, companyId }: any) {
 
   return (
     <aside className="fixed left-16 top-0 h-screen w-64 border-r bg-white shadow-sm overflow-y-auto">
-      <div className="p-4 border-b">
+      <div className="p-4 border-b space-y-3">
         <h2 className="text-lg font-semibold text-gray-800">{section.title}</h2>
         {section.title == "Customers List" && (
           <>
             <Link
               href={`/dashboard/${companyId}/customers`}
               className={clsx(
-                "block rounded-md mt-4 p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-all",
+                "block rounded-md p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-all",
                 pathname === `/dashboard/${companyId}/customers` ? "bg-gray-200 text-gray-900" : ""
               )}
             >
