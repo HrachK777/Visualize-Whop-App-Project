@@ -1,10 +1,6 @@
 'use client';
 
-import { use, useState } from 'react';
-import {
-    Search, X, Plus, Download, Upload,
-    Grid3x3, Sliders,
-} from 'lucide-react';
+import { useState } from 'react';
 import CustomerTitle from '@/components/ui/CustomerTitle';
 import CustomFilterBar from '@/components/ui/CustomFilterBar';
 import { MdOutlineAutorenew } from "react-icons/md";
@@ -15,8 +11,8 @@ const datas = constants.customers;
 
 export default function CustomersPage() {
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedRows, setSelectedRows] = useState([]) as any[];
-    const [filters, setFilters] = useState([
+    const [selectedRows, setSelectedRows] = useState<number[]>([]);
+    const [filters, setFilters] = useState<{ id: number; field: string; operator: string; value: string }[]>([
         { id: 1, field: 'Customer status', operator: 'is one of', value: 'New Lead' }
     ]);
     const [showFilterBar, setShowFilterBar] = useState(true);
@@ -42,14 +38,14 @@ export default function CustomersPage() {
         setFilters([]);
         setShowFilterBar(false);
     };
-    const toggleRowSelection = (id: any) => {
-        setSelectedRows((prev: any[]) =>
-            prev.includes(id) ? prev.filter((rowId: any) => rowId !== id) : [...prev, id]
+    const toggleRowSelection = (id: number) => {
+        setSelectedRows((prev) =>
+            prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
         );
     };
 
     const toggleSelectAll = () => {
-        setSelectedRows((prev: any) =>
+        setSelectedRows((prev) =>
             prev.length === datas.length ? [] : datas.map(c => c.id)
         );
     };
@@ -144,7 +140,7 @@ export default function CustomersPage() {
                                 ))) : (
                                 <tr>
                                     <td colSpan={10} className="px-4 py-3 text-sm text-gray-400 text-center">
-                                        No leads found matching "{searchQuery}"
+                                        No leads found matching &quot{searchQuery}&quot
                                     </td>
                                 </tr>
                             )}

@@ -1,23 +1,16 @@
 'use client';
 
-import { use, useState } from 'react';
-import {
-    Search, X, Plus, Download, Upload,
-    Grid3x3, Sliders,
-} from 'lucide-react';
+import { useState } from 'react';
 import CustomerTitle from '@/components/ui/CustomerTitle';
 import CustomFilterBar from '@/components/ui/CustomFilterBar';
-import { MdFiberNew } from "react-icons/md";
-import { BiSolidSave } from "react-icons/bi";
-import { LuCopy } from "react-icons/lu";
 import { MdOutlineAutorenew } from "react-icons/md";
 import * as constants from '@/lib/constants';
 import SearchBar from '@/components/ui/SearchBar';
 
 export default function CustomersPage() {
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedRows, setSelectedRows] = useState([]) as any[];
-    const [filters, setFilters] = useState([
+    const [selectedRows, setSelectedRows] = useState<number[]>([]);
+    const [filters, setFilters] = useState<{ id: number; field: string; operator: string; value: string }[]>([
         { id: 1, field: 'Customer status', operator: 'is one of', value: 'New Lead' }
     ]);
     const [showFilterBar, setShowFilterBar] = useState(true);
@@ -43,14 +36,14 @@ export default function CustomersPage() {
         setFilters([]);
         setShowFilterBar(false);
     };
-    const toggleRowSelection = (id: any) => {
-        setSelectedRows((prev: any[]) =>
-            prev.includes(id) ? prev.filter((rowId: any) => rowId !== id) : [...prev, id]
+    const toggleRowSelection = (id: number) => {
+        setSelectedRows((prev) =>
+            prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
         );
     };
 
     const toggleSelectAll = () => {
-        setSelectedRows((prev: any) =>
+        setSelectedRows((prev) =>
             prev.length === constants.customers.length ? [] : constants.customers.map(c => c.id)
         );
     };
@@ -74,13 +67,13 @@ export default function CustomersPage() {
 
             {/* Filter Bar */}
             {showFilterBar && (
-            <CustomFilterBar
-                filters={filters}
-                updateFilter={updateFilter}
-                removeFilter={removeFilter}
-                addFilter={addFilter}
-                clearAllFilters={clearAllFilters}
-            />)}
+                <CustomFilterBar
+                    filters={filters}
+                    updateFilter={updateFilter}
+                    removeFilter={removeFilter}
+                    addFilter={addFilter}
+                    clearAllFilters={clearAllFilters}
+                />)}
 
             {/* Main Content */}
             <div className="border border-gray-300 rounded-md bg-white">
@@ -135,7 +128,7 @@ export default function CustomersPage() {
                                 ))) : (
                                 <tr>
                                     <td colSpan={10} className="px-4 py-3 text-sm text-gray-400 text-center">
-                                        No leads found matching "{searchQuery}"
+                                        No leads found matching &quot{searchQuery}&quot
                                     </td>
                                 </tr>
                             )}

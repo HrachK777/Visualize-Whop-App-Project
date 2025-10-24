@@ -128,7 +128,7 @@ export default function CustomersPage() {
                                 ))) : (
                                 <tr>
                                     <td colSpan={10} className="px-4 py-3 text-sm text-gray-400 text-center">
-                                        No leads found matching "{searchQuery}"
+                                        No leads found matching &quot{searchQuery}&quot
                                     </td>
                                 </tr>
                             )}
