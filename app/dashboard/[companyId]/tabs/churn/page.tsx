@@ -12,7 +12,6 @@ export default function ChurnRetention() {
   const currentMonth = new Date().toLocaleString('en-US', { month: 'long' });
   const prevMonth = new Date(new Date().setMonth(new Date().getMonth() - 1)).toLocaleString('en-US', { month: 'long' });
   const data = analytics?.historical as any;
-  console.log('for debug analytics:', analytics);
 
   const CustomizedLabel = ({ x, y, value, index }: any) => {
     if (index % 3 === 0 || index == data.length - 1) {

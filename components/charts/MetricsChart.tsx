@@ -6,8 +6,10 @@ import {
   ResponsiveContainer, Area,
   AreaChart
 } from 'recharts';
-import { useState } from 'react';
-import { ticksNumber } from '@/lib/utils';
+import { useEffect, useState } from 'react';
+import { formatCurrency1, ticksNumber } from '@/lib/utils';
+import { useAnalytics } from '@/lib/contexts/AnalyticsContext';
+import clsx from 'clsx';
 
 export default function MetricChart({
   onGroupingChange,
@@ -22,7 +24,7 @@ export default function MetricChart({
 }: {
   onViewChange: (view: 'line' | 'bar') => void;
   onGroupingChange: (group: 'day' | 'week' | 'month' | 'quarter' | 'year') => void;
-  data: { date: string; value: number }[];
+  data: any[];
   dataKey?: string;
   lineColor?: string;
   fillColor?: string;
@@ -30,7 +32,7 @@ export default function MetricChart({
   currentView: 'line' | 'bar';
   currentGroup: 'day' | 'week' | 'month' | 'quarter' | 'year';
 }) {
-
+  const { data: analytics } = useAnalytics();
   return (
     <div className="bg-white rounded-lg shadow-sm p-6">
 
@@ -74,13 +76,17 @@ export default function MetricChart({
       </div>
 
       {/* Chart */}
-      <div className="h-[320px]">
+      <div className='h-[320px]'>
         <ResponsiveContainer width="100%" height="100%">
           {type === 'bar' ? (
             <BarChart data={data}>
               <CartesianGrid stroke="#f0f2f5" vertical={false} />
-              <XAxis dataKey="date" ticks={ticksNumber(data, 'date')} />
-              <YAxis tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} />
+              <XAxis dataKey="date" ticks={ticksNumber(data, 'date')}
+                interval="preserveStartEnd" // ensures first & last labels show
+                minTickGap={20}
+                tick={{ dy: 10 }}
+              />
+              <YAxis dataKey={dataKey} tickFormatter={(value) => formatCurrency1(value)} />
               <Tooltip
                 contentStyle={{
                   backgroundColor: '#fff',
@@ -100,13 +106,13 @@ export default function MetricChart({
                   <stop offset="95%" stopColor={fillColor} stopOpacity={0.1} />
                 </linearGradient>
               </defs>
-              <XAxis dataKey="date" 
+              <XAxis dataKey="date"
                 ticks={ticksNumber(data, 'date')}
                 interval="preserveStartEnd" // ensures first & last labels show
                 minTickGap={20}
                 tick={{ dy: 10 }}
               />
-              <YAxis tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} tick={{ dx: -10 }}/>
+              <YAxis dataKey={dataKey} tickFormatter={(value) => formatCurrency1(value)} />
               <Tooltip />
               <Area type="linear" dataKey={dataKey} stroke="#8884d8" fillOpacity={1} fill="url(#colorUv)" />
               <Line
@@ -124,31 +130,33 @@ export default function MetricChart({
       {/* MRR Summary Section */}
       <div className="flex justify-around border-t mt-6 pt-4 text-sm">
         <div>
-          <p className="text-2xl font-semibold text-gray-800">$6.59k</p>
+          <p className="text-2xl font-semibold text-gray-800">{formatCurrency1(data[data.length - 1]?.mrr || 0)}</p>
           <p className="text-gray-500">Current MRR</p>
         </div>
         <div>
           <p className="text-2xl font-semibold text-gray-800">
-            $5.36k{' '}
-            <span className="text-[#1677ff] text-sm font-medium">+23.02%</span>
+            {formatCurrency1(analytics?.mrr.breakdown.monthly)}
+            <span className="text-[#1677ff] text-sm font-medium">
+              {/* +23.02% */}
+            </span>
           </p>
           <p className="text-gray-500">30 days ago</p>
         </div>
         <div>
           <p className="text-2xl font-semibold text-gray-800">
-            $1.34k{' '}
+            {formatCurrency1(analytics?.mrr.breakdown.monthly)}
             <span className="text-[#1677ff] text-sm font-medium">
-              +390.27%
+              {/* 0% */}
             </span>
           </p>
           <p className="text-gray-500">60 days ago</p>
         </div>
         <div>
-          <p className="text-2xl font-semibold text-gray-800">$0</p>
+          <p className="text-2xl font-semibold text-gray-800">{formatCurrency1(analytics?.mrr.breakdown.quarterly)}</p>
           <p className="text-gray-500">180 days ago</p>
         </div>
         <div>
-          <p className="text-2xl font-semibold text-gray-800">$0</p>
+          <p className="text-2xl font-semibold text-gray-800">{formatCurrency1(analytics?.mrr.breakdown.annual)}</p>
           <p className="text-gray-500">365 days ago</p>
         </div>
       </div>

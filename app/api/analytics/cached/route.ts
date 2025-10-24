@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams
     const companyId = searchParams.get('company_id')
     const period = searchParams.get('period') || 'day' // day, week, month, quarter, year
-    const range = parseInt(searchParams.get('range') || '30') // number of periods
+    const range = parseInt(searchParams.get('range') || '12') // number of periods
 
     if (!companyId) {
       return NextResponse.json(
@@ -37,7 +37,6 @@ export async function GET(request: NextRequest) {
       contractionMRR?: number
       churnedMRR?: number
     }
-
     let historical: HistoricalPoint[] = []
     try {
       switch (period) {
@@ -54,7 +53,7 @@ export async function GET(request: NextRequest) {
           historical = await metricsRepository.getQuarterlyMetrics(companyId, range)
           break
         case 'year':
-          historical = await metricsRepository.getDailyMetrics(companyId, 365)
+          historical = await metricsRepository.getDailyMetrics(companyId, range)
           break
         default:
           historical = await metricsRepository.getMonthlyMetrics(companyId, 6)
@@ -71,7 +70,7 @@ export async function GET(request: NextRequest) {
     // Format movements for waterfall chart
     const movements = historical.length > 0 ? {
       monthly: historical.map(h => ({
-        month: new Date(h.date).toISOString().split('T')[0],
+        month: period == "quarter" ? new Date(h.date).toLocaleDateString('en-US', { month: 'short' }) : new Date(h.date).toISOString().split('T')[0],
         newBusiness: h.newMRR || 0,
         expansion: h.expansionMRR || 0,
         contraction: -(h.contractionMRR || 0),

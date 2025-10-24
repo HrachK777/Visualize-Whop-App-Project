@@ -54,7 +54,6 @@ export default function CashFlowPage() {
     }
     fetchSubscribers();
    }, [])
-    console.log('for debug analytics = ', analytics);
 
   return (
     <div className="flex flex-wrap gap-6 bg-[#f7f9fc] px-6 pb-5">

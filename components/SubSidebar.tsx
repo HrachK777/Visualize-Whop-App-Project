@@ -163,8 +163,6 @@ export default function SubSidebar({ active, companyId }: any) {
   const pathname = usePathname();
   const isActive = (path: string) => pathname.includes(path);
 
-  console.log('for debug Sidebar active = ', active);
-  console.log('for debug Sidebar section = ', section);
   useEffect(() => {
     if (section) {
       setCollapsed(false);

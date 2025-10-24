@@ -31,7 +31,6 @@ export default function DashboardPage({ companyId }: { companyId: string }) {
     fetchTopWins();
   }, []);
 
-  console.log('for debug DashboardPage analytics = ', analytics);
   // const topWins = [
   //   { customer: 'Ethan C Welsh', arr: '$1,440', billing: 'Monthly', country: 'United States' },
   //   { customer: 'MD SHAHID B EMDAD', arr: '$288', billing: 'Monthly', country: 'United States' },

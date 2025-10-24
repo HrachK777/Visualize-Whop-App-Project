@@ -38,8 +38,6 @@ export async function GET(request: Request) {
     },
   );
 
-    console.log('for debug subscription = ', subscription);
-
     // If no subscription exists, no access
     if (!subscription) {
       return NextResponse.json({

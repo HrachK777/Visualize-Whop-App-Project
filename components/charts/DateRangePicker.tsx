@@ -25,7 +25,7 @@ export default function DateRangePicker({
         className="border border-gray-300 rounded px-3 py-1.5 text-sm text-gray-800 bg-white hover:bg-gray-100 flex items-center gap-2"
       >
         {/* <Calendar className="h-4 w-4" /> */}
-        {range.start.toLocaleDateString()} to {range.end.toLocaleDateString()}
+        {range.start.toISOString().split('T')[0]} to {range.end.toISOString().split('T')[0]}
         <ChevronDown className="h-4 w-4" />
       </button>
 

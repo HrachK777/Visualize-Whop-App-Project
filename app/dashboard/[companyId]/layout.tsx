@@ -30,8 +30,7 @@ export default function DashboardLayout({
     { id: 'reports', title: 'Reports', url: `/reports` },
     { id: 'settings', title: 'Settings', url: `/settings` },
   ];
-  // console.log('for debug DashboardLayout active = ', active);
-  // console.log('for debug DashboardLayout pathname = ', pathname);
+
   useEffect(() => {
     const activeItem = navItems.find((item) => pathname.includes(item.id));
     if (activeItem) setActive(activeItem?.id);

@@ -19,7 +19,10 @@ export function formatPercentage(value: number, decimals: number = 1): string {
 }
 
 export const ticksNumber = (data: any, datakey: any) => {
-  const spacing = data.length > 12 ? 3 : 2;
+  let spacing = data.length > 12 ? 3 : 2;
+  if(data.length <= 5) {
+    spacing = 1;
+  }
   // const ticks = data.map((d: any, i: number) => (i % spacing === 0 ? d[datakey] : null)).filter(Boolean);
   const ticks = data.map((d: any, i: number) => (i % spacing === 0 ? d[datakey] : null)).filter((tick: any) => tick !== null && tick !== undefined);
   return ticks as any[];

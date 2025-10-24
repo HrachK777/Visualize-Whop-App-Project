@@ -20,7 +20,7 @@ export default function CustomerTitle({ title, icon, setDateRange, dateRange }: 
                         <BiSolidSave className="inline-block px-1 mx-3 w-8 h-8 text-gray-600" />
                     </button>
                 </div>
-                {title.includes('reports') && (
+                {pathname.includes('reports') && (
                     <DateRangePicker onChange={setDateRange} range={dateRange} />
                 )}
             </div>
