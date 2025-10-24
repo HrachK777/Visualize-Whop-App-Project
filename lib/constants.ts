@@ -50,7 +50,6 @@ export const churnFilterOptions = [
     'Customer Churn Rate',
     'MRR Churn Rate',
     'ARPU',
-    'ARPA',
     'LTV',
 ];
 
@@ -58,7 +57,6 @@ export const churnCategories = [
     { key: 'customerChurnRate', label: 'Customer Churn Rate' },
     { key: 'revenueChurnRate', label: 'MRR Churn Rate' },
     { key: 'arpu', label: 'ARPU' },
-    { key: 'arpa', label: 'ARPA' },
     { key: 'ltv', label: 'LTV' },
 ];
 
@@ -67,14 +65,12 @@ export const leadsFilterOptions = [
     'Leads',
     'Free Trials',
     'Trial→Paid Conversions',
-    'Cohorts',
 ];
 
 export const leadsCategories = [
     { key: 'trialsData.active', label: 'Leads' },
     { key: 'trialsData.active', label: 'Free Trials' },
     { key: 'tiralsData.conversionRate', label: 'Trial→Paid Conversions' },
-    { key: 'cohorts', label: 'Cohorts' },
 ];
 
 export const leads = [

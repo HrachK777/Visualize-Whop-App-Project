@@ -37,21 +37,11 @@ export function useAnalyticsData(group: string, referenceItem?: string) {
                     ...item,
                     netNewMRR: (item.newMRR + item.expansionMRR + item.reactivations) - (item.contractionMRR + item.churnedMRR)
                   };
-                case 'ARPA':
-                  return {
-                    ...item,
-                    arpa: item.activeCustomers == 0 ? 0 : item.mrr / item.activeCustomers
-                  };
                 case 'LTV':
                   return {
                     ...item,
-                    ltv: item.customerChurnRate == 0 || item.activeCustomers == 0 ? 0 : (item.mrr / item.activeCustomers) / item.customerChurnRate
+                    ltv: item.customerChurnRate == 0 ? 0 : item.arpu / item.customerChurnRate
                   };
-                case 'cohorts':
-                  return {
-                    ...item,
-                    cohorts: []
-                  }
                   // Add your logic here
                   break;
                 default:
