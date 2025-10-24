@@ -51,8 +51,6 @@ export default function ReportsMRRPage() {
 
   if (error) return <ErrorComponent error={error} />;
 
-  console.log('for debug data = ', data);
-
   return (
     <div className="min-h-screen bg-[#f7f9fc] px-10 py-4 space-y-6">
       {/* Header */}
