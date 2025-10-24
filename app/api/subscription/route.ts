@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import clientPromise from '@/lib/db/mongodb';
-import { Collections, hasActiveSubscription, getSubscriptionInfo } from '@/lib/models';
+import { Collections, hasActiveSubscription } from '@/lib/models';
 
 export async function GET(request: Request) {
   try {
