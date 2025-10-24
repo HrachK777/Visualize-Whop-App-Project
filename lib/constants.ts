@@ -76,3 +76,18 @@ export const leadsCategories = [
     { key: 'tiralsData.conversionRate', label: 'Trial→Paid Conversions' },
     { key: 'cohorts', label: 'Cohorts' },
 ];
+
+export const leads = [
+    { id: 1, customer: 'ultdrop@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
+    { id: 2, customer: 'danieljacobdorsey@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
+    { id: 3, customer: 'toxicmula420@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
+    { id: 4, customer: 'directterms@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
+    { id: 5, customer: 'flipacademy@yahoo.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
+    { id: 6, customer: 'newdismain@ixempires.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
+    { id: 7, customer: 'ebaycashcamel@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
+    { id: 8, customer: 'danieljacobdorsey@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
+    { id: 9, customer: 'chernichaw1@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
+    { id: 10, customer: 'monkman9696@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
+    { id: 11, customer: 'rothstleo82@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead', note: 'Free subscriber' },
+    { id: 12, customer: 'maria.kipling@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
+];

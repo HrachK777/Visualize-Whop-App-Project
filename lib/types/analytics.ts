@@ -84,3 +84,14 @@ export interface AnalyticsPeriod {
   subscribers: SubscriberMetrics
   movements: MRRMovement[]
 }
+
+export interface Lead {
+  id: number;
+  customer: string;
+  leadCreated: string;
+  trialStarted: string;
+  country: string;
+  owner: string;
+  status: string;
+  note?: string;
+};

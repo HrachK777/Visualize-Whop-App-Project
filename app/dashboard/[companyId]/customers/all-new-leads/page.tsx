@@ -5,32 +5,10 @@ import CustomerTitle from '@/components/ui/CustomerTitle';
 import CustomFilterBar from '@/components/ui/CustomFilterBar';
 import { MdFiberNew } from "react-icons/md";
 import SearchBar from '@/components/ui/SearchBar';
+import * as constants from '@/lib/constants';
+import {Lead} from '@/lib/types/analytics'
 
-const leads: Lead[] = [
-    { id: 1, customer: 'ultdrop@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 2, customer: 'danieljacobdorsey@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 3, customer: 'toxicmula420@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 4, customer: 'directterms@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 5, customer: 'flipacademy@yahoo.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 6, customer: 'newdismain@ixempires.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 7, customer: 'ebaycashcamel@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 8, customer: 'danieljacobdorsey@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 9, customer: 'chernichaw1@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 10, customer: 'monkman9696@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 11, customer: 'rothstleo82@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead', note: 'Free subscriber' },
-    { id: 12, customer: 'maria.kipling@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-];
-
-interface Lead { 
-    id: number; 
-    customer: string; 
-    leadCreated: string; 
-    trialStarted: string; 
-    country: string; 
-    owner: string; 
-    status: string; 
-    note?: string; 
-};
+const leads: Lead[] = constants.leads;
 
 export default function CustomersPage() {
     const [searchQuery, setSearchQuery] = useState('');

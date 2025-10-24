@@ -9,8 +9,8 @@ import SearchBar from '@/components/ui/SearchBar';
 
 export default function CustomersPage() {
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedRows, setSelectedRows] = useState([]) as any[];
-    const [filters, setFilters] = useState([
+    const [selectedRows, setSelectedRows] = useState<number[]>([]);
+    const [filters, setFilters] = useState<{ id: number; field: string; operator: string; value: string }[]>([
         { id: 1, field: 'Customer status', operator: 'is one of', value: 'New Lead' }
     ]);
     const [showFilterBar, setShowFilterBar] = useState(true);
@@ -36,14 +36,14 @@ export default function CustomersPage() {
         setFilters([]);
         setShowFilterBar(false);
     };
-    const toggleRowSelection = (id: any) => {
-        setSelectedRows((prev: any[]) =>
-            prev.includes(id) ? prev.filter((rowId: any) => rowId !== id) : [...prev, id]
+    const toggleRowSelection = (id: number) => {
+        setSelectedRows((prev) =>
+            prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
         );
     };
 
     const toggleSelectAll = () => {
-        setSelectedRows((prev: any) =>
+        setSelectedRows((prev) =>
             prev.length === constants.customers.length ? [] : constants.customers.map(c => c.id)
         );
     };

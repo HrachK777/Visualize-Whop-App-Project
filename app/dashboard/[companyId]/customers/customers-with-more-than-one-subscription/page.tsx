@@ -5,26 +5,15 @@ import CustomerTitle from '@/components/ui/CustomerTitle';
 import CustomFilterBar from '@/components/ui/CustomFilterBar';
 import { MdFiberNew } from "react-icons/md";
 import SearchBar from '@/components/ui/SearchBar';
+import * as constants from '@/lib/constants';
+import {Lead} from '@/lib/types/analytics'
 
-const leads = [
-    { id: 1, customer: 'ultdrop@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 2, customer: 'danieljacobdorsey@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 3, customer: 'toxicmula420@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 4, customer: 'directterms@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 5, customer: 'flipacademy@yahoo.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 6, customer: 'newdismain@ixempires.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 7, customer: 'ebaycashcamel@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 8, customer: 'danieljacobdorsey@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 9, customer: 'chernichaw1@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 10, customer: 'monkman9696@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-    { id: 11, customer: 'rothstleo82@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead', note: 'Free subscriber' },
-    { id: 12, customer: 'maria.kipling@gmail.com', leadCreated: '—', trialStarted: '—', country: '—', owner: '—', status: 'New Lead' },
-];
+const leads: Lead[] = constants.leads;
 
 export default function CustomersPage() {
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedRows, setSelectedRows] = useState([]) as any[];
-    const [filters, setFilters] = useState([
+    const [selectedRows, setSelectedRows] = useState<number[]>([]);
+    const [filters, setFilters] = useState<{ id: number; field: string; operator: string; value: string }[]>([
         { id: 1, field: 'Customer status', operator: 'is one of', value: 'New Lead' }
     ]);
     const [showFilterBar, setShowFilterBar] = useState(true);
@@ -50,14 +39,14 @@ export default function CustomersPage() {
         setFilters([]);
         setShowFilterBar(false);
     };
-    const toggleRowSelection = (id: any) => {
-        setSelectedRows((prev: any[]) =>
-            prev.includes(id) ? prev.filter((rowId: any) => rowId !== id) : [...prev, id]
+    const toggleRowSelection = (id: number) => {
+        setSelectedRows((prev) =>
+            prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
         );
     };
 
     const toggleSelectAll = () => {
-        setSelectedRows((prev: any) =>
+        setSelectedRows((prev) =>
             prev.length === leads.length ? [] : leads.map(c => c.id)
         );
     };
