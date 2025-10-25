@@ -95,3 +95,21 @@ export interface Lead {
   status: string;
   note?: string;
 };
+
+export interface CustomerType {
+    id: number,
+    name: string,
+    mrr: string,
+    arr: string,
+    plan: string,
+    billing: string,
+    payment: string,
+    country: string,
+    since: number,
+    status: string,
+    pastDueAt?: number,
+    renewalAt?: number,
+    trialStartedAt: number,
+    note?: string,
+    owner: string,
+}

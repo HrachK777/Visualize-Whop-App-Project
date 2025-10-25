@@ -1,11 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CustomerTitle from '@/components/ui/CustomerTitle';
 import CustomFilterBar from '@/components/ui/CustomFilterBar';
 import * as constants from '@/lib/constants';
 import { GiTrophyCup } from "react-icons/gi";
 import SearchBar from '@/components/ui/SearchBar';
+import { useMemberships } from '@/lib/contexts/MembershipsContext'
+import { useAnalytics } from '@/lib/contexts/AnalyticsContext';
+import { formatCurrency1, ymd } from '@/lib/utils';
+import { CustomerType } from '@/lib/types/analytics';
+
 const datas = constants.customers;
 
 export default function CustomersPage() {
@@ -15,6 +20,36 @@ export default function CustomersPage() {
         { id: 1, field: 'Customer status', operator: 'is one of', value: 'New Lead' }
     ]);
     const [showFilterBar, setShowFilterBar] = useState(true);
+    const { data } = useMemberships();
+    const { data: analytics } = useAnalytics();
+    const [customers, setCustomers] = useState<CustomerType[]>([]);
+
+    useEffect(() => {
+        if (data && data.memberships) {
+            const statusFiltered = data.memberships.filter(m => m.status == 'active');
+            let count = 0;
+            const filtered: any[] = statusFiltered.map(m => {
+                const highestMRR = filtered.reduce((max, current) =>
+                    current.mrr > max.mrr ? current : max, filtered[0]
+                );
+                const planMatches = data.plans.filter(p => p.id == m?.plan?.id && p.rawRenewalPrice == highestMRR);
+                return planMatches.map(p => ({
+                    id: count++,
+                    name: m.member?.name ? m.member?.name : '—',
+                    mrr: p.rawRenewalPrice,
+                    arr: p.rawRenewalPrice * 12,
+                    plan: "—", // You might want to set this to p.name or something meaningful
+                    billing: p.billingPeriod == 30 ? 'Monthly' : 'Annual',
+                    payment: "—",
+                    country: 'United States',
+                    since: m.createdAt,
+                    status: 'Active'
+                }));
+            }).flat(); // Use flat() to flatten the array of arrays
+            console.log('for debug filtered = ', filtered);
+            setCustomers(filtered)
+        }
+    }, [data])
 
     const addFilter = () => {
         setFilters([...filters, {
@@ -45,12 +80,12 @@ export default function CustomersPage() {
 
     const toggleSelectAll = () => {
         setSelectedRows((prev) =>
-            prev.length === datas.length ? [] : datas.map(c => c.id)
+            prev.length === customers.length ? [] : customers.map(c => c.id)
         );
     };
 
     // Filter customers based on search query
-    const filteredLeads = datas.filter(customer => {
+    const filteredLeads = customers.filter(customer => {
         const query = searchQuery.toLowerCase();
         return (
             customer.name.toLowerCase().includes(query) ||
@@ -79,7 +114,7 @@ export default function CustomersPage() {
             {/* Main Content */}
             <div className="border border-gray-300 rounded-md bg-white">
                 {/* Search and Actions */}
-                <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} setShowFilterBar={setShowFilterBar} />
+                <SearchBar total={data.memberships.length} actives={customers.length} searchQuery={searchQuery} setSearchQuery={setSearchQuery} setShowFilterBar={setShowFilterBar} />
 
                 {/* Table */}
                 <div className="flex-1 bg-gray-50">
@@ -117,12 +152,12 @@ export default function CustomersPage() {
                                             />
                                         </td>
                                         <td className="px-4 py-3 text-sm text-gray-900">{lead.name}</td>
-                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.arr}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">{formatCurrency1(lead.arr)}</td>
                                         <td className="px-4 py-3 text-sm text-gray-400">{lead.plan}</td>
                                         <td className="px-4 py-3 text-sm text-gray-400">{lead.billing}</td>
-                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.mrr}</td>
-                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.payment}</td>
-                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.since}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">{formatCurrency1(lead.mrr)}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">{formatCurrency1(lead.payment)}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">{ymd(lead.since)}</td>
                                         <td className="px-4 py-3">
                                             <div className="flex flex-col">
                                                 <span className="text-sm text-blue-600">{lead.status}</span>
@@ -135,7 +170,7 @@ export default function CustomersPage() {
                                 ))) : (
                                 <tr>
                                     <td colSpan={10} className="px-4 py-3 text-sm text-gray-400 text-center">
-                                        No leads found matching &quot{searchQuery}&quot
+                                        No data found matching {searchQuery}
                                     </td>
                                 </tr>
                             )}

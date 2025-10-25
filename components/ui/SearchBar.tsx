@@ -3,7 +3,7 @@ import {
     Grid3x3, Sliders,
 } from 'lucide-react';
 
-export default function SearchBar({ searchQuery, setSearchQuery, setShowFilterBar }: { searchQuery: string; setSearchQuery: (query: string) => void; setShowFilterBar: (show: boolean) => void; }) {
+export default function SearchBar({ total, actives, searchQuery, setSearchQuery, setShowFilterBar }: { total?: number, actives?: number, searchQuery: string; setSearchQuery: (query: string) => void; setShowFilterBar: (show: boolean) => void; }) {
     return (
         <div className="px-6 py-4 border-b flex items-center justify-between">
             <div className="flex items-center gap-4 flex-1">
@@ -26,7 +26,7 @@ export default function SearchBar({ searchQuery, setSearchQuery, setShowFilterBa
                     )}
                 </div>
                 <span className="text-sm text-gray-600">
-                    136 customers (67 active subscribers)
+                    {total} customers ({actives} active subscribers)
                 </span>
             </div>
 

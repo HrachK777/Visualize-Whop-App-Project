@@ -1,11 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CustomerTitle from '@/components/ui/CustomerTitle';
 import CustomFilterBar from '@/components/ui/CustomFilterBar';
-import { GiMoneyStack } from "react-icons/gi";
-import * as constants from '@/lib/constants';
+import { RiAlarmWarningFill } from "react-icons/ri";
 import SearchBar from '@/components/ui/SearchBar';
+import { useMemberships } from '@/lib/contexts/MembershipsContext';
+import { ymd, formatCurrency1 } from '@/lib/utils';
+import { useAnalytics } from '@/lib/contexts/AnalyticsContext';
+import { CustomerType } from '@/lib/types/analytics';
+import { GiMoneyStack } from 'react-icons/gi';
 
 export default function CustomersPage() {
     const [searchQuery, setSearchQuery] = useState('');
@@ -14,6 +18,35 @@ export default function CustomersPage() {
         { id: 1, field: 'Customer status', operator: 'is one of', value: 'New Lead' }
     ]);
     const [showFilterBar, setShowFilterBar] = useState(true);
+    const { data } = useMemberships();
+    const { data: analytics } = useAnalytics();
+    const [customers, setCustomers] = useState<CustomerType[]>([]);
+
+    useEffect(() => {
+        if (data && data.memberships) {
+            const statusFiltered = data.memberships.filter(m => m.status == 'completed');
+            let count = 0;
+            const filtered: any[] = statusFiltered.map(m => {
+                const planMatches = data.plans.filter(p => p.id == m?.plan?.id);
+                return planMatches.map(p => ({
+                    id: count++,
+                    name: m.member?.name ? m.member?.name : '—',
+                    mrr: p.rawRenewalPrice,
+                    arr: p.rawRenewalPrice * 12,
+                    plan: "—", // You might want to set this to p.name or something meaningful
+                    billing: p.billingPeriod == 30 ? 'Monthly' : 'Annual',
+                    payment: "—",
+                    country: 'United States',
+                    since: m.createdAt,
+                    status: m.status,
+                    pastDueAt: m.createdAt,
+                    renewalAt: m.expiresAt,
+                }));
+            }).flat(); // Use flat() to flatten the array of arrays
+            console.log('for debug filtered = ', filtered);
+            setCustomers(filtered)
+        }
+    }, [data])
 
     const addFilter = () => {
         setFilters([...filters, {
@@ -44,17 +77,16 @@ export default function CustomersPage() {
 
     const toggleSelectAll = () => {
         setSelectedRows((prev) =>
-            prev.length === constants.customers.length ? [] : constants.customers.map(c => c.id)
+            prev.length === customers.length ? [] : customers.map(c => Number(c.id))
         );
     };
 
     // Filter customers based on search query
-    const filteredLeads = constants.customers.filter(customer => {
+    const filteredLeads = customers.filter(customer => {
         const query = searchQuery.toLowerCase();
         return (
             customer.name.toLowerCase().includes(query) ||
-            customer.payment.toLowerCase().includes(query) ||
-            customer.since.toLowerCase().includes(query) ||
+            customer.plan.toLowerCase().includes(query) ||
             customer.country.toLowerCase().includes(query) ||
             customer.status.toLowerCase().includes(query)
         );
@@ -88,7 +120,7 @@ export default function CustomersPage() {
                                 <th className="w-12 px-4 py-3">
                                     <input
                                         type="checkbox"
-                                        checked={selectedRows.length === constants.customers.length}
+                                        checked={customers.length > 0 && selectedRows.length === customers.length}
                                         onChange={toggleSelectAll}
                                         className="rounded border-gray-300"
                                     />
@@ -113,22 +145,22 @@ export default function CustomersPage() {
                                             />
                                         </td>
                                         <td className="px-4 py-3 text-sm text-gray-900">{lead.name}</td>
-                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.payment}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">{formatCurrency1(lead.payment)}</td>
                                         <td className="px-4 py-3 text-sm text-gray-400">{lead.country}</td>
-                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.since}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">{ymd(lead.since)}</td>
                                         <td className="px-4 py-3">
                                             <div className="flex flex-col">
-                                                <span className="text-sm text-red-500">Cancelled</span>
-                                                {/* {lead.note && (
+                                                <span className="text-sm text-red-500">{lead.status}</span>
+                                                {lead.note && (
                                                     <span className="text-xs text-gray-400">{lead.note}</span>
-                                                )} */}
+                                                )}
                                             </div>
                                         </td>
                                     </tr>
                                 ))) : (
                                 <tr>
                                     <td colSpan={10} className="px-4 py-3 text-sm text-gray-400 text-center">
-                                        No leads found matching &quot{searchQuery}&quot
+                                        No data found matching {searchQuery}
                                     </td>
                                 </tr>
                             )}

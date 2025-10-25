@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import CustomerTitle from '@/components/ui/CustomerTitle';
 import CustomFilterBar from '@/components/ui/CustomFilterBar';
-import { MdFiberNew } from "react-icons/md";
+import { HiUsers } from "react-icons/hi";
 import SearchBar from '@/components/ui/SearchBar';
 import * as constants from '@/lib/constants';
 import {Lead} from '@/lib/types/analytics'
@@ -66,7 +66,7 @@ export default function CustomersPage() {
     return (
         <div className="bg-blue-50 px-10 py-4 space-y-4">
             {/* Header */}
-            <CustomerTitle title="All New Leads" icon={<MdFiberNew className='text-blue-400 w-8 h-8' />} />
+            <CustomerTitle title="Customers with > 1 subscriptions" icon={<HiUsers className='text-purple-600 w-8 h-8' />} />
 
             {/* Filter Bar */}
             {showFilterBar && (
@@ -91,7 +91,7 @@ export default function CustomersPage() {
                                 <th className="w-12 px-4 py-3">
                                     <input
                                         type="checkbox"
-                                        checked={selectedRows.length === leads.length}
+                                        checked={leads.length > 0 && selectedRows.length === leads.length}
                                         onChange={toggleSelectAll}
                                         className="rounded border-gray-300"
                                     />
@@ -133,7 +133,7 @@ export default function CustomersPage() {
                                 ))) : (
                                 <tr>
                                     <td colSpan={10} className="px-4 py-3 text-sm text-gray-400 text-center">
-                                        No leads found matching &quot{searchQuery}&quot
+                                        No data found matching {searchQuery}
                                     </td>
                                 </tr>
                             )}

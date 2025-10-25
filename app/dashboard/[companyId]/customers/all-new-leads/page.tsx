@@ -1,14 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CustomerTitle from '@/components/ui/CustomerTitle';
 import CustomFilterBar from '@/components/ui/CustomFilterBar';
 import { MdFiberNew } from "react-icons/md";
 import SearchBar from '@/components/ui/SearchBar';
-import * as constants from '@/lib/constants';
-import {Lead} from '@/lib/types/analytics'
+import { useMemberships } from '@/lib/contexts/MembershipsContext';
+import { useAnalytics } from '@/lib/contexts/AnalyticsContext';
+import { ymd } from '@/lib/utils';
+import { CustomerType } from '@/lib/types/analytics';
 
-const leads: Lead[] = constants.leads;
 
 export default function CustomersPage() {
     const [searchQuery, setSearchQuery] = useState('');
@@ -17,6 +18,27 @@ export default function CustomersPage() {
         { id: 1, field: 'Customer status', operator: 'is one of', value: 'New Lead' }
     ]);
     const [showFilterBar, setShowFilterBar] = useState(true);
+    const { data } = useMemberships();
+        const { data: analytics } = useAnalytics();
+        const [customers, setCustomers] = useState<CustomerType[]>([]);
+    
+        useEffect(() => {
+            if (data && data.memberships) {
+                const statusFiltered = data.memberships.filter(m => m.status == 'active');
+                let count = 0;
+                const filtered: any[] = statusFiltered.map(m => ({
+                    id: count++,
+                    name: m.member?.name ? m.member?.name : '—',
+                    owner: "—",
+                    country: 'United States',
+                    since: m.createdAt,
+                    trialStartedAt: m.createdAt,
+                    status: 'New Lead'
+                })).flat()
+                console.log('for debug filtered = ', filtered);
+                setCustomers(filtered)
+            }; // Use flat() to flatten the array of arrays
+        }, [data]);
 
     const addFilter = () => {
         setFilters([...filters, {
@@ -47,19 +69,18 @@ export default function CustomersPage() {
 
     const toggleSelectAll = () => {
         setSelectedRows((prev) =>
-            prev.length === leads.length ? [] : leads.map(c => c.id)
+            prev.length === customers.length ? [] : customers.map(c => Number(c.id))
         );
     };
 
     // Filter customers based on search query
-    const filteredLeads = leads.filter(customer => {
+    const filteredLeads = customers.filter(customer => {
         const query = searchQuery.toLowerCase();
         return (
-            customer.customer.toLowerCase().includes(query) ||
-            customer.leadCreated.toLowerCase().includes(query) ||
-            customer.trialStarted.toLowerCase().includes(query) ||
-            customer.country.toLowerCase().includes(query) ||
-            customer.status.toLowerCase().includes(query)
+            (customer.name.toLowerCase().includes(query) ||
+            customer.owner.toString().includes(query) ||
+            // customer..toLowerCase().includes(query) ||
+            customer.status.toLowerCase().includes(query))
         );
     });
 
@@ -81,7 +102,7 @@ export default function CustomersPage() {
             {/* Main Content */}
             <div className="border border-gray-300 rounded-md bg-white">
                 {/* Search and Actions */}
-                <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} setShowFilterBar={setShowFilterBar} />
+                <SearchBar total={data.memberships.length} actives={customers.length} searchQuery={searchQuery} setSearchQuery={setSearchQuery} setShowFilterBar={setShowFilterBar} />
 
                 {/* Table */}
                 <div className="flex-1 bg-gray-50">
@@ -91,7 +112,7 @@ export default function CustomersPage() {
                                 <th className="w-12 px-4 py-3">
                                     <input
                                         type="checkbox"
-                                        checked={selectedRows.length === leads.length}
+                                        checked={filteredLeads.length > 0 && selectedRows.length === filteredLeads.length}
                                         onChange={toggleSelectAll}
                                         className="rounded border-gray-300"
                                     />
@@ -111,19 +132,21 @@ export default function CustomersPage() {
                                         <td className="px-4 py-3">
                                             <input
                                                 type="checkbox"
-                                                checked={selectedRows.includes(lead.id)}
-                                                onChange={() => toggleRowSelection(lead.id)}
+                                                checked={selectedRows.includes(Number(lead.id))}
+                                                onChange={() => toggleRowSelection(Number(lead.id))}
                                                 className="rounded border-gray-300"
                                             />
                                         </td>
-                                        <td className="px-4 py-3 text-sm text-gray-900">{lead.customer}</td>
-                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.leadCreated}</td>
-                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.trialStarted}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-900">{lead.name}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">
+                                             {ymd(lead.since)}
+                                        </td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">{ymd(lead.trialStartedAt)}</td>
                                         <td className="px-4 py-3 text-sm text-gray-400">{lead.country}</td>
                                         <td className="px-4 py-3 text-sm text-gray-400">{lead.owner}</td>
                                         <td className="px-4 py-3">
                                             <div className="flex flex-col">
-                                                <span className="text-sm text-blue-600">{lead.status}</span>
+                                                <span className="text-sm text-gray-800">{lead.status}</span>
                                                 {lead.note && (
                                                     <span className="text-xs text-gray-400">{lead.note}</span>
                                                 )}
@@ -133,7 +156,7 @@ export default function CustomersPage() {
                                 ))) : (
                                 <tr>
                                     <td colSpan={10} className="px-4 py-3 text-sm text-gray-400 text-center">
-                                        No leads found matching &quot{searchQuery}&quot
+                                        No data found matching {searchQuery}
                                     </td>
                                 </tr>
                             )}

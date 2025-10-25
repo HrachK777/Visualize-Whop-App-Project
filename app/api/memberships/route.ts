@@ -21,7 +21,10 @@ export async function GET(request: NextRequest) {
 
       if (cachedSnapshot?.rawData?.memberships) {
         return NextResponse.json({
-          data: cachedSnapshot.rawData.memberships,
+          data: {
+            memberships: cachedSnapshot.rawData.memberships,
+            plans: cachedSnapshot.rawData.plans
+          },
           count: cachedSnapshot.rawData.memberships.length,
           cached: true,
         })

@@ -8,7 +8,8 @@ import SubSidebar from '@/components/SubSidebar';
 import DashboardTabs from "@/components/DashboardTabs";
 import { usePathname } from 'next/navigation';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
-import { AnalyticsProvider } from '@/lib/contexts/AnalyticsContext'
+import { AnalyticsProvider } from '@/lib/contexts/AnalyticsContext';
+import { MembershipsProvider } from '@/lib/contexts/MembershipsContext';
 
 export default function DashboardLayout({
   children,
@@ -90,6 +91,7 @@ export default function DashboardLayout({
 
   return (
     <AnalyticsProvider companyId={companyId}>
+      <MembershipsProvider companyId={companyId}>
       <div className="flex min-h-screen bg-gray-50">
         {/* Subscription Modal - shows when user doesn't have access */}
         {showSubscriptionModal && userId && (
@@ -129,6 +131,7 @@ export default function DashboardLayout({
           </div>
         </div>
       </div>
+      </MembershipsProvider>
     </AnalyticsProvider>
   );
 }

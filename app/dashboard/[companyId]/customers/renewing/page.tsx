@@ -1,11 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CustomerTitle from '@/components/ui/CustomerTitle';
 import CustomFilterBar from '@/components/ui/CustomFilterBar';
 import { MdOutlineAutorenew } from "react-icons/md";
 import * as constants from '@/lib/constants';
 import SearchBar from '@/components/ui/SearchBar';
+import { useMemberships } from '@/lib/contexts/MembershipsContext';
+import { ymd, formatCurrency1 } from '@/lib/utils';
+import { useAnalytics } from '@/lib/contexts/AnalyticsContext';
+import { CustomerType } from '@/lib/types/analytics';
 
 const datas = constants.customers;
 
@@ -16,6 +20,35 @@ export default function CustomersPage() {
         { id: 1, field: 'Customer status', operator: 'is one of', value: 'New Lead' }
     ]);
     const [showFilterBar, setShowFilterBar] = useState(true);
+    const { data } = useMemberships();
+    const { data: analytics } = useAnalytics();
+    const [customers, setCustomers] = useState<CustomerType[]>([]);
+
+    useEffect(() => {
+        if (data && data.memberships) {
+            const statusFiltered = data.memberships.filter(m => m.status == 'active' || m.status == 'trialing');
+            let count = 0;
+            const filtered: any[] = statusFiltered.map(m => {
+                const planMatches = data.plans.filter(p => p.id == m?.plan?.id);
+                return planMatches.map(p => ({
+                    id: count++,
+                    name: m.member?.name ? m.member?.name : '—',
+                    mrr: p.rawRenewalPrice,
+                    arr: p.rawRenewalPrice * 12,
+                    plan: "—", // You might want to set this to p.name or something meaningful
+                    billing: p.billingPeriod == 30 ? 'Monthly' : 'Annual',
+                    payment: "—",
+                    country: 'United States',
+                    since: m.createdAt,
+                    status: m.status == 'active' ? 'Active' : 'New Lead',
+                    pastDueAt: m.createdAt,
+                    renewalAt: m.expiresAt,
+                }));
+            }).flat(); // Use flat() to flatten the array of arrays
+            console.log('for debug filtered = ', filtered);
+            setCustomers(filtered)
+        }
+    }, [data])
 
     const addFilter = () => {
         setFilters([...filters, {
@@ -46,12 +79,12 @@ export default function CustomersPage() {
 
     const toggleSelectAll = () => {
         setSelectedRows((prev) =>
-            prev.length === datas.length ? [] : datas.map(c => c.id)
+            prev.length === customers.length ? [] : customers.map(c => c.id)
         );
     };
 
     // Filter customers based on search query
-    const filteredLeads = datas.filter(customer => {
+    const filteredLeads = customers.filter(customer => {
         const query = searchQuery.toLowerCase();
         return (
             customer.name.toLowerCase().includes(query) ||
@@ -69,18 +102,18 @@ export default function CustomersPage() {
 
             {/* Filter Bar */}
             {showFilterBar && (
-            <CustomFilterBar
-                filters={filters}
-                updateFilter={updateFilter}
-                removeFilter={removeFilter}
-                addFilter={addFilter}
-                clearAllFilters={clearAllFilters}
-            />)}
+                <CustomFilterBar
+                    filters={filters}
+                    updateFilter={updateFilter}
+                    removeFilter={removeFilter}
+                    addFilter={addFilter}
+                    clearAllFilters={clearAllFilters}
+                />)}
 
             {/* Main Content */}
             <div className="border border-gray-300 rounded-md bg-white">
                 {/* Search and Actions */}
-                <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} setShowFilterBar={setShowFilterBar} />
+                <SearchBar total={data.memberships.length} actives={customers.length} searchQuery={searchQuery} setSearchQuery={setSearchQuery} setShowFilterBar={setShowFilterBar} />
 
                 {/* Table */}
                 <div className="flex-1 bg-gray-50">
@@ -90,7 +123,7 @@ export default function CustomersPage() {
                                 <th className="w-12 px-4 py-3">
                                     <input
                                         type="checkbox"
-                                        checked={selectedRows.length === datas.length}
+                                        checked={filteredLeads.length > 0 && selectedRows.length === filteredLeads.length}
                                         onChange={toggleSelectAll}
                                         className="rounded border-gray-300"
                                     />
@@ -114,19 +147,19 @@ export default function CustomersPage() {
                                         <td className="px-4 py-3">
                                             <input
                                                 type="checkbox"
-                                                checked={selectedRows.includes(lead.id)}
-                                                onChange={() => toggleRowSelection(lead.id)}
+                                                checked={selectedRows.includes(Number(lead.id))}
+                                                onChange={() => toggleRowSelection(Number(lead.id))}
                                                 className="rounded border-gray-300"
                                             />
                                         </td>
                                         <td className="px-4 py-3 text-sm text-gray-900">{lead.name}</td>
-                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.since}</td>
-                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.arr}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.pastDueAt && ymd(lead.pastDueAt)}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">{formatCurrency1(lead.arr)}</td>
                                         <td className="px-4 py-3 text-sm text-gray-400">{lead.plan}</td>
                                         <td className="px-4 py-3 text-sm text-gray-400">{lead.billing}</td>
-                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.mrr}</td>
-                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.payment}</td>
-                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.since}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">{formatCurrency1(lead.mrr)}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">{formatCurrency1(lead.payment)}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.since && ymd(lead.since)}</td>
                                         <td className="px-4 py-3">
                                             <div className="flex flex-col">
                                                 <span className="text-sm text-blue-600">{lead.status}</span>
@@ -135,12 +168,12 @@ export default function CustomersPage() {
                                                 )}
                                             </div>
                                         </td>
-                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.since}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.renewalAt && ymd(lead.renewalAt)}</td>
                                     </tr>
                                 ))) : (
                                 <tr>
                                     <td colSpan={10} className="px-4 py-3 text-sm text-gray-400 text-center">
-                                        No leads found matching &quot{searchQuery}&quot
+                                        No data found matching {searchQuery}
                                     </td>
                                 </tr>
                             )}

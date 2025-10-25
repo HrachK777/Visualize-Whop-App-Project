@@ -20,7 +20,7 @@ export function formatPercentage(value: number, decimals: number = 1): string {
 
 export const ticksNumber = (data: any, datakey: any) => {
   let spacing = data.length > 12 ? 3 : 2;
-  if(data.length <= 5) {
+  if (data.length <= 5) {
     spacing = 1;
   }
   // const ticks = data.map((d: any, i: number) => (i % spacing === 0 ? d[datakey] : null)).filter(Boolean);
@@ -30,8 +30,8 @@ export const ticksNumber = (data: any, datakey: any) => {
 
 // ✅ Format numbers to "$148k" style
 export function formatCurrency1(value: any) {
-    if (value >= 1000) return `$${(value / 1000).toFixed(0)}k`;
-    return `$${value}`;
+  if (value >= 1000) return `$${(value / 1000).toFixed(0)}k`;
+  return `$${value}`;
 }
 
 // Memoized date formatter
@@ -41,3 +41,12 @@ export const formatDate = (dateStr: string) => {
     year: "numeric"
   });
 };
+
+export const ymd = (d: number) => {
+  const s = new Date(d * 1000);
+  return [
+    s.getFullYear(),
+    String(s.getMonth() + 1).padStart(2, '0'),
+    String(s.getDate()).padStart(2, '0')
+  ].join('-');
+}
