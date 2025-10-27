@@ -35,7 +35,7 @@ export default function CustomersPage() {
                     name: m.member?.name ? m.member?.name : '—',
                     mrr: p.rawRenewalPrice,
                     arr: p.rawRenewalPrice * 12,
-                    plan: "—", // You might want to set this to p.name or something meaningful
+                    plan: p.accessPass?.title, // You might want to set this to p.name or something meaningful
                     billing: p.billingPeriod == 30 ? 'Monthly' : 'Annual',
                     payment: "—",
                     country: 'United States',

@@ -138,7 +138,7 @@ export default function CustomersPage() {
                                             />
                                         </td>
                                         <td className="px-4 py-3 text-sm text-gray-900">{lead.name}</td>
-                                        <td className="px-4 py-3 text-sm text-gray-700">{formatCurrency1(lead.payment)}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-700">{lead.payment !== '—' ? formatCurrency1(lead.payment) : lead.payment}</td>
                                         <td className="px-4 py-3 text-sm text-gray-700">{lead.country}</td>
                                         <td className="px-4 py-3 text-sm text-gray-700">{ymd(lead.since)}</td>
                                         <td className="px-4 py-3">

@@ -8,7 +8,7 @@ import SearchBar from '@/components/ui/SearchBar';
 import { useMemberships } from '@/lib/contexts/MembershipsContext';
 import { useAnalytics } from '@/lib/contexts/AnalyticsContext';
 import { ymd } from '@/lib/utils';
-import { CustomerType } from '@/lib/types/analytics';
+import { CustomerType, Membership } from '@/lib/types/analytics';
 
 
 export default function CustomersPage() {
@@ -26,7 +26,7 @@ export default function CustomersPage() {
             if (data && data.memberships) {
                 const statusFiltered = data.memberships.filter(m => m.status == 'active');
                 let count = 0;
-                const filtered: any[] = statusFiltered.map(m => ({
+                const filtered: CustomerType[] = statusFiltered.map(m => ({
                     id: count++,
                     name: m.member?.name ? m.member?.name : '—',
                     owner: "—",
@@ -77,8 +77,8 @@ export default function CustomersPage() {
     const filteredLeads = customers.filter(customer => {
         const query = searchQuery.toLowerCase();
         return (
-            (customer.name.toLowerCase().includes(query) ||
-            customer.owner.toString().includes(query) ||
+            (customer.name && customer?.name.toLowerCase().includes(query) ||
+            customer.owner && customer.owner.toString().includes(query) ||
             // customer..toLowerCase().includes(query) ||
             customer.status.toLowerCase().includes(query))
         );
@@ -139,9 +139,9 @@ export default function CustomersPage() {
                                         </td>
                                         <td className="px-4 py-3 text-sm text-gray-900">{lead.name}</td>
                                         <td className="px-4 py-3 text-sm text-gray-400">
-                                             {ymd(lead.since)}
+                                             {lead.since && ymd(lead.since)}
                                         </td>
-                                        <td className="px-4 py-3 text-sm text-gray-400">{ymd(lead.trialStartedAt)}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.trialStartedAt && ymd(lead.trialStartedAt)}</td>
                                         <td className="px-4 py-3 text-sm text-gray-400">{lead.country}</td>
                                         <td className="px-4 py-3 text-sm text-gray-400">{lead.owner}</td>
                                         <td className="px-4 py-3">
