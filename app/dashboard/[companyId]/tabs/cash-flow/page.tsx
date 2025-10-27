@@ -11,51 +11,39 @@ import { useAnalytics } from '@/lib/contexts/AnalyticsContext';
 import { useState } from 'react';
 import Loading from '@/components/ui/loading';
 import ErrorComponent from '@/components/ui/error';
-
-// const netCashFlowData = [
-//   { month: 'Aug', current: 0, previous: 0 },
-//   { month: 'Sep', current: 0, previous: 0 },
-//   { month: 'Oct', current: 7164, previous: 5000 },
-// ];
-
-// const compoundingCashflowsData = [
-//   { month: 'Aug', current: 0, previous: 0 },
-//   { month: 'Sep', current: 0, previous: 0 },
-//   { month: 'Oct', current: 4000, previous: 2500 },
-// ];
-
-// const refundsData = [
-//   { month: 'Aug', current: 0, previous: 0 },
-//   { month: 'Sep', current: 0, previous: 0 },
-//   { month: 'Oct', current: 237, previous: 320 },
-// ];
-
-// const pastDueCustomers = [
-//   { name: 'Sam Romanias', due: 'Oct 15, 2025', renewal: 'Nov 15, 2025', arr: '$1,440' },
-//   { name: 'Yarom Peretz', due: 'Oct 13, 2025', renewal: 'Nov 13, 2025', arr: '$1,440' },
-//   { name: 'Johnathan Mcilvain', due: 'Oct 11, 2025', renewal: 'Nov 11, 2025', arr: '$1,440' },
-//   { name: 'Ethan Welsh', due: 'Oct 11, 2025', renewal: 'Nov 11, 2025', arr: '$1,440' },
-//   { name: 'Steven Ezon', due: 'Oct 11, 2025', renewal: 'Nov 11, 2025', arr: '$1,440' },
-//   { name: 'Sohaib Khan', due: 'Oct 3, 2025', renewal: 'Nov 3, 2025', arr: '$1,440' },
-// ];
+import {useEffect} from 'react';
+import { useMemberships } from '@/lib/contexts/MembershipsContext';
+import { ymd, formatCurrency1 } from '@/lib/utils';
+import { CustomerType } from '@/lib/types/analytics';
 
 export default function CashFlowPage() {
-   const { data: analytics, loading, error } = useAnalytics();
-   const [pastDueCustomers, setPastDueCustomers] = useState<{name: string, due: string, renewal: string, arr: string}[]>([]);
-   const data = analytics?.historical;
-  //  useEffect(() => {
-  //   const fetchSubscribers = async () => {
-  //     const res = await fetch(`/api/subscription?companyId=${process.env.NEXT_PUBLIC_WHOP_COMPANY_ID}`);
-  //     const data = await res.json();
-  //     console.log('Fetched subscribers:', data);
-  //     setPastDueCustomers(data.subscription || []);
-  //   }
-  //   fetchSubscribers();
-  //  }, [])
+  const { data: analytics, loading, error } = useAnalytics();
+  const [pastDueCustomers, setPastDueCustomers] = useState<{ name: string, due: string, renewal: string, arr: string }[]>([]);
+  const historicalData = analytics?.historical;
+  const { data } = useMemberships();
+      const [customers, setCustomers] = useState<CustomerType[]>([]);
+  useEffect(() => {
+    if (data && data.memberships) {
+      const statusFiltered = data.memberships.filter(m => m.status == 'past_due');
+      let count = 0;
+      const filtered: any[] = statusFiltered.map(m => {
+        const planMatches = data.plans.filter(p => p.id == m?.plan?.id);
+        return planMatches.map(p => ({
+          id: count++,
+          name: m.member?.name ? m.member?.name : '—',
+          arr: p.rawRenewalPrice * 12,
+          pastDueAt: m.createdAt,
+          renewalAt: m.expiresAt,
+        }));
+      }).flat(); // Use flat() to flatten the array of arrays
+      console.log('for debug filtered = ', filtered);
+      setCustomers(filtered)
+    }
+  }, [data])
 
-   if(loading) return <Loading />;
+  if (loading) return <Loading />;
 
-   if (error) return <ErrorComponent error={error} />;
+  if (error) return <ErrorComponent error={error} />;
 
   return (
     <div className="flex flex-wrap gap-6 bg-[#f7f9fc] px-6 pb-5">
@@ -78,7 +66,7 @@ export default function CashFlowPage() {
 
           <div className='h-[150px]'>
             <ResponsiveContainer width="100%">
-              <BarChart data={data}>
+              <BarChart data={historicalData}>
                 <CartesianGrid stroke="#f0f2f5" vertical={false} />
                 {/* <XAxis dataKey="month" tickLine={false} axisLine={false} />
               <YAxis tickLine={false} axisLine={false} /> */}
@@ -107,9 +95,9 @@ export default function CashFlowPage() {
             💸 Compounding cashflows
           </h2>
 
-          <div className='h-[250px]'>
+          <div className='h-[230px]'>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data}>
+              <BarChart data={historicalData}>
                 <CartesianGrid stroke="#f0f2f5" vertical={false} />
                 {/* <XAxis dataKey="month" tickLine={false} axisLine={false} />
               <YAxis tickLine={false} axisLine={false} /> */}
@@ -143,7 +131,7 @@ export default function CashFlowPage() {
               Past Due Customers
             </h2>
             <span className="text-xs font-semibold text-gray-600 border border-gray-200 rounded px-2 py-0.5">
-              {analytics?.subscribers.past_due} CUSTOMERS
+              {customers.length} CUSTOMERS
             </span>
           </div>
           <table className="w-full text-sm text-gray-700">
@@ -156,12 +144,12 @@ export default function CashFlowPage() {
               </tr>
             </thead>
             <tbody>
-              {pastDueCustomers.length > 0 ? pastDueCustomers.map((c, i) => (
+              {customers.length > 0 ? customers.map((c, i) => (
                 <tr key={i}>
                   <td className="py-2">{c.name}</td>
-                  <td>{c.due}</td>
-                  <td>{c.renewal}</td>
-                  <td className="text-right">{c.arr}</td>
+                  <td>{c.pastDueAt}</td>
+                  <td>{c.renewalAt}</td>
+                  <td className="text-right">{formatCurrency1(c.arr)}</td>
                 </tr>
               )) : <tr><td colSpan={4} className="text-center py-2">No past due customers</td></tr>}
             </tbody>
@@ -184,17 +172,17 @@ export default function CashFlowPage() {
           </div>
           <div className='h-[150px]'>
 
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data}>
-              <CartesianGrid stroke="#f0f2f5" vertical={false} />
-              {/* <XAxis dataKey="month" tickLine={false} axisLine={false} />
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={historicalData}>
+                <CartesianGrid stroke="#f0f2f5" vertical={false} />
+                {/* <XAxis dataKey="month" tickLine={false} axisLine={false} />
               <YAxis tickLine={false} axisLine={false} /> */}
-              <Tooltip />
-              <Bar dataKey="refunds" fill="#ef4444" radius={[4, 4, 0, 0]} barSize={25} />
-              {/* <Bar dataKey="previous" fill="url(#patternRed)" barSize={25} /> */}
-            </BarChart>
-          </ResponsiveContainer>
-              </div>
+                <Tooltip />
+                <Bar dataKey="refunds" fill="#ef4444" radius={[4, 4, 0, 0]} barSize={25} />
+                {/* <Bar dataKey="previous" fill="url(#patternRed)" barSize={25} /> */}
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
     </div>

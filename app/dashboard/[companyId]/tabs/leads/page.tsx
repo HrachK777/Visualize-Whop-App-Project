@@ -58,7 +58,7 @@ export default function LeadsTrialsPage() {
               <div className="flex gap-10 md:gap-20">
                 <div>
                   <p className="text-2xl font-bold text-gray-800">
-                    {data.length > 0 && data.map(item => item?.trials?.active).reduce((a, b) => a + b, 0)}
+                    {analytics?.trials.total}
                   </p>
                   <p className="text-xs text-gray-500">Last 30 days</p>
                 </div>
@@ -81,7 +81,7 @@ export default function LeadsTrialsPage() {
                   />
                   <Line
                     type="linear"
-                    dataKey="trials.total"
+                    dataKey="trials.active"
                     stroke="#0f2940"
                     strokeWidth={2}
                     dot={{ fill: '#0f2940', r: 3 }}
@@ -100,7 +100,7 @@ export default function LeadsTrialsPage() {
               <div className="flex gap-10 md:gap-20">
                 <div>
                   <p className="text-2xl font-bold text-gray-800">
-                    {data.length > 0 && data.map(item => item?.trials?.active).reduce((a, b) => a + b, 0)}
+                    {analytics?.trials.active}
                   </p>
                   <p className="text-xs text-gray-500">Last 30 days</p>
                 </div>
@@ -115,7 +115,7 @@ export default function LeadsTrialsPage() {
                   <CartesianGrid stroke="#f0f2f5" vertical={false} />
                   <Line
                     type="linear"
-                    dataKey="trials.total"
+                    dataKey="trials.active"
                     stroke="#0f2940"
                     strokeWidth={2}
                     dot={{ fill: '#0f2940', r: 3 }}
@@ -162,7 +162,7 @@ export default function LeadsTrialsPage() {
             <div className="flex gap-10 md:gap-20">
               <div>
                 <p className="text-2xl font-bold text-gray-800">
-                  {data.map(item => item.avgSalesPrice).reduce((a, b) => a + b, 0)}
+                  {analytics?.trials.converted}
                 </p>
                 <p className="text-xs text-gray-500">Last 30 days</p>
               </div>

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAllMemberships } from '@/lib/whop/helpers'
+import { getAllMemberships, getAllPayments } from '@/lib/whop/helpers'
 import { metricsRepository } from '@/lib/db/repositories/MetricsRepository'
 
 export async function GET(request: NextRequest) {
@@ -18,6 +18,8 @@ export async function GET(request: NextRequest) {
     // Try to use cached snapshot data if available
     if (!forceRefresh) {
       const cachedSnapshot = await metricsRepository.getLatestSnapshotWithRawData(companyId)
+      const payments = await getAllPayments(companyId);
+      console.log('for debug payments = ', payments);
 
       if (cachedSnapshot?.rawData?.memberships) {
         return NextResponse.json({

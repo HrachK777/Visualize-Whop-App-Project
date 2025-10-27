@@ -5,26 +5,37 @@ import { SortDescIcon } from 'lucide-react'
 import ARRLineChart from '@/components/charts/ARRLineChart'
 import NetMRRMovementsChart from '@/components/charts/NetMRRMovementsChart';
 import { useAnalytics } from '@/lib/contexts/AnalyticsContext'
+import { useMemberships } from '@/lib/contexts/MembershipsContext'
+import { CustomerType } from '@/lib/types/analytics';
+import { formatCurrency1 } from '@/lib/utils';
 
 export default function DashboardPage({ companyId }: { companyId: string }) {
   // Use shared analytics context - fetched ONCE in layout
-  const { data: analytics, loading, error, refetch } = useAnalytics()
-  const [topWins, setTopWins] = useState<{customer: string, planId: string, arr: number, billing: string, country: string}[]>([]);
-  
-  useEffect(() => {
-    const fetchTopWins = async () => {
-      const res = await fetch(`/api/subscription/top-wins?companyId=${process.env.NEXT_PUBLIC_WHOP_COMPANY_ID}`);
-      const topWins = await res.json();
-      // if(topWins.length > 0) {
-      //   topWins.map(win => {
-      //     win.billing = analytics?.plans.find(plan => plan.id === win.planId)?.billing_period || "monthly";
-      //   })
-      // }
-      setTopWins(topWins);
-    };
+  const { data } = useMemberships();
+      const { data: analytics, loading, error } = useAnalytics();
+      const [customers, setCustomers] = useState<CustomerType[]>([]);
 
-    fetchTopWins();
-  }, []);
+  useEffect(() => {
+        if (data && data.memberships) {
+            const statusFiltered = data.memberships.filter(m => m.status == 'active');
+            let count = 0;
+            const filtered: any[] = statusFiltered.map(m => {
+                const highestMRR = filtered.reduce((max, current) =>
+                    current.mrr > max.mrr ? current : max, filtered[0]
+                );
+                const planMatches = data.plans.filter(p => p.id == m?.plan?.id && p.rawRenewalPrice == highestMRR);
+                return planMatches.map(p => ({
+                    id: count++,
+                    name: m.member?.name ? m.member?.name : '—',
+                    arr: p.rawRenewalPrice * 12,
+                    billing: p.billingPeriod == 30 ? 'Monthly' : 'Annual',
+                    country: 'United States',
+                }));
+            }).flat(); // Use flat() to flatten the array of arrays
+            console.log('for debug filtered = ', filtered);
+            setCustomers(filtered)
+        }
+    }, [data])
 
   const mrrBreakdown = [
     { label: 'New Business MRR', value: analytics?.newMRR.total, color: 'text-blue-600', count: analytics?.newMRR.customers },
@@ -73,7 +84,7 @@ export default function DashboardPage({ companyId }: { companyId: string }) {
               Top wins from this week
             </div>
             <button className="text-xs font-medium text-gray-600 border border-gray-200 px-2 py-1 rounded-md">
-              {topWins.length} CUSTOMERS
+              {customers.length} CUSTOMERS
             </button>
           </div>
 
@@ -90,10 +101,10 @@ export default function DashboardPage({ companyId }: { companyId: string }) {
               </tr>
             </thead>
             <tbody>
-              {topWins.length > 0 ? topWins.map((win: any, i: number) => (
+              {customers.length > 0 ? customers.map((win: any, i: number) => (
                 <tr key={i} className="text-gray-700">
                   <td className="py-2">{win.customer}</td>
-                  <td className="py-2">{win.arr}</td>
+                  <td className="py-2">{formatCurrency1(win.arr)}</td>
                   <td className="py-2">{win.billing}</td>
                   <td className="py-2">{win.country}</td>
                 </tr>

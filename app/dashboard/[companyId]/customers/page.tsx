@@ -18,6 +18,9 @@ export default function CustomersPage() {
     const { data } = useMemberships();
     const { data: analytics } = useAnalytics();
     const [customers, setCustomers] = useState<CustomerType[]>([]);
+    console.log('for debug analytics = ', analytics);
+    // console.log('for debug data.memberships = ', data.memberships);
+    // console.log('for debug data.plans = ', data.plans);
     
     useEffect(() => {
         if (data && data.memberships) {
@@ -30,7 +33,7 @@ export default function CustomersPage() {
                     name: m.member?.name ? m.member?.name : '—',
                     mrr: p.rawRenewalPrice,
                     arr: p.rawRenewalPrice * 12,
-                    plan: "—", // You might want to set this to p.name or something meaningful
+                    plan: p.accessPass?.title, // You might want to set this to p.name or something meaningful
                     billing: p.billingPeriod == 30 ? 'Monthly' : 'Annual',
                     payment: "—",
                     country: 'United States',
