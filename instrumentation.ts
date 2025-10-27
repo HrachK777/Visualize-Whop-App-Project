@@ -18,6 +18,6 @@ export async function register() {
     initializeCronJobs()
 
     // Run historical snapshot first, then daily snapshot
-    await initializeStartupTasks()
+    // await initializeStartupTasks()
   }
 }

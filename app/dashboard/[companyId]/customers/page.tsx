@@ -35,7 +35,7 @@ export default function CustomersPage() {
                     arr: p.rawRenewalPrice * 12,
                     plan: p.accessPass?.title, // You might want to set this to p.name or something meaningful
                     billing: p.billingPeriod == 30 ? 'Monthly' : 'Annual',
-                    payment: "—",
+                    payment: analytics?.payments.total,
                     country: 'United States',
                     since: m.createdAt,
                     status: m.status
