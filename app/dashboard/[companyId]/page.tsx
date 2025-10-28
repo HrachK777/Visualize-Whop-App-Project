@@ -37,7 +37,7 @@ export default function DashboardPage({ companyId }: { companyId: string }) {
     }
   }, [data])
 
-  const thisMonthMovements: any = analytics?.movements.monthly[analytics.movements.monthly.length - 1]
+  const thisMonthMovements: any = analytics?.movements && analytics?.movements.monthly[analytics.movements.monthly.length - 1]
 
   const mrrBreakdown = [
     { label: 'New Business MRR', value: thisMonthMovements && thisMonthMovements.newBusiness, color: 'text-blue-600', count: 0 },

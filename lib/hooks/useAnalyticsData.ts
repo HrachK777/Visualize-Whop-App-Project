@@ -15,10 +15,18 @@ export function useAnalyticsData(group: string, referenceItem?: string) {
         setLoading(true);
         setError(null);
 
-        const res = await fetch(
-          `/api/analytics/cached?company_id=${process.env.NEXT_PUBLIC_WHOP_COMPANY_ID}&period=${group}`,
-          { signal: abortController.signal }
-        );
+        let fetchUrl = `/api/analytics/cached?company_id=${process.env.NEXT_PUBLIC_WHOP_COMPANY_ID}&period=${group}`;
+
+        if(group == "month") {
+          fetchUrl = `/api/analytics/cached?company_id=${process.env.NEXT_PUBLIC_WHOP_COMPANY_ID}&period=${group}&range=12`;
+        }
+        else if(group == "day") {
+          fetchUrl = `/api/analytics/cached?company_id=${process.env.NEXT_PUBLIC_WHOP_COMPANY_ID}&period=${group}&range=30`;
+        }
+          const res = await fetch(
+            fetchUrl,
+            { signal: abortController.signal }
+          );
 
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);

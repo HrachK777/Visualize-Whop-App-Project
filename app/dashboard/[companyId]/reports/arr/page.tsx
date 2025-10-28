@@ -1,5 +1,5 @@
 'use client';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import MetricChart from '@/components/charts/MetricsChart';
 import MetricTable from '@/components/charts/MetricTable';
 import { BsFillQuestionCircleFill } from "react-icons/bs";
@@ -29,6 +29,19 @@ export default function ReportsMRRPage() {
   const columns = useDataColumns(filteredByDate);
   const pivotData = usePivotData(filteredByDate, mrrCategories);
   const filteredData = useFilteredPivotData(pivotData, selectedFilter, allFilterLabel);
+  const [aMonthAgo, setAMonthAgo] = useState(0);
+  const [twoMonthsAgo, setTwoMonthsAgo] = useState(0);
+  const [threeMonthsAgo, setThreeMonthsAgo] = useState(0);
+  const [currentValue, setCurrentValue] = useState(0);
+
+  useEffect(() => {
+    if (data && group == 'month') {
+      setAMonthAgo(data[data.length - 2]?.arr || 0);
+      setTwoMonthsAgo(data[data.length - 3]?.arr || 0);
+      setThreeMonthsAgo(data[data.length - 4]?.arr || 0);
+      setCurrentValue(data[data.length - 1]?.arr || 0);
+    }
+  }, [group, data])
 
   // Memoized callbacks
   const handleGroupChange = useCallback((newGroup: typeof group) => {
@@ -78,6 +91,10 @@ export default function ReportsMRRPage() {
             type={view}
             currentView={view}
             currentGroup={group}
+            aMonthAgo={aMonthAgo}
+            twoMonthsAgo={twoMonthsAgo}
+            threeMonthsAgo={threeMonthsAgo}
+            currentValue={currentValue}
           />
 
           <MetricTable

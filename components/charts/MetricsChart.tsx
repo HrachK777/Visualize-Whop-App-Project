@@ -6,10 +6,8 @@ import {
   ResponsiveContainer, Area,
   AreaChart
 } from 'recharts';
-import { useEffect, useState } from 'react';
 import { formatCurrency1, ticksNumber } from '@/lib/utils';
 import { useAnalytics } from '@/lib/contexts/AnalyticsContext';
-import clsx from 'clsx';
 
 export default function MetricChart({
   onGroupingChange,
@@ -21,6 +19,10 @@ export default function MetricChart({
   type = 'line',
   currentView,
   currentGroup,
+  aMonthAgo,
+  twoMonthsAgo,
+  threeMonthsAgo,
+  currentValue
 }: {
   onViewChange: (view: 'line' | 'bar') => void;
   onGroupingChange: (group: 'day' | 'week' | 'month' | 'quarter' | 'year') => void;
@@ -31,8 +33,17 @@ export default function MetricChart({
   type?: 'line' | 'bar';
   currentView: 'line' | 'bar';
   currentGroup: 'day' | 'week' | 'month' | 'quarter' | 'year';
+  aMonthAgo: number;
+  twoMonthsAgo: number;
+  threeMonthsAgo: number;
+  currentValue: number;
 }) {
   const { data: analytics } = useAnalytics();
+  const annualMRR = analytics?.mrr.breakdown.annual || 0;
+  const gross1 = aMonthAgo !== 0 ? (currentValue - aMonthAgo) / aMonthAgo * 100 : 0;
+  const gross2 = twoMonthsAgo !== 0 ? (currentValue - twoMonthsAgo) / twoMonthsAgo * 100 : 0;
+  const gross3 = threeMonthsAgo !== 0 ? (currentValue - threeMonthsAgo) / threeMonthsAgo * 100 : 0;
+  const gross4 = annualMRR !== 0 ? (currentValue - annualMRR) / annualMRR * 100 : 0;
   return (
     <div className="bg-white rounded-lg shadow-sm p-6">
 
@@ -130,33 +141,43 @@ export default function MetricChart({
       {/* MRR Summary Section */}
       <div className="flex justify-around border-t mt-6 pt-4 text-sm">
         <div>
-          <p className="text-2xl font-semibold text-gray-800">{formatCurrency1(data[data.length - 1]?.mrr || 0)}</p>
-          <p className="text-gray-500">Current MRR</p>
+          <p className="text-2xl font-semibold text-gray-800">{formatCurrency1(currentValue)}</p>
+          <p className="text-gray-500">Current Value</p>
         </div>
         <div>
           <p className="text-2xl font-semibold text-gray-800">
-            {formatCurrency1(analytics?.mrr.breakdown.monthly)}
+            {formatCurrency1(aMonthAgo)}
             <span className="text-[#1677ff] text-sm font-medium">
-              {/* +23.02% */}
+              {gross1 !== 0 ? `${gross1.toFixed(2)} %` : null}
             </span>
           </p>
           <p className="text-gray-500">30 days ago</p>
         </div>
         <div>
           <p className="text-2xl font-semibold text-gray-800">
-            {formatCurrency1(analytics?.mrr.breakdown.monthly)}
+            {formatCurrency1(twoMonthsAgo)}
             <span className="text-[#1677ff] text-sm font-medium">
-              {/* 0% */}
+              {gross2 !== 0 ? `${gross2.toFixed(2)} %` : null}
             </span>
           </p>
           <p className="text-gray-500">60 days ago</p>
         </div>
         <div>
-          <p className="text-2xl font-semibold text-gray-800">{formatCurrency1(analytics?.mrr.breakdown.quarterly)}</p>
+         <p className="text-2xl font-semibold text-gray-800">
+            {formatCurrency1(threeMonthsAgo)}
+            <span className="text-[#1677ff] text-sm font-medium">
+              {gross3 !== 0 ? `${gross3.toFixed(2)} %` : null}
+            </span>
+          </p>
           <p className="text-gray-500">180 days ago</p>
         </div>
         <div>
-          <p className="text-2xl font-semibold text-gray-800">{formatCurrency1(analytics?.mrr.breakdown.annual)}</p>
+          <p className="text-2xl font-semibold text-gray-800">
+            {formatCurrency1(annualMRR)}
+            <span className="text-[#1677ff] text-sm font-medium">
+              {gross4 !== 0 ? `${gross4.toFixed(2)} %` : null}
+            </span>
+          </p>
           <p className="text-gray-500">365 days ago</p>
         </div>
       </div>

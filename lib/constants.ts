@@ -68,9 +68,9 @@ export const leadsFilterOptions = [
 ];
 
 export const leadsCategories = [
-    { key: 'trialsData.active', label: 'Leads' },
-    { key: 'trialsData.active', label: 'Free Trials' },
-    { key: 'tiralsData.conversionRate', label: 'Trial→Paid Conversions' },
+    { key: 'activeCustomers', label: 'Leads' },
+    { key: 'trials', label: 'Free Trials' },
+    { key: 'upgrades', label: 'Trial→Paid Conversions' },
 ];
 
 export const leads = [
