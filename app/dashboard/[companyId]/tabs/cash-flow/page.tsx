@@ -73,28 +73,13 @@ export default function CashFlowPage({ params }: { params: Promise<{ companyId: 
     }
   }, [data]);
 
-  const thisMonthRefunds = historicalData[historicalData.length - 1].refunds || 0;
-  const prevMonthRefunds = historicalData[historicalData.length - 2].refunds || 0;
-  const thisMonthNetCashFlow = historicalData[historicalData.length - 1].cashFlow || 0;
-  const prevMonthNetCashFlow = historicalData[historicalData.length - 2].cashFlow || 0;
+  const thisMonthRefunds = historicalData &&  historicalData[historicalData.length - 1]?.refunds || 0;
+  const prevMonthRefunds = historicalData && historicalData[historicalData.length - 2]?.refunds || 0;
+  const thisMonthNetCashFlow = historicalData && historicalData[historicalData.length - 1]?.cashFlow || 0;
+  const prevMonthNetCashFlow = historicalData && historicalData[historicalData.length - 2]?.cashFlow || 0;
   const gross = (thisMonthNetCashFlow - prevMonthNetCashFlow) / prevMonthNetCashFlow * 100
   const refundsRate = (thisMonthRefunds - prevMonthRefunds) / prevMonthRefunds * 100
 
-
-  // useEffect(() => {
-  //   params.then((p) => {
-  //     fetch(`/api/analytics/cached?company_id=${p.companyId}`)
-  //       .then(res => res.json())
-  //       .then((currentData) => {
-  //         setAnalytics(currentData as AnalyticsData)
-  //         setHistoricalData(currentData.historical || []) // No historical data for now
-  //         setLoading(false)
-  //       })
-  //       .catch(() => {
-  //         setLoading(false)
-  //       })
-  //   })
-  // }, [params])
 
   if (loading) return <Loading />;
 

@@ -32,7 +32,7 @@ export default function CustomersPage() {
             if (!res.ok) return 'Fetching payments failed';
             const payments = await res.json();
             if (data && data.memberships) {
-                const statusFiltered = data.memberships.filter(m => m.status == 'active');
+                const statusFiltered = data.memberships.filter(m => m.status == 'canceled');
 
                 let count = 0;
                 if (statusFiltered.length == 0) return;
