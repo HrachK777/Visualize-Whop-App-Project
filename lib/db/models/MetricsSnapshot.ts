@@ -130,6 +130,13 @@ export interface MetricsSnapshot {
     total: number
   }
 
+  // LTV metrics (Lifetime Value prediction)
+  ltv?: {
+    value: number // Predicted lifetime value
+    arpu: number // ARPU used in calculation
+    churnRate: number // Churn rate used in calculation
+  }
+
   // Cash flow metrics
   cashFlow?: {
     gross: number
@@ -196,6 +203,7 @@ export interface MetricsSnapshot {
     memberships?: unknown[] // Full membership data from Whop API
     plans?: unknown[] // Full plan data from Whop API
     transactions?: unknown[] // Full transaction/payment data from Whop API
+    members?: unknown[] // Full members data from Whop API (for ARPU/CLV/LTV)
   }
 }
 
@@ -225,6 +233,7 @@ export interface DailyMetrics {
     conversionRate: number
   }
   clv?: number
+  ltv?: number
   cashFlow?: number
   successfulPayments?: number
   failedCharges?: number

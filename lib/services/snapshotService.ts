@@ -1,9 +1,9 @@
-import { getAllMemberships, getAllPayments, getAllPlans } from '@/lib/whop/helpers'
-import { calculateMRR, calculateARR, calculateARPU } from '@/lib/analytics/mrr'
+import { getAllMemberships, getAllPayments, getAllPlans, getAllMembers } from '@/lib/whop/helpers'
+import { calculateMRR, calculateARR } from '@/lib/analytics/mrr'
 import { calculateSubscriberMetrics, getActiveUniqueSubscribers } from '@/lib/analytics/subscribers'
 import { calculateTrialMetrics } from '@/lib/analytics/trials'
-import { calculateCustomerLifetimeValue } from '@/lib/analytics/lifetime'
 import { calculateCashFlow, calculatePaymentMetrics, calculateRefundMetrics } from '@/lib/analytics/transactions'
+import { calculateMemberBasedARPU, calculateMemberBasedCLV, calculateMemberBasedLTV } from '@/lib/analytics/members'
 import {
   calculateExpansionMRR,
   calculateContractionMRR,
@@ -25,6 +25,10 @@ export async function captureCompanySnapshot(companyId: string): Promise<void> {
 
     // 2. Fetch ALL plans using SDK helpers
     const allPlans = await getAllPlans(companyId)
+
+    // 2.5. Fetch ALL members using SDK helpers (for accurate ARPU/CLV/LTV)
+    const allMembers = await getAllMembers(companyId)
+    console.log(`[Snapshot] Fetched ${allMembers.length} members`)
 
     // 3. Update company record in database
     const { companyRepository } = await import('@/lib/db/repositories/CompanyRepository')
@@ -60,12 +64,15 @@ export async function captureCompanySnapshot(companyId: string): Promise<void> {
     const arr = calculateARR(mrrData.total)
     const subscriberMetrics = calculateSubscriberMetrics(enrichedMemberships)
     const activeUniqueSubscribers = getActiveUniqueSubscribers(enrichedMemberships)
-    const arpu = calculateARPU(mrrData.total, activeUniqueSubscribers)
     const trialMetrics = calculateTrialMetrics(enrichedMemberships)
-    const clvMetrics = calculateCustomerLifetimeValue(enrichedMemberships)
     const cashFlowMetrics = calculateCashFlow(payments)
     const paymentMetrics = calculatePaymentMetrics(payments)
     const refundMetrics = calculateRefundMetrics(payments)
+
+    // 6.5. Calculate member-based metrics (ARPU, CLV, LTV) using actual spend data
+    const arpu = calculateMemberBasedARPU(allMembers)
+    const clvMetrics = calculateMemberBasedCLV(allMembers)
+    console.log(`[Snapshot] Member-based metrics: ARPU=$${arpu.toFixed(2)}, CLV=$${clvMetrics.average.toFixed(2)}`)
 
     // 7. Fetch previous snapshot for MRR movement calculations
     const previousSnapshot = await metricsRepository.getPreviousSnapshot(companyId)
@@ -122,6 +129,11 @@ export async function captureCompanySnapshot(companyId: string): Promise<void> {
     const netRevenueTotal = grossRevenue - refundedAmount - processingFees
 
     const activeCustomersCount = activeUniqueSubscribers
+
+    // 11.5. Calculate customer churn rate for LTV calculation
+    const customerChurnRateValue = (subscriberMetrics.cancelled / subscriberMetrics.total) * 100
+    const ltv = calculateMemberBasedLTV(allMembers, customerChurnRateValue)
+    console.log(`[Snapshot] LTV=$${ltv.toFixed(2)} (ARPU=$${arpu.toFixed(2)} / Churn=${customerChurnRateValue.toFixed(2)}%)`)
 
     // 7. Store comprehensive snapshot in MongoDB with precise timestamp
     await metricsRepository.insertSnapshot(companyId, {
@@ -203,9 +215,14 @@ export async function captureCompanySnapshot(companyId: string): Promise<void> {
         conversionRate: trialMetrics.conversionRate,
       },
       clv: {
-        average: clvMetrics.averageCLV,
-        median: clvMetrics.medianCLV,
+        average: clvMetrics.average,
+        median: clvMetrics.median,
         total: clvMetrics.totalCustomers,
+      },
+      ltv: {
+        value: ltv,
+        arpu: arpu,
+        churnRate: customerChurnRateValue,
       },
       cashFlow: {
         gross: cashFlowMetrics.grossCashFlow,
@@ -268,6 +285,7 @@ export async function captureCompanySnapshot(companyId: string): Promise<void> {
         memberships: allMemberships,
         plans: allPlans,
         transactions: payments,
+        members: allMembers, // Store members for ARPU/CLV/LTV calculations
       }
     })
 
