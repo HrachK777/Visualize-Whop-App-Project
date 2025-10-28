@@ -9,7 +9,7 @@ import { useMemberships } from '@/lib/contexts/MembershipsContext';
 import { useAnalytics } from '@/lib/contexts/AnalyticsContext';
 import { ymd } from '@/lib/utils';
 import { CustomerType, Membership } from '@/lib/types/analytics';
-
+import Pagination from '@/components/charts/pagination';
 
 export default function CustomersPage() {
     const [searchQuery, setSearchQuery] = useState('');
@@ -19,25 +19,27 @@ export default function CustomersPage() {
     ]);
     const [showFilterBar, setShowFilterBar] = useState(true);
     const { data } = useMemberships();
-        const { data: analytics } = useAnalytics();
-        const [customers, setCustomers] = useState<CustomerType[]>([]);
-    
-        useEffect(() => {
-            if (data && data.memberships) {
-                const statusFiltered = data.memberships.filter(m => m.status == 'active');
-                let count = 0;
-                const filtered: CustomerType[] = statusFiltered.map(m => ({
-                    id: count++,
-                    name: m.member?.name ? m.member?.name : '—',
-                    owner: "—",
-                    country: 'United States',
-                    since: m.createdAt,
-                    trialStartedAt: m.createdAt,
-                    status: 'New Lead'
-                })).flat()
-                setCustomers(filtered)
-            }; // Use flat() to flatten the array of arrays
-        }, [data]);
+    const { data: analytics } = useAnalytics();
+    const [customers, setCustomers] = useState<CustomerType[]>([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(20);
+
+    useEffect(() => {
+        if (data && data.memberships) {
+            const statusFiltered = data.memberships.filter(m => m.status == 'active');
+            let count = 0;
+            const filtered: CustomerType[] = statusFiltered.map(m => ({
+                id: count++,
+                name: m.member?.name ? m.member?.name : '—',
+                owner: "—",
+                country: 'United States',
+                since: m.createdAt,
+                trialStartedAt: m.createdAt,
+                status: 'New Lead'
+            })).flat()
+            setCustomers(filtered)
+        }; // Use flat() to flatten the array of arrays
+    }, [data]);
 
     const addFilter = () => {
         setFilters([...filters, {
@@ -77,9 +79,9 @@ export default function CustomersPage() {
         const query = searchQuery.toLowerCase();
         return (
             (customer.name && customer?.name.toLowerCase().includes(query) ||
-            customer.owner && customer.owner.toString().includes(query) ||
-            // customer..toLowerCase().includes(query) ||
-            customer.status.toLowerCase().includes(query))
+                customer.owner && customer.owner.toString().includes(query) ||
+                // customer..toLowerCase().includes(query) ||
+                customer.status.toLowerCase().includes(query))
         );
     });
 
@@ -138,7 +140,7 @@ export default function CustomersPage() {
                                         </td>
                                         <td className="px-4 py-3 text-sm text-gray-900">{lead.name}</td>
                                         <td className="px-4 py-3 text-sm text-gray-400">
-                                             {lead.since && ymd(lead.since)}
+                                            {lead.since && ymd(lead.since)}
                                         </td>
                                         <td className="px-4 py-3 text-sm text-gray-400">{lead.trialStartedAt && ymd(lead.trialStartedAt)}</td>
                                         <td className="px-4 py-3 text-sm text-gray-400">{lead.country}</td>
@@ -162,6 +164,13 @@ export default function CustomersPage() {
                         </tbody>
                     </table>
                 </div>
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={filteredLeads.length}
+                    itemsPerPage={itemsPerPage}
+                    onPageChange={setCurrentPage}
+                    onItemsPerPageChange={setItemsPerPage}
+                />
             </div>
         </div>
     );

@@ -9,6 +9,7 @@ import { useMemberships } from '@/lib/contexts/MembershipsContext';
 import { ymd, formatCurrency1 } from '@/lib/utils';
 import { useAnalytics } from '@/lib/contexts/AnalyticsContext';
 import { CustomerType } from '@/lib/types/analytics';
+import Pagination from '@/components/charts/pagination';    
 
 export default function CustomersPage() {
     const [searchQuery, setSearchQuery] = useState('');
@@ -20,30 +21,57 @@ export default function CustomersPage() {
     const { data } = useMemberships();
     const { data: analytics } = useAnalytics();
     const [customers, setCustomers] = useState<CustomerType[]>([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(20);
 
     useEffect(() => {
-        if (data && data.memberships) {
-            const statusFiltered = data.memberships.filter(m => m.status == 'past_due');
-            let count = 0;
-            const filtered: any[] = statusFiltered.map(m => {
-                const planMatches = data.plans.filter(p => p.id == m?.plan?.id);
-                return planMatches.map(p => ({
-                    id: count++,
-                    name: m.member?.name ? m.member?.name : '—',
-                    mrr: p.rawRenewalPrice,
-                    arr: p.rawRenewalPrice * 12,
-                    plan: p.accessPass?.title, // You might want to set this to p.name or something meaningful
-                    billing: p.billingPeriod == 30 ? 'Monthly' : 'Annual',
-                    payment: "—",
-                    country: 'United States',
-                    since: m.createdAt,
-                    status: m.status,
-                    pastDueAt: m.createdAt,
-                    renewalAt: m.expiresAt,
-                }));
-            }).flat(); // Use flat() to flatten the array of arrays
-            setCustomers(filtered)
+        const fetchPayments = async () => {
+            const res = await fetch(`/api/transactions?company_id=${process.env.NEXT_PUBLIC_WHOP_COMPANY_ID}`);
+            if (!res.ok) return 'Fetching payments failed';
+            const payments = await res.json();
+            if (data && data.memberships) {
+                const statusFiltered = data.memberships.filter(m => m.status == 'past_due');;
+                let count = 0;
+                if(statusFiltered.length == 0) return;
+
+                const filtered: any[] = statusFiltered.map(m => {
+                    const planMatches = data.plans.filter(p => p.id == m?.plan?.id);
+
+                    // Take only the first matching plan (or handle as needed)
+                    const plan = planMatches[0];
+                    if (!plan) return null;
+
+                    // Find the most recent payment or sum payments as needed
+                    const paymentMatches = payments.data.filter((pay: { plan: { id: string; } }) =>
+                        pay.plan.id == plan.id
+                    );
+
+                    // Calculate total payments for this plan or take the latest
+                    const totalPayment = paymentMatches.reduce((sum: number, t: { total: number }) =>
+                        sum + t.total, 0
+                    );
+
+                    // Or take the latest payment only:
+                    // const latestPayment = paymentMatches[paymentMatches.length - 1]?.total || 0;
+
+                    return {
+                        id: count++,
+                        name: m.member?.name ? m.member?.name : '—',
+                        mrr: plan.rawRenewalPrice,
+                        arr: plan.rawRenewalPrice * 12,
+                        plan: plan.accessPass?.title,
+                        billing: plan.billingPeriod == 30 ? 'Monthly' : 'Annual',
+                        payment: totalPayment, // Sum of all payments for this plan
+                        country: 'United States',
+                        since: m.createdAt,
+                        status: m.status
+                    };
+                }).filter(Boolean); // Remove null entries
+
+                setCustomers(filtered);
+            }
         }
+        fetchPayments();
     }, [data])
 
     const addFilter = () => {
@@ -80,15 +108,22 @@ export default function CustomersPage() {
     };
 
     // Filter customers based on search query
-    const filteredLeads = customers.filter(customer => {
+    // Filter customers based on search query
+    const filteredCustomers = customers.filter(customer => {
         const query = searchQuery.toLowerCase();
         return (
-            customer.name.toLowerCase().includes(query) ||
-            customer.plan.toLowerCase().includes(query) ||
-            customer.country.toLowerCase().includes(query) ||
+            customer.name && customer.name.toLowerCase().includes(query) ||
+            customer.plan && customer.plan.toLowerCase().includes(query) ||
+            customer.country && customer.country.toLowerCase().includes(query) ||
             customer.status.toLowerCase().includes(query)
         );
     });
+
+    // Calculate current items to display
+    const currentItems = filteredCustomers.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
 
     return (
         <div className="bg-blue-50 px-10 py-4 space-y-4">
@@ -118,7 +153,7 @@ export default function CustomersPage() {
                                 <th className="w-12 px-4 py-3">
                                     <input
                                         type="checkbox"
-                                        checked={filteredLeads.length > 0 && selectedRows.length === filteredLeads.length}
+                                        checked={filteredCustomers.length > 0 && selectedRows.length === filteredCustomers.length}
                                         onChange={toggleSelectAll}
                                         className="rounded border-gray-300"
                                     />
@@ -136,8 +171,8 @@ export default function CustomersPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                            {filteredLeads.length > 0 ? (
-                                filteredLeads.map((lead) => (
+                            {currentItems.length > 0 ? (
+                                currentItems.map((lead) => (
                                     <tr key={lead.id} className="hover:bg-gray-50">
                                         <td className="px-4 py-3">
                                             <input
@@ -175,6 +210,13 @@ export default function CustomersPage() {
                         </tbody>
                     </table>
                 </div>
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={filteredCustomers.length}
+                    itemsPerPage={itemsPerPage}
+                    onPageChange={setCurrentPage}
+                    onItemsPerPageChange={setItemsPerPage}
+                />
             </div>
         </div>
     );

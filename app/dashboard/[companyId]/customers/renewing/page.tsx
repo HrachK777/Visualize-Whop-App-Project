@@ -10,6 +10,7 @@ import { useMemberships } from '@/lib/contexts/MembershipsContext';
 import { ymd, formatCurrency1 } from '@/lib/utils';
 import { useAnalytics } from '@/lib/contexts/AnalyticsContext';
 import { CustomerType } from '@/lib/types/analytics';
+import Pagination from '@/components/charts/pagination';
 
 const datas = constants.customers;
 
@@ -23,30 +24,59 @@ export default function CustomersPage() {
     const { data } = useMemberships();
     const { data: analytics } = useAnalytics();
     const [customers, setCustomers] = useState<CustomerType[]>([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(20);
 
     useEffect(() => {
-        if (data && data.memberships) {
-            const statusFiltered = data.memberships.filter(m => m.status == 'active' || m.status == 'trialing');
-            let count = 0;
-            const filtered: any[] = statusFiltered.map(m => {
-                const planMatches = data.plans.filter(p => p.id == m?.plan?.id);
-                return planMatches.map(p => ({
-                    id: count++,
-                    name: m.member?.name ? m.member?.name : '—',
-                    mrr: p.rawRenewalPrice,
-                    arr: p.rawRenewalPrice * 12,
-                    plan: p.accessPass?.title, // You might want to set this to p.name or something meaningful
-                    billing: p.billingPeriod == 30 ? 'Monthly' : 'Annual',
-                    payment: "—",
-                    country: 'United States',
-                    since: m.createdAt,
-                    status: m.status == 'active' ? 'Active' : 'New Lead',
-                    pastDueAt: m.createdAt,
-                    renewalAt: m.expiresAt,
-                }));
-            }).flat(); // Use flat() to flatten the array of arrays
-            setCustomers(filtered)
+        const fetchPayments = async () => {
+            const res = await fetch(`/api/transactions?company_id=${process.env.NEXT_PUBLIC_WHOP_COMPANY_ID}`);
+            if (!res.ok) return 'Fetching payments failed';
+            const payments = await res.json();
+            if (data && data.memberships) {
+                const statusFiltered = data.memberships.filter(m => m.status == 'active' || m.status == 'trialing');
+                let count = 0;
+                if (statusFiltered.length == 0) return;
+
+                const filtered: any[] = statusFiltered.map(m => {
+                    const planMatches = data.plans.filter(p => p.id == m?.plan?.id);
+
+                    // Take only the first matching plan (or handle as needed)
+                    const plan = planMatches[0];
+                    if (!plan) return null;
+
+                    // Find the most recent payment or sum payments as needed
+                    const paymentMatches = payments.data.filter((pay: { plan: { id: string; } }) =>
+                        pay.plan.id == plan.id
+                    );
+
+                    // Calculate total payments for this plan or take the latest
+                    const totalPayment = paymentMatches.reduce((sum: number, t: { total: number }) =>
+                        sum + t.total, 0
+                    );
+
+                    // Or take the latest payment only:
+                    // const latestPayment = paymentMatches[paymentMatches.length - 1]?.total || 0;
+
+                    return {
+                        id: count++,
+                        name: m.member?.name ? m.member?.name : '—',
+                        mrr: plan.rawRenewalPrice,
+                        arr: plan.rawRenewalPrice * 12,
+                        plan: plan.accessPass?.title, // You might want to set this to p.name or something meaningful
+                        billing: plan.billingPeriod == 30 ? 'Monthly' : 'Annual',
+                        payment: totalPayment,
+                        country: 'United States',
+                        since: m.createdAt,
+                        status: m.status == 'active' ? 'Active' : 'New Lead',
+                        pastDueAt: 0,
+                        renewalAt: m.expiresAt,
+                    };
+                }).filter(Boolean); // Remove null entries
+
+                setCustomers(filtered);
+            }
         }
+        fetchPayments();
     }, [data])
 
     const addFilter = () => {
@@ -86,13 +116,17 @@ export default function CustomersPage() {
     const filteredLeads = customers.filter(customer => {
         const query = searchQuery.toLowerCase();
         return (
-            customer.name.toLowerCase().includes(query) ||
-            customer.arr.toLowerCase().includes(query) ||
-            customer.mrr.toLowerCase().includes(query) ||
-            customer.country.toLowerCase().includes(query) ||
+            customer.name && customer.name.toLowerCase().includes(query) ||
+            customer.plan && customer.plan.toLowerCase().includes(query) ||
+            customer.country && customer.country.toLowerCase().includes(query) ||
             customer.status.toLowerCase().includes(query)
         );
     });
+
+    const currentItems = filteredLeads.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
 
     return (
         <div className="bg-blue-50 px-10 py-4 space-y-4">
@@ -140,8 +174,8 @@ export default function CustomersPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                            {filteredLeads.length > 0 ? (
-                                filteredLeads.map((lead) => (
+                            {currentItems.length > 0 ? (
+                                currentItems.map((lead) => (
                                     <tr key={lead.id} className="hover:bg-gray-50">
                                         <td className="px-4 py-3">
                                             <input
@@ -152,12 +186,21 @@ export default function CustomersPage() {
                                             />
                                         </td>
                                         <td className="px-4 py-3 text-sm text-gray-900">{lead.name}</td>
-                                        <td className="px-4 py-3 text-sm text-gray-400">{lead.pastDueAt && ymd(lead.pastDueAt)}</td>
-                                        <td className="px-4 py-3 text-sm text-gray-400">{formatCurrency1(lead.arr)}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">
+                                            {/* {lead.pastDueAt  && ymd(lead.pastDueAt)} */}
+                                            {'—'}
+                                        </td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">
+                                            {formatCurrency1(lead.arr)}
+                                            </td>
                                         <td className="px-4 py-3 text-sm text-gray-400">{lead.plan}</td>
                                         <td className="px-4 py-3 text-sm text-gray-400">{lead.billing}</td>
-                                        <td className="px-4 py-3 text-sm text-gray-400">{formatCurrency1(lead.mrr)}</td>
-                                        <td className="px-4 py-3 text-sm text-gray-400">{formatCurrency1(lead.payment)}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">
+                                            {formatCurrency1(lead.mrr)}
+                                            </td>
+                                        <td className="px-4 py-3 text-sm text-gray-400">
+                                            {formatCurrency1(lead.payment)}
+                                            </td>
                                         <td className="px-4 py-3 text-sm text-gray-400">{lead.since && ymd(lead.since)}</td>
                                         <td className="px-4 py-3">
                                             <div className="flex flex-col">
@@ -179,6 +222,13 @@ export default function CustomersPage() {
                         </tbody>
                     </table>
                 </div>
+                {currentItems && <Pagination
+                    currentPage={currentPage}
+                    totalItems={filteredLeads.length}
+                    itemsPerPage={itemsPerPage}
+                    onPageChange={setCurrentPage}
+                    onItemsPerPageChange={setItemsPerPage}
+                />}
             </div>
         </div>
     );

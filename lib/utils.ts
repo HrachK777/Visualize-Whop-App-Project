@@ -31,7 +31,7 @@ export const ticksNumber = (data: any, datakey: any) => {
 // ✅ Format numbers to "$148k" style
 export function formatCurrency1(value: any) {
   if (value >= 1000) return `$${(value / 1000).toFixed(0)}k`;
-  return `$${value.toFixed(2)}`;
+  return value &&  `$${value.toFixed(2)}`;
 }
 
 // Memoized date formatter
