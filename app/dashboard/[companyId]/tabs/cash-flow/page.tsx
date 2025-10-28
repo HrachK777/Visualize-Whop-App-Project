@@ -7,22 +7,55 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { useAnalytics } from '@/lib/contexts/AnalyticsContext';
 import { useState } from 'react';
 import Loading from '@/components/ui/loading';
 import ErrorComponent from '@/components/ui/error';
-import {useEffect} from 'react';
+import { useEffect } from 'react';
 import { useMemberships } from '@/lib/contexts/MembershipsContext';
 import { ymd, formatCurrency1 } from '@/lib/utils';
 import { CustomerType } from '@/lib/types/analytics';
+import { HistoricalDataPoint } from '@/lib/hooks/useChartData'
+import { useAnalytics } from '@/lib/contexts/AnalyticsContext'
 
-export default function CashFlowPage() {
-  const { data: analytics, loading, error } = useAnalytics();
+interface AnalyticsData {
+  mrr: {
+    total: number
+    breakdown: {
+      monthly: number
+      annual: number
+      quarterly: number
+      other: number
+    }
+  }
+  arr: number
+  arpu: number
+  subscribers: {
+    active: number
+    cancelled: number
+    past_due: number
+    trialing: number
+    total: number
+  }
+  activeUniqueSubscribers: number
+  plans: Array<{ id: string; name: string }>
+  timestamp: string,
+  movements: {
+    monthly: Array<{}>
+  }
+}
+
+export default function CashFlowPage({ params }: { params: Promise<{ companyId: string }> }) {
   const [pastDueCustomers, setPastDueCustomers] = useState<{ name: string, due: string, renewal: string, arr: string }[]>([]);
-  const historicalData = analytics?.historical;
   const { data } = useMemberships();
-      const [customers, setCustomers] = useState<CustomerType[]>([]);
+  const [customers, setCustomers] = useState<CustomerType[]>([]);
+  // const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
+  const [historicalData, setHistoricalData] = useState<HistoricalDataPoint[]>([])
+  // const [loading, setLoading] = useState(true)
+  const { data: analytics, loading, error } = useAnalytics();
+
   useEffect(() => {
+    if(analytics) setHistoricalData(analytics.historical);
+
     if (data && data.memberships) {
       const statusFiltered = data.memberships.filter(m => m.status == 'past_due');
       let count = 0;
@@ -36,14 +69,34 @@ export default function CashFlowPage() {
           renewalAt: m.expiresAt,
         }));
       }).flat(); // Use flat() to flatten the array of arrays
-      console.log('for debug filtered = ', filtered);
       setCustomers(filtered)
     }
-  }, [data])
+  }, [data]);
+
+  const thisMonthRefunds = historicalData[historicalData.length - 1].refunds || 0;
+  const prevMonthRefunds = historicalData[historicalData.length - 2].refunds || 0;
+  const thisMonthNetCashFlow = historicalData[historicalData.length - 1].cashFlow || 0;
+  const prevMonthNetCashFlow = historicalData[historicalData.length - 2].cashFlow || 0;
+  const gross = (thisMonthNetCashFlow - prevMonthNetCashFlow) / prevMonthNetCashFlow * 100
+  const refundsRate = (thisMonthRefunds - prevMonthRefunds) / prevMonthRefunds * 100
+
+
+  // useEffect(() => {
+  //   params.then((p) => {
+  //     fetch(`/api/analytics/cached?company_id=${p.companyId}`)
+  //       .then(res => res.json())
+  //       .then((currentData) => {
+  //         setAnalytics(currentData as AnalyticsData)
+  //         setHistoricalData(currentData.historical || []) // No historical data for now
+  //         setLoading(false)
+  //       })
+  //       .catch(() => {
+  //         setLoading(false)
+  //       })
+  //   })
+  // }, [params])
 
   if (loading) return <Loading />;
-
-  if (error) return <ErrorComponent error={error} />;
 
   return (
     <div className="flex flex-wrap gap-6 bg-[#f7f9fc] px-6 pb-5">
@@ -55,11 +108,15 @@ export default function CashFlowPage() {
             <h2 className="font-semibold text-gray-800">Net Cash Flow</h2>
             <div className="flex gap-10 md:gap-20">
               <div>
-                <p className="text-2xl font-bold text-gray-800">${analytics?.cashFlow.net}</p>
+                <p className="text-2xl font-bold text-gray-800">
+                  ${thisMonthNetCashFlow.toFixed(2)}
+                </p>
                 <p className="text-xs text-gray-500">Last 30 days</p>
               </div>
               <p className="text-xs text-gray-400">
-                <strong className='text-xl text-blue-600 font-bold'>{analytics?.cashFlow.gross}%</strong><br />
+                <strong className='text-xl text-blue-600 font-bold'>
+                  {gross.toFixed(2)}%
+                </strong><br />
                 Prev 30 days</p>
             </div>
           </div>
@@ -162,11 +219,15 @@ export default function CashFlowPage() {
             <h2 className="font-semibold text-gray-800">Refunds</h2>
             <div className="flex gap-10 md:gap-20">
               <div>
-                <p className="text-xl font-bold text-gray-800">${analytics?.refunds.total}</p>
+                <p className="text-xl font-bold text-gray-800">
+                  ${thisMonthRefunds.toFixed(2)}
+                </p>
                 <p className="text-xs text-gray-500">Last 30 days</p>
               </div>
               <p className="text-xs text-gray-400">
-                <strong className='text-xl text-blue-600 font-bold'>{analytics?.refunds.rate}%</strong><br />
+                <strong className='text-xl text-blue-600 font-bold'>
+                  {refundsRate.toFixed(2)}%
+                </strong><br />
                 Prev 30 days</p>
             </div>
           </div>

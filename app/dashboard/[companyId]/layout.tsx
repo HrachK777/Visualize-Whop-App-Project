@@ -45,37 +45,77 @@ export default function DashboardLayout({
     !pathname?.includes('/settings');
 
   useEffect(() => {
-    async function checkSubscription() {
+    async function initializeDashboard() {
       try {
+        // Trigger backfill for this company
+        // The backfill service will check database to see if historical data already exists
+        console.log('[Dashboard] Checking if historical backfill is needed...');
+        fetch(`/api/backfill?company_id=${companyId}`, {
+          method: 'POST',
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              console.log('[Dashboard] ✓ Historical data ready');
+            } else if (data.skipped) {
+              console.log('[Dashboard] Historical data already exists, skipped backfill');
+            } else {
+              console.error('[Dashboard] Backfill failed:', data.error);
+            }
+          })
+          .catch((error) => {
+            console.error('[Dashboard] Backfill error:', error);
+          });
+
+        /* TODO: Uncomment when Whop SDK is updated with webhook methods
+
+        // Register webhook for this company (if not already registered)
+        fetch('/api/webhooks/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ companyId }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              console.log('[Dashboard] Webhook registration:', data.alreadyRegistered ? 'Already exists' : 'Created + Backfill started');
+            } else {
+              console.error('[Dashboard] Webhook registration failed:', data.error);
+            }
+          })
+          .catch((error) => {
+            console.error('[Dashboard] Webhook registration error:', error);
+          });
+
+        */
+
+        /* TODO: Uncomment when ready for subscription gating
+
         // Get userId from Whop's window context (provided by Whop SDK)
-        const whopContext = (
-          window as typeof window & { __WHOP__?: { userId?: string } }
-        ).__WHOP__;
-        const whopUserId = whopContext?.userId || companyId;
-        setUserId(whopUserId);
+        const whopContext = (window as typeof window & { __WHOP__?: { userId?: string } }).__WHOP__
+        const whopUserId = whopContext?.userId || companyId
+        setUserId(whopUserId)
 
         // Check subscription status by companyId
-        const subscriptionResponse = await fetch(
-          `/api/subscription/check?companyId=${companyId}`
-        );
+        const subscriptionResponse = await fetch(`/api/subscription/check?companyId=${companyId}`)
         if (subscriptionResponse.ok) {
-          const subscriptionData = (await subscriptionResponse.json()) as {
-            hasAccess: boolean;
-          };
+          const subscriptionData = await subscriptionResponse.json() as { hasAccess: boolean }
 
           // Show modal if user doesn't have access
           if (!subscriptionData.hasAccess) {
-            setShowSubscriptionModal(true);
+            setShowSubscriptionModal(true)
           }
         }
-      } catch (err) {
+
+        */
+      } catch {
         // Error checking subscription
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     }
 
-    checkSubscription();
+    initializeDashboard()
   }, [companyId]);
 
   if (loading) {
@@ -94,18 +134,19 @@ export default function DashboardLayout({
       <MembershipsProvider companyId={companyId}>
       <div className="flex min-h-screen bg-gray-50">
         {/* Subscription Modal - shows when user doesn't have access */}
-        {showSubscriptionModal && userId && (
+        {/* {showSubscriptionModal && userId && (
           <SubscriptionModal userId={userId} companyId={companyId} />
-        )}
+        )} */}
 
         {/* Main Dashboard - blurred if no subscription */}
-        <div
+        {/* <div
           className={
             showSubscriptionModal
               ? "filter blur-sm pointer-events-none w-full flex"
               : "w-full flex"
           }
-        >
+        > */}
+        <div className="w-full flex">
           {/* <Sidebar companyId={companyId} /> */}
           <MainSidebar active={active} setActive={setActive} companyId={companyId} />
           <SubSidebar active={active} companyId={companyId} />

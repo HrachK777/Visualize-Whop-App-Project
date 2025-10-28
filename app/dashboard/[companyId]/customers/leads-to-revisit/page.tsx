@@ -37,7 +37,6 @@ export default function CustomersPage() {
                 since: m.canceledAt,
                 status: 'Cancelled'
             })).flat()
-            console.log('for debug filtered = ', filtered);
             setCustomers(filtered)
         }; // Use flat() to flatten the array of arrays
     }, [data]);

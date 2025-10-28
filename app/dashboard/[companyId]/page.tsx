@@ -12,40 +12,42 @@ import { formatCurrency1 } from '@/lib/utils';
 export default function DashboardPage({ companyId }: { companyId: string }) {
   // Use shared analytics context - fetched ONCE in layout
   const { data } = useMemberships();
-      const { data: analytics, loading, error } = useAnalytics();
-      const [customers, setCustomers] = useState<CustomerType[]>([]);
+  const { data: analytics, loading, error } = useAnalytics();
+  const [customers, setCustomers] = useState<CustomerType[]>([]);
 
   useEffect(() => {
-        if (data && data.memberships) {
-            const statusFiltered = data.memberships.filter(m => m.status == 'active');
-            let count = 0;
-            const filtered: any[] = statusFiltered.map(m => {
-                const highestMRR = filtered.reduce((max, current) =>
-                    current.mrr > max.mrr ? current : max, filtered[0]
-                );
-                const planMatches = data.plans.filter(p => p.id == m?.plan?.id && p.rawRenewalPrice == highestMRR);
-                return planMatches.map(p => ({
-                    id: count++,
-                    name: m.member?.name ? m.member?.name : '—',
-                    arr: p.rawRenewalPrice * 12,
-                    billing: p.billingPeriod == 30 ? 'Monthly' : 'Annual',
-                    country: 'United States',
-                }));
-            }).flat(); // Use flat() to flatten the array of arrays
-            console.log('for debug filtered = ', filtered);
-            setCustomers(filtered)
-        }
-    }, [data])
+    if (data && data.memberships) {
+      const statusFiltered = data.memberships.filter(m => m.status == 'active');
+      const renewalFilteredPlan = data.plans.filter(p => p.planType == 'renewal');
+      let count = 0;
+      const filtered: any[] = statusFiltered.map(m => {
+        const highestMRR: any = renewalFilteredPlan.reduce((max, current) =>
+          current.rawRenewalPrice > max.rawRenewalPrice ? current : max, renewalFilteredPlan[0]
+        );
+        const planMatches = renewalFilteredPlan.filter(p => p.id == m?.plan?.id && p.rawRenewalPrice == highestMRR);
+        return planMatches.map(p => ({
+          id: count++,
+          name: m.member?.name ? m.member?.name : '—',
+          arr: p.billingPeriod== 30 ? p.rawRenewalPrice * 12 : p.rawRenewalPrice,
+          billing: p.billingPeriod == 30 ? 'Monthly' : 'Annual',
+          country: 'United States',
+        }));
+      }).flat(); // Use flat() to flatten the array of arrays
+      setCustomers(filtered)
+    }
+  }, [data])
+
+  const thisMonthMovements: any = analytics?.movements.monthly[analytics.movements.monthly.length - 1]
 
   const mrrBreakdown = [
-    { label: 'New Business MRR', value: analytics?.newMRR.total, color: 'text-blue-600', count: analytics?.newMRR.customers },
-    { label: 'Expansion MRR', value: analytics?.expansionMRR.total, color: 'text-blue-500', count: analytics?.expansionMRR.customers },
-    { label: 'Contraction MRR', value: analytics?.contractionMRR.total, color: 'text-red-500', count: analytics?.contractionMRR.customers },
-    { label: 'Churn MRR', value: analytics?.churnedMRR.total, color: 'text-red-600', count: analytics?.churnedMRR.customers },
-    { label: 'Reactivation MRR', value: analytics?.reactivations.total, color: 'text-gray-500', count: analytics?.reactivations.total },
+    { label: 'New Business MRR', value: thisMonthMovements && thisMonthMovements.newBusiness, color: 'text-blue-600', count: 0 },
+    { label: 'Expansion MRR', value: thisMonthMovements && thisMonthMovements.expansion, color: 'text-blue-500', count: 0 },
+    { label: 'Contraction MRR', value: thisMonthMovements && thisMonthMovements.contraction, color: 'text-red-500', count: 0 },
+    { label: 'Churn MRR', value: thisMonthMovements && thisMonthMovements.churn, color: 'text-red-600', count: 0 },
+    { label: 'Reactivation MRR', value: thisMonthMovements && thisMonthMovements.expansion, color: 'text-gray-500', count: 0 },
   ];
 
-  const net_mrr_movement = (analytics?.newMRR?.total ?? 0) + (analytics?.expansionMRR?.total ?? 0) - (analytics?.contractionMRR?.total ?? 0) - (analytics?.churnedMRR?.total ?? 0) + (analytics?.reactivations?.total ?? 0);
+  const net_mrr_movement = thisMonthMovements && thisMonthMovements.net;
 
   if (loading) {
     return (
@@ -135,7 +137,7 @@ export default function DashboardPage({ companyId }: { companyId: string }) {
                   <span className={item.color}>{item.count}</span>
                   <span className='text-gray-700'>{item.label}</span>
                 </div>
-                <span className="font-medium text-gray-700">${item.value}</span>
+                <span className="font-medium text-gray-700">${(item.value).toFixed(2)}</span>
               </div>
             ))}
             <hr className="my-2 border-gray-200" />
@@ -160,7 +162,7 @@ export default function DashboardPage({ companyId }: { companyId: string }) {
         <NetMRRMovementsChart NetMRRData={analytics.movements.monthly} />
 
         {/* Bottom Right - Annual Run Rate */}
-        <ARRLineChart ARRData={analytics.historical} growth={analytics.newMRR.growth} />
+        <ARRLineChart ARRData={analytics.historical} growth={0} />
       </div>
     </div>
   )

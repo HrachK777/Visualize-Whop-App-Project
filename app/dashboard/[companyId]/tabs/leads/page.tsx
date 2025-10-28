@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Settings } from 'lucide-react';
 import {
   LineChart,
@@ -12,6 +13,7 @@ import {
 } from 'recharts';
 import { useAnalytics } from '@/lib/contexts/AnalyticsContext';
 import { ticksNumber, formatCurrency } from '@/lib/utils';
+import { HistoricalDataPoint } from '@/lib/hooks/useChartData'
 
 // Mock data for charts
 const mockData = [
@@ -23,16 +25,60 @@ const mockData = [
   { day: 'Oct 25', value: 0 },
 ];
 
-export default function LeadsTrialsPage() {
-  const { data: analytics, loading, error, refetch } = useAnalytics();
-  const data = analytics?.historical || mockData;
+interface AnalyticsData {
+  mrr: {
+    total: number
+    breakdown: {
+      monthly: number
+      annual: number
+      quarterly: number
+      other: number
+    }
+  }
+  arr: number
+  arpu: number
+  subscribers: {
+    active: number
+    cancelled: number
+    past_due: number
+    trialing: number
+    total: number
+  }
+  activeUniqueSubscribers: number
+  plans: Array<{ id: string; name: string }>
+  timestamp: string,
+  movements: {
+    monthly: Array<{}>
+  }
+}
+
+export default function LeadsTrialsPage({ params }: { params: Promise<{ companyId: string }> }) {
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
+  const [historicalData, setHistoricalData] = useState<HistoricalDataPoint[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    params.then((p) => {
+      fetch(`/api/analytics/cached?company_id=${p.companyId}&period=day&range=30`)
+        .then(res => res.json())
+        .then((currentData) => {
+          setAnalytics(currentData as AnalyticsData)
+          setHistoricalData(currentData.historical || []) // No historical data for now
+          setLoading(false)
+        })
+        .catch(() => {
+          setLoading(false)
+        })
+    })
+  }, [params])
+
   const CustomizedLabel = ({ x, y, value, index }: any) => {
-    if (index % 3 === 0 || index == data.length - 1) {
+    if (index % 3 === 0 || index == historicalData.length - 1) {
       return (
         <text
           x={x - 5}
           y={y}
-          dy={-10}
+          dy={-5}
           // fill={COLORS.line}
           fontSize={13}
           fontWeight="bold"
@@ -58,7 +104,7 @@ export default function LeadsTrialsPage() {
               <div className="flex gap-10 md:gap-20">
                 <div>
                   <p className="text-2xl font-bold text-gray-800">
-                    {analytics?.trials.total}
+                    {analytics?.activeUniqueSubscribers}
                   </p>
                   <p className="text-xs text-gray-500">Last 30 days</p>
                 </div>
@@ -69,7 +115,7 @@ export default function LeadsTrialsPage() {
             </div>
             <div className="h-[130px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data}>
+                <LineChart data={historicalData}>
                   <CartesianGrid stroke="#f0f2f5" vertical={false} />
                   <Tooltip
                     contentStyle={{
@@ -81,13 +127,13 @@ export default function LeadsTrialsPage() {
                   />
                   <Line
                     type="linear"
-                    dataKey="trials.active"
+                    dataKey="activeCustomers"
                     stroke="#0f2940"
                     strokeWidth={2}
                     dot={{ fill: '#0f2940', r: 3 }}
                     activeDot={{ r: 5 }}
                     label={CustomizedLabel}
-                    name="trials"
+                    name="leads"
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -100,7 +146,7 @@ export default function LeadsTrialsPage() {
               <div className="flex gap-10 md:gap-20">
                 <div>
                   <p className="text-2xl font-bold text-gray-800">
-                    {analytics?.trials.active}
+                    {analytics?.subscribers.trialing}
                   </p>
                   <p className="text-xs text-gray-500">Last 30 days</p>
                 </div>
@@ -111,11 +157,11 @@ export default function LeadsTrialsPage() {
             </div>
             <div className="h-[130px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data} >
+                <LineChart data={historicalData} >
                   <CartesianGrid stroke="#f0f2f5" vertical={false} />
                   <Line
                     type="linear"
-                    dataKey="trials.active"
+                    dataKey="trials"
                     stroke="#0f2940"
                     strokeWidth={2}
                     dot={{ fill: '#0f2940', r: 3 }}
@@ -138,11 +184,11 @@ export default function LeadsTrialsPage() {
             </h2>
             <div className="h-[300px] pb-5">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data}>
+                <LineChart data={historicalData}>
                   <CartesianGrid stroke="#f0f2f5" vertical={false} />
                   <Line
                     type="linear"
-                    dataKey="trials.conversionRate"
+                    dataKey="trials"
                     stroke="#6d28d9"
                     strokeWidth={2}
                     dot={{ fill: '#6d28d9', r: 3 }}
@@ -162,7 +208,7 @@ export default function LeadsTrialsPage() {
             <div className="flex gap-10 md:gap-20">
               <div>
                 <p className="text-2xl font-bold text-gray-800">
-                  {analytics?.trials.converted}
+                  {0}
                 </p>
                 <p className="text-xs text-gray-500">Last 30 days</p>
               </div>

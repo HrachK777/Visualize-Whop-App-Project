@@ -1,22 +1,68 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Settings } from 'lucide-react';
 import {
   LineChart, Line, AreaChart,
-  Tooltip, ResponsiveContainer, CartesianGrid, Area,LabelProps
+  Tooltip, ResponsiveContainer, CartesianGrid, Area, LabelProps
 } from 'recharts';
 import { useAnalytics } from '@/lib/contexts/AnalyticsContext';
 import Loading from '@/components/ui/loading';
 import ErrorComponent from '@/components/ui/error';
+import { HistoricalDataPoint } from '@/lib/hooks/useChartData'
 
-export default function ChurnRetention() {
-  const { data: analytics, loading, error } = useAnalytics();
+
+interface AnalyticsData {
+  mrr: {
+    total: number
+    breakdown: {
+      monthly: number
+      annual: number
+      quarterly: number
+      other: number
+    }
+  }
+  arr: number
+  arpu: number
+  subscribers: {
+    active: number
+    cancelled: number
+    past_due: number
+    trialing: number
+    total: number
+  }
+  activeUniqueSubscribers: number
+  plans: Array<{ id: string; name: string }>
+  timestamp: string,
+  movements: {
+    monthly: Array<{}>
+  }
+}
+
+export default function ChurnRetention({ params }: { params: Promise<{ companyId: string }> }) {
   const currentMonth = new Date().toLocaleString('en-US', { month: 'long' });
   const prevMonth = new Date(new Date().setMonth(new Date().getMonth() - 1)).toLocaleString('en-US', { month: 'long' });
-  const data = analytics?.historical || [];
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
+  const [historicalData, setHistoricalData] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    params.then((p) => {
+      fetch(`/api/analytics/cached?company_id=${p.companyId}&period=day&range=30`)
+        .then(res => res.json())
+        .then((currentData) => {
+          setAnalytics(currentData as AnalyticsData)
+          setHistoricalData(currentData.historical || []) // No historical data for now
+          setLoading(false)
+        })
+        .catch(() => {
+          setLoading(false)
+        })
+    })
+  }, [params])
 
   const CustomizedLabel = ({ x, y, value, index }: any) => {
-    if (index % 3 === 0 || index == data.length - 1) {
+    if (index % 3 === 0 || index == historicalData.length - 1) {
       return (
         <text
           x={x - 5}
@@ -26,7 +72,7 @@ export default function ChurnRetention() {
           fontSize={13}
           fontWeight="bold"
         >
-          {`${value}%`}
+          {`${value && value.toFixed(2)}%`}
         </text>
       );
     }
@@ -34,8 +80,6 @@ export default function ChurnRetention() {
   };
 
   if (loading) return <Loading />;
-
-  if (error) return <ErrorComponent error={error} />;
 
   return (
     <div className="flex flex-wrap gap-6 bg-[#f7f9fc] px-6">
@@ -47,7 +91,9 @@ export default function ChurnRetention() {
             <h2 className="font-semibold text-gray-800 mb-2">Net MRR Churn Rate</h2>
             <div className="flex gap-10 md:gap-20">
               <div>
-                <p className="text-2xl font-bold text-gray-800">{analytics?.churnedMRR.rate}%</p>
+                <p className="text-2xl font-bold text-gray-800">
+                  {historicalData && historicalData.reduce((sum, item) => sum + item.churnedMRR, 0) || 0}%
+                </p>
                 <p className="text-xs text-gray-500">{currentMonth}</p>
               </div>
               <p className="text-xs text-gray-400">
@@ -57,7 +103,7 @@ export default function ChurnRetention() {
           </div>
           <div className='h-[150px]'>
             <ResponsiveContainer width="100%" height="90%">
-              <AreaChart data={data} margin={{ top: 10, right: 30, left: 10, bottom: 10 }}>
+              <AreaChart data={historicalData} margin={{ top: 10, right: 30, left: 10, bottom: 10 }}>
                 <defs>
                   <linearGradient id="blueFill" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#1677ff" stopOpacity={0.1} />
@@ -100,12 +146,12 @@ export default function ChurnRetention() {
           </h2>
           <div className='h-[170px]'>
             <ResponsiveContainer width="100%" height="100%" className="pr-2">
-              <LineChart data={data}>
+              <LineChart data={historicalData}>
                 <CartesianGrid stroke="#f0f2f5" vertical={false} />
                 <Tooltip />
                 <Line
                   type="linear"
-                  dataKey="churnedMRR"
+                  dataKey="revenueChurnRate"
                   stroke="#f97316"
                   strokeWidth={2}
                   dot={{ fill: '#f97316', r: 3 }}
@@ -153,7 +199,9 @@ export default function ChurnRetention() {
             </h2>
             <div className="flex gap-10 md:gap-20">
               <div>
-                <p className="text-2xl font-bold text-gray-800">{analytics?.churnedMRR.rate}%</p>
+                <p className="text-2xl font-bold text-gray-800">
+                  {/* {analytics?.churnedMRR.rate}% */}
+                </p>
                 <p className="text-xs text-gray-500">{currentMonth}</p>
               </div>
               <p className="text-xs text-gray-400">
@@ -163,7 +211,7 @@ export default function ChurnRetention() {
           </div>
           <div className='h-[150px]'>
             <ResponsiveContainer width="100%" height="90%">
-              <AreaChart data={data} margin={{ top: 10, right: 30, left: 10, bottom: 10 }}>
+              <AreaChart data={historicalData} margin={{ top: 10, right: 30, left: 10, bottom: 10 }}>
                 <defs>
                   <linearGradient id="pinkFill" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#f0a9b5" stopOpacity={0.4} />
@@ -174,17 +222,17 @@ export default function ChurnRetention() {
                 {/* <XAxis dataKey="month" tickLine={false} axisLine={false} interval="preserveStartEnd" /> */}
                 <Tooltip />
                 <Area type="linear" dataKey="actual" stroke="none" fill="url(#pinkFill)" />
-                <Area type="linear" dataKey="projected" stroke="none" fill="url(#pinkFill)" />
+                {/* <Area type="linear" dataKey="projected" stroke="none" fill="url(#pinkFill)" /> */}
                 <Line
                   type="linear"
-                  dataKey="churnedMRR"
+                  dataKey="customerChurnRate"
                   stroke="#0f2940"
                   strokeWidth={2}
                   dot={{ fill: '#0f2940', r: 3 }}
                   connectNulls={false}
                   label={CustomizedLabel}
                 />
-                <Line
+                {/* <Line
                   type="linear"
                   dataKey="projected"
                   stroke="#0f2940"
@@ -193,7 +241,7 @@ export default function ChurnRetention() {
                   dot={{ fill: '#0f2940', r: 3 }}
                   connectNulls={false}
                 // label={(props) => <CustomizedLabel {...props} dataLength={subscriberData.length} />}
-                />
+                /> */}
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -204,12 +252,12 @@ export default function ChurnRetention() {
           <h2 className="font-semibold text-gray-800 mb-2">👥 Subscriber cohorts</h2>
           <div className='h-[170px]'>
             <ResponsiveContainer width="100%" height="100%" className="pr-2">
-              <LineChart data={data}>
+              <LineChart data={historicalData}>
                 <CartesianGrid stroke="#f0f2f5" vertical={false} />
                 <Tooltip />
                 <Line
                   type="linear"
-                  dataKey="churnedMRR"
+                  dataKey="revenueChurnRate"
                   stroke="#a78bfa"
                   strokeWidth={2}
                   dot={{ r: 3, fill: '#a78bfa' }}

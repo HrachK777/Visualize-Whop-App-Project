@@ -18,9 +18,6 @@ export default function CustomersPage() {
     const { data } = useMemberships();
     const { data: analytics } = useAnalytics();
     const [customers, setCustomers] = useState<CustomerType[]>([]);
-    console.log('for debug analytics = ', analytics);
-    // console.log('for debug data.memberships = ', data.memberships);
-    // console.log('for debug data.plans = ', data.plans);
     
     useEffect(() => {
         if (data && data.memberships) {
@@ -41,7 +38,6 @@ export default function CustomersPage() {
                     status: m.status
                 }));
             }).flat(); // Use flat() to flatten the array of arrays
-            console.log('for debug filtered = ', filtered);
             setCustomers(filtered)
         }
     }, [data])
@@ -62,9 +58,9 @@ export default function CustomersPage() {
     const filteredCustomers = customers.filter(customer => {
         const query = searchQuery.toLowerCase();
         return (
-            customer.name.toLowerCase().includes(query) ||
-            customer.plan.toLowerCase().includes(query) ||
-            customer.country.toLowerCase().includes(query) ||
+            customer.name && customer.name.toLowerCase().includes(query) ||
+            customer.plan && customer.plan.toLowerCase().includes(query) ||
+            customer.country && customer.country.toLowerCase().includes(query) ||
             customer.status.toLowerCase().includes(query)
         );
     });
@@ -161,7 +157,7 @@ export default function CustomersPage() {
                                         <td className="px-4 py-3 text-sm text-gray-700">{customer.billing}</td>
                                         <td className="px-4 py-3 text-sm text-gray-700">{formatCurrency1(customer.payment)}</td>
                                         <td className="px-4 py-3 text-sm text-gray-700">{customer.country}</td>
-                                        <td className="px-4 py-3 text-sm text-gray-700">{ymd(customer.since)}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-700">{customer.since && ymd(customer.since)}</td>
                                         <td className="px-4 py-3">
                                             <div className="flex flex-col">
                                                 <span className="text-sm text-blue-600">{customer.status}</span>

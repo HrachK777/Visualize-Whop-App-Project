@@ -21,26 +21,13 @@ export async function GET(request: NextRequest) {
       const cachedCompany = await companyRepository.findByWhopCompanyId(companyId)
 
       if (cachedCompany) {
-        // Extract logo and bannerImage from rawData if available (rawData has the full Whop API response)
-        let logo: unknown = cachedCompany.logo
-        let bannerImage: unknown = undefined
-
-        if (cachedCompany.rawData && typeof cachedCompany.rawData === 'object') {
-          const rawData = cachedCompany.rawData as { logo?: unknown; bannerImage?: unknown }
-          // Prefer rawData values as they contain the full Whop API response
-          if ('logo' in rawData) {
-            logo = rawData.logo
-          }
-          if ('bannerImage' in rawData) {
-            bannerImage = rawData.bannerImage
-          }
-        }
-
+        // Use the stored logo string (already extracted from rawData.logo.url when saved)
+        // cachedCompany.logo is the URL string, rawData.logo is the object { url: "..." }
         return NextResponse.json({
           id: cachedCompany.companyId,
           title: cachedCompany.title,
-          logo,
-          bannerImage,
+          logo: cachedCompany.logo, // This is already the URL string
+          bannerImage: cachedCompany.bannerImage,
           cached: true,
         })
       }
@@ -65,8 +52,8 @@ export async function GET(request: NextRequest) {
         id: company.id,
         title: company.title,
         route: company.route || companyId,
-        logo: undefined, // SDK doesn't provide logo
-        bannerImage: undefined, // SDK doesn't provide bannerImage
+        logo: company.logo?.url || undefined,
+        bannerImage: undefined, // SDK doesn't provide bannerImage yet
         industryType: company.industry_type || undefined,
         businessType: company.business_type || undefined,
         rawData: company, // Store full Whop company object
@@ -78,8 +65,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       id: company.id,
       title: company.title,
-      logo: undefined, // SDK doesn't provide logo
-      bannerImage: undefined, // SDK doesn't provide bannerImage
+      logo: company.logo?.url || undefined,
+      bannerImage: undefined, // SDK doesn't provide bannerImage yet
       cached: false,
     })
   } catch {

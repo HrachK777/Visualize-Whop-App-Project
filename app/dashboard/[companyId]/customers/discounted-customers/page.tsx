@@ -43,7 +43,6 @@ export default function CustomersPage() {
                     renewalAt: m.expiresAt,
                 }));
             }).flat(); // Use flat() to flatten the array of arrays
-            console.log('for debug filtered = ', filtered);
             setCustomers(filtered)
         }
     }, [data])

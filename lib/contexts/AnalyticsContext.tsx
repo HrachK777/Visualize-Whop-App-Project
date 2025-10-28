@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { HistoricalDataPoint } from '@/lib/hooks/useChartData'
 
 interface AnalyticsData {
   mrr: {
@@ -52,34 +53,10 @@ interface AnalyticsData {
   }
   plans: Array<{ id: string; name: string }>
   timestamp: string,
-  historical: Array<{}>,
-  newMRR: {
-    customers: number,
-    growth: number,
-    total: number
-  },
-  expansionMRR: {
-    customers: number,
-    rate: number,
-    total: number
-  },
-  contractionMRR: {
-    customers: number,
-    rate: number,
-    total: number
-  },
-  churnedMRR: {
-    customers: number,
-    rate: number,
-    total: number
-  },
-  reactivations: {
-    revenue: number,
-    total: number
-  },
   movements: {
     monthly: Array<{}>
   }
+  historical: HistoricalDataPoint[]
 }
 
 interface AnalyticsContextType {

@@ -1,7 +1,36 @@
+export interface Lead {
+  id: number;
+  customer: string;
+  leadCreated: string;
+  trialStarted: string;
+  country: string;
+  owner: string;
+  status: string;
+  note?: string;
+};
+
+export interface CustomerType {
+    id: number,
+    name?: string,
+    mrr?: string,
+    arr?: string,
+    plan?: string,
+    billing?: string,
+    payment?: string,
+    country?: string,
+    since?: number,
+    status: string,
+    pastDueAt?: number,
+    renewalAt?: number,
+    trialStartedAt?: number,
+    note?: string,
+    owner?: string,
+}
+
 export interface Plan {
   id: string
-  rawRenewalPrice: number  // Price in cents (e.g., 2900 = $29.00)
-  rawInitialPrice: number  // Price in cents (e.g., 2900 = $29.00)
+  rawRenewalPrice: number  // Price in dollars from Whop SDK v0.0.2 (e.g., 29.00 = $29.00)
+  rawInitialPrice: number  // Price in dollars from Whop SDK v0.0.2 (e.g., 29.00 = $29.00)
   billingPeriod: number | null // days, or null for one_time
   planType: 'renewal' | 'one_time'
   baseCurrency: string
@@ -83,33 +112,4 @@ export interface AnalyticsPeriod {
   mrr: number
   subscribers: SubscriberMetrics
   movements: MRRMovement[]
-}
-
-export interface Lead {
-  id: number;
-  customer: string;
-  leadCreated: string;
-  trialStarted: string;
-  country: string;
-  owner: string;
-  status: string;
-  note?: string;
-};
-
-export interface CustomerType {
-    id: number,
-    name?: string,
-    mrr?: string,
-    arr?: string,
-    plan?: string,
-    billing?: string,
-    payment?: string,
-    country?: string,
-    since?: number,
-    status: string,
-    pastDueAt?: number,
-    renewalAt?: number,
-    trialStartedAt?: number,
-    note?: string,
-    owner?: string,
 }

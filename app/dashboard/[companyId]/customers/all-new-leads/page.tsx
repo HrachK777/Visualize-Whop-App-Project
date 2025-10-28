@@ -35,7 +35,6 @@ export default function CustomersPage() {
                     trialStartedAt: m.createdAt,
                     status: 'New Lead'
                 })).flat()
-                console.log('for debug filtered = ', filtered);
                 setCustomers(filtered)
             }; // Use flat() to flatten the array of arrays
         }, [data]);
