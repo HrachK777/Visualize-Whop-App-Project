@@ -21,10 +21,10 @@ export default function DashboardPage({ companyId }: { companyId: string }) {
       const renewalFilteredPlan = data.plans.filter(p => p.planType == 'renewal');
       let count = 0;
       const filtered: any[] = statusFiltered.map(m => {
-        const highestMRR: any = renewalFilteredPlan.reduce((max, current) =>
-          current.rawRenewalPrice > max.rawRenewalPrice ? current : max, renewalFilteredPlan[0]
-        );
-        const planMatches = renewalFilteredPlan.filter(p => p.id == m?.plan?.id && p.rawRenewalPrice == highestMRR);
+        // const highestMRR: any = renewalFilteredPlan.reduce((max, current) =>
+        //   current.rawRenewalPrice > max.rawRenewalPrice ? current : max, renewalFilteredPlan[0]
+        // );
+        const planMatches = renewalFilteredPlan.filter(p => p.id == m?.plan?.id);
         return planMatches.map(p => ({
           id: count++,
           name: m.member?.name ? m.member?.name : '—',

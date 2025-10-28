@@ -30,18 +30,18 @@ export default function ReportsChurnPage() {
   const pivotData = usePivotData(filteredByDate, categories);
   const filteredData = useFilteredPivotData(pivotData, selectedFilter, allFilterLabel);
   const [aMonthAgo, setAMonthAgo] = useState(0);
-    const [twoMonthsAgo, setTwoMonthsAgo] = useState(0);
-    const [threeMonthsAgo, setThreeMonthsAgo] = useState(0);
-    const [currentValue, setCurrentValue] = useState(0);
-  
-    useEffect(() => {
-      if (data && group == 'month') {
-        setAMonthAgo(data[data.length - 2]?.customerChurnRate || 0);
-        setTwoMonthsAgo(data[data.length - 3]?.customerChurnRate || 0);
-        setThreeMonthsAgo(data[data.length - 4]?.customerChurnRate || 0);
-        setCurrentValue(data[data.length - 1]?.customerChurnRate || 0);
-      }
-    }, [group, data])
+  const [twoMonthsAgo, setTwoMonthsAgo] = useState(0);
+  const [threeMonthsAgo, setThreeMonthsAgo] = useState(0);
+  const [currentValue, setCurrentValue] = useState(0);
+
+  useEffect(() => {
+    if (data && group == 'month') {
+      setAMonthAgo(data[data.length - 2]?.customerChurnRate || 0);
+      setTwoMonthsAgo(data[data.length - 3]?.customerChurnRate || 0);
+      setThreeMonthsAgo(data[data.length - 4]?.customerChurnRate || 0);
+      setCurrentValue(data[data.length - 1]?.customerChurnRate || 0);
+    }
+  }, [group])
 
   // Memoized callbacks
   const handleGroupChange = useCallback((newGroup: typeof group) => {

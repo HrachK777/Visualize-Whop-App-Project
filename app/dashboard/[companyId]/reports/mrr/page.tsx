@@ -32,6 +32,8 @@ export default function ReportsMRRPage() {
   const [twoMonthsAgo, setTwoMonthsAgo] = useState(0);
   const [threeMonthsAgo, setThreeMonthsAgo] = useState(0);
   const [currentValue, setCurrentValue] = useState(0);
+
+  console.log('for debug data = ', data);
   
   useEffect(() => {
     if(data && group == 'month') {
@@ -40,7 +42,7 @@ export default function ReportsMRRPage() {
       setThreeMonthsAgo(data[data.length - 4]?.mrr || 0);
       setCurrentValue(data[data.length - 1]?.mrr || 0);
     }
-  }, [group, data])
+  }, [group])
 
   // Memoized callbacks
   const handleGroupChange = useCallback((newGroup: typeof group) => {

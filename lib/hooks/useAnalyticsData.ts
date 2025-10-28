@@ -15,24 +15,29 @@ export function useAnalyticsData(group: string, referenceItem?: string) {
         setLoading(true);
         setError(null);
 
-        let fetchUrl = `/api/analytics/cached?company_id=${process.env.NEXT_PUBLIC_WHOP_COMPANY_ID}&period=${group}`;
+        let fetchUrl;
 
-        if(group == "month") {
+        if (group == "month") {
           fetchUrl = `/api/analytics/cached?company_id=${process.env.NEXT_PUBLIC_WHOP_COMPANY_ID}&period=${group}&range=12`;
         }
-        else if(group == "day") {
+        else if (group == "day") {
           fetchUrl = `/api/analytics/cached?company_id=${process.env.NEXT_PUBLIC_WHOP_COMPANY_ID}&period=${group}&range=30`;
+        } else {
+          fetchUrl = `/api/analytics/cached?company_id=${process.env.NEXT_PUBLIC_WHOP_COMPANY_ID}&period=${group}`;
         }
-          const res = await fetch(
-            fetchUrl,
-            { signal: abortController.signal }
-          );
+
+        console.log('for debug fetchUrl = ', fetchUrl);
+        const res = await fetch(
+          `/api/analytics/cached?company_id=${process.env.NEXT_PUBLIC_WHOP_COMPANY_ID}&period=${group}&range=12`,
+          { signal: abortController.signal }
+        );
 
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
         }
 
         const result = await res.json();
+        console.log('for debug result.historical = ', result.historical);
 
         if (!isMounted) return;
 
@@ -73,7 +78,7 @@ export function useAnalyticsData(group: string, referenceItem?: string) {
                 date: formatDate(item.date),
               }));
               setData(formatted);
-            } 
+            }
             else {
               setData(result.historical);
             }
