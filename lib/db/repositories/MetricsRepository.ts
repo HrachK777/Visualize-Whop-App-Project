@@ -134,9 +134,9 @@ export class MetricsRepository {
         $sort: { date: 1 }
       }
     ])
-    .maxTimeMS(30000)
-    .batchSize(1000)    
-    .toArray()
+      .maxTimeMS(30000)
+      .batchSize(1000)
+      .toArray()
 
     return result
   }

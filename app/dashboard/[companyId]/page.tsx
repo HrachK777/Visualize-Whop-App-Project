@@ -105,7 +105,7 @@ export default function DashboardPage({ companyId }: { companyId: string }) {
             <tbody>
               {customers.length > 0 ? customers.map((win: any, i: number) => (
                 <tr key={i} className="text-gray-700">
-                  <td className="py-2">{win.customer}</td>
+                  <td className="py-2">{win.name}</td>
                   <td className="py-2">{formatCurrency1(win.arr)}</td>
                   <td className="py-2">{win.billing}</td>
                   <td className="py-2">{win.country}</td>
@@ -137,7 +137,7 @@ export default function DashboardPage({ companyId }: { companyId: string }) {
                   <span className={item.color}>{item.count}</span>
                   <span className='text-gray-700'>{item.label}</span>
                 </div>
-                <span className="font-medium text-gray-700">${(item.value).toFixed(2)}</span>
+                <span className="font-medium text-gray-700">${(item.value)?.toFixed(2)}</span>
               </div>
             ))}
             <hr className="my-2 border-gray-200" />
@@ -145,12 +145,12 @@ export default function DashboardPage({ companyId }: { companyId: string }) {
               <div className='gap-10'>
                 <span>Net MRR Movement</span>
               </div>
-              <span>${net_mrr_movement}</span>
+              <span>${net_mrr_movement.toFixed(2)}</span>
             </div>
             <hr className="border-gray-200" />
             <div className="flex justify-between text-gray-600 px-4">
               <div className='flex gap-10'>
-                <span>3</span>
+                <span>0</span>
                 <span>Scheduled MRR Movements</span>
               </div>
               <span>$0</span>
