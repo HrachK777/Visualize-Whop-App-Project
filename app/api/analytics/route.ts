@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAllMemberships, getAllPayments, getAllPlans } from '@/lib/whop/helpers'
+import { getAllMemberships, getAllPayments, getAllPlans, getAllMembers } from '@/lib/whop/helpers'
 import { whopClient } from '@/lib/whop/sdk'
-import { calculateMRR, calculateARR, calculateARPU } from '@/lib/analytics/mrr'
+import { calculateMRR, calculateARR } from '@/lib/analytics/mrr'
 import { calculateSubscriberMetrics, getActiveUniqueSubscribers } from '@/lib/analytics/subscribers'
 import { calculateTrialMetrics } from '@/lib/analytics/trials'
-import { calculateCustomerLifetimeValue } from '@/lib/analytics/lifetime'
 import { calculateCashFlow, calculatePaymentMetrics, calculateRefundMetrics } from '@/lib/analytics/transactions'
+import { calculateMemberBasedARPU, calculateMemberBasedCLV, calculateMemberBasedLTV } from '@/lib/analytics/members'
 import { Membership, Plan } from '@/lib/types/analytics'
 import { metricsRepository } from '@/lib/db/repositories/MetricsRepository'
 
@@ -38,6 +38,7 @@ export async function GET(request: NextRequest) {
     const allMemberships = await getAllMemberships(companyId)
     const allPlans = await getAllPlans(companyId)
     const payments = await getAllPayments(companyId)
+    const allMembers = await getAllMembers(companyId)
 
     // Enrich memberships with plan data
     const planMap = new Map<string, Plan>()
@@ -55,12 +56,16 @@ export async function GET(request: NextRequest) {
     const arr = calculateARR(mrrData.total)
     const subscriberMetrics = calculateSubscriberMetrics(enrichedMemberships)
     const activeUniqueSubscribers = getActiveUniqueSubscribers(enrichedMemberships)
-    const arpu = calculateARPU(mrrData.total, activeUniqueSubscribers)
     const trialMetrics = calculateTrialMetrics(enrichedMemberships)
-    const clvMetrics = calculateCustomerLifetimeValue(enrichedMemberships)
     const cashFlowMetrics = calculateCashFlow(payments)
     const paymentMetrics = calculatePaymentMetrics(payments)
     const refundMetrics = calculateRefundMetrics(payments)
+
+    // Calculate member-based metrics (ARPU, CLV, LTV) using actual spend data
+    const arpu = calculateMemberBasedARPU(allMembers)
+    const clvMetrics = calculateMemberBasedCLV(allMembers)
+    const customerChurnRate = (subscriberMetrics.cancelled / subscriberMetrics.total) * 100
+    const ltv = calculateMemberBasedLTV(allMembers, customerChurnRate)
 
     // Extract unique plans
     const uniquePlans = allPlans
@@ -92,9 +97,14 @@ export async function GET(request: NextRequest) {
         conversionRate: trialMetrics.conversionRate,
       },
       clv: {
-        average: clvMetrics.averageCLV,
-        median: clvMetrics.medianCLV,
+        average: clvMetrics.average,
+        median: clvMetrics.median,
         total: clvMetrics.totalCustomers,
+      },
+      ltv: {
+        value: ltv,
+        arpu: arpu,
+        churnRate: customerChurnRate,
       },
       cashFlow: {
         gross: cashFlowMetrics.grossCashFlow,
@@ -144,6 +154,7 @@ export async function GET(request: NextRequest) {
           memberships: allMemberships,
           plans: allPlans,
           transactions: payments,
+          members: allMembers,
         }
       })
       console.log('[MongoDB] Stored analytics data for all chart pages to reference')
